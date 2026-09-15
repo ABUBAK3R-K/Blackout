@@ -11,32 +11,32 @@ This document is the team's implementation contract.
 The project is divided into 8 independently owned feature areas.
 
   ----------------------------------------------------------------------------
-  Member                  Branch                       Ownership
-  ----------------------- ---------------------------- -----------------------
-  Member 1                `feature/game-engine`        Core game engine
+  Member                             Branch                       Ownership
+  ---------------------------------- ---------------------------- -----------------------
+  Mayiz (Member 1)                   `feature/game-engine`        Core game engine
 
-  Member 2                `feature/realtime-backend`   Multiplayer +
-                                                       WebSockets
+  Abdul Qadir (Member 2)             `feature/realtime-backend`   Multiplayer +
+                                                                  WebSockets
 
-  Member 3                `feature/frontend-game`      UI + game client
+  Aaliya (Member 3)                  `feature/frontend-game`      UI + game client
 
-  Member 4                `feature/tasks-incidents`    Tasks + incidents +
-                                                       voting
+  Ubaid (Member 4)                   `feature/tasks-incidents`    Tasks + incidents +
+                                                                  voting
 
-  Member 5                `feature/nlp`                Chat NLP + behavioral
-                                                       text features
+  Shahzan (Member 5)                 `feature/nlp`                Chat NLP + behavioral
+                                                                  text features
 
-  Member 6                `feature/ml-suspicion`       ML suspicion engine
+  Abubaker (Member 6)                `feature/ml-suspicion`       ML suspicion engine
 
-  Member 7                `feature/ai-gamemaster`      AI Game Master
+  Fatima (Member 7)                  `feature/ai-gamemaster`      AI Game Master
 
-  Member 8                `feature/analytics-replay`   Analytics + replay +
-                                                       dashboards
+  Sahil (Member 8)                   `feature/analytics-replay`   Analytics + replay +
+                                                                  dashboards
   ----------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
 
-# MEMBER 1 --- GAME ENGINE
+# MEMBER 1 (MAYIZ) --- GAME ENGINE
 
 ## Branch
 
@@ -126,7 +126,7 @@ correctly without UI dependency.
 
 ------------------------------------------------------------------------
 
-# MEMBER 2 --- REAL-TIME BACKEND
+# MEMBER 2 (ABDUL QADIR) --- REAL-TIME BACKEND
 
 ## Branch
 
@@ -179,7 +179,7 @@ without validation by the server/game engine.
 
 ------------------------------------------------------------------------
 
-# MEMBER 3 --- FRONTEND / GAME CLIENT
+# MEMBER 3 (AALIYA) --- FRONTEND / GAME CLIENT
 
 ## Branch
 
@@ -239,7 +239,7 @@ A player can complete a full match through the UI.
 
 ------------------------------------------------------------------------
 
-# MEMBER 4 --- TASKS, INCIDENTS & VOTING
+# MEMBER 4 (UBAID) --- TASKS, INCIDENTS & VOTING
 
 ## Branch
 
@@ -303,7 +303,7 @@ Gameplay produces enough structured events for analytics and ML.
 
 ------------------------------------------------------------------------
 
-# MEMBER 5 --- NLP & COMMUNICATION INTELLIGENCE
+# MEMBER 5 (SHAHZAN) --- NLP & COMMUNICATION INTELLIGENCE
 
 ## Branch
 
@@ -382,7 +382,7 @@ by the ML service.
 
 ------------------------------------------------------------------------
 
-# MEMBER 6 --- ML SUSPICION ENGINE
+# MEMBER 6 (ABUBAKER) --- ML SUSPICION ENGINE
 
 ## Branch
 
@@ -489,7 +489,7 @@ prediction.
 
 ------------------------------------------------------------------------
 
-# MEMBER 7 --- AI GAME MASTER
+# MEMBER 7 (FATIMA) --- AI GAME MASTER
 
 ## Branch
 
@@ -566,7 +566,7 @@ validator.
 
 ------------------------------------------------------------------------
 
-# MEMBER 8 --- ANALYTICS & REPLAY
+# MEMBER 8 (SAHIL) --- ANALYTICS & REPLAY
 
 ## Branch
 
@@ -723,7 +723,7 @@ Never expose hidden role to unauthorized clients.
 Everyone agrees on: - Repo structure - Coding standards - API
 contracts - Event schema - Database schema - Environment variables
 
-Members 1, 2 and 3 establish the base architecture.
+Mayiz (Member 1), Abdul Qadir (Member 2), and Aaliya (Member 3) establish the base architecture.
 
 ------------------------------------------------------------------------
 
