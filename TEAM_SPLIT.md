@@ -1,913 +1,200 @@
-# WHO'S THE IMPOSTOR?
-
-## 8-Member Team Split & Branch Ownership
-
-This document is the team's implementation contract.
-
-------------------------------------------------------------------------
-
-# Team Structure
-
-The project is divided into 8 independently owned feature areas.
-
-  ----------------------------------------------------------------------------
-  Member                             Branch                       Ownership
-  ---------------------------------- ---------------------------- -----------------------
-  Mayiz (Member 1)                   `feature/game-engine`        Core game engine
-
-  Abdul Qadir (Member 2)             `feature/realtime-backend`   Multiplayer +
-                                                                  WebSockets
-
-  Aaliya (Member 3)                  `feature/frontend-game`      UI + game client
-
-  Ubaid (Member 4)                   `feature/tasks-incidents`    Tasks + incidents +
-                                                                  voting
-
-  Shahzan (Member 5)                 `feature/nlp`                Chat NLP + behavioral
-                                                                  text features
-
-  Abubaker (Member 6)                `feature/ml-suspicion`       ML suspicion engine
-
-  Fatima (Member 7)                  `feature/ai-gamemaster`      AI Game Master
-
-  Sahil (Member 8)                   `feature/analytics-replay`   Analytics + replay +
-                                                                  dashboards
-  ----------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-# MEMBER 1 (MAYIZ) --- GAME ENGINE
-
-## Branch
-
-`feature/game-engine`
-
-## Mission
-
-Build the authoritative core game-state machine.
-
-## Responsibilities
-
--   Match lifecycle
--   Round lifecycle
--   Role assignment
--   Player states
--   Win conditions
--   Game timers
--   Game configuration
--   Server-side game state
--   State transitions
-
-## Core States
-
-``` text
-WAITING
-↓
-STARTING
-↓
-ROLE_ASSIGNMENT
-↓
-TASK_PHASE
-↓
-INCIDENT
-↓
-DISCUSSION
-↓
-VOTING
-↓
-ROUND_RESULT
-↓
-NEXT_ROUND / GAME_OVER
-```
-
-## Data Owned
-
-``` text
-GameState
-Match
-Round
-PlayerState
-Role
-GameConfig
-```
-
-## APIs / Interfaces
-
-Example:
-
-``` text
-createMatch()
-startMatch()
-startRound()
-endRound()
-eliminatePlayer()
-checkWinCondition()
-getGameState()
-```
-
-## Must Provide
-
--   Game-state interface
--   Role-assignment interface
--   Win-condition interface
--   Events consumed/emitted by other modules
-
-## Do NOT Own
-
--   Frontend
--   NLP
--   ML
--   AI-generated events
-
-## Done When
-
-A game can start, run through rounds, eliminate players, and end
-correctly without UI dependency.
-
-------------------------------------------------------------------------
-
-# MEMBER 2 (ABDUL QADIR) --- REAL-TIME BACKEND
-
-## Branch
-
-`feature/realtime-backend`
-
-## Mission
-
-Build multiplayer synchronization infrastructure.
-
-## Responsibilities
-
--   WebSocket server
--   Room management
--   Join/leave
--   Reconnection
--   State broadcasting
--   Server/client event protocol
--   Authentication for sockets
-
-## WebSocket Events
-
-``` text
-room:join
-room:leave
-player:move
-game:start
-task:update
-incident:created
-meeting:start
-vote:cast
-game:state
-game:error
-```
-
-## Important Rule
-
-The server is authoritative.
-
-Never trust:
-
-``` text
-client → "I completed task"
-```
-
-without validation by the server/game engine.
-
-## Done When
-
-8 players can connect to one room and receive synchronized game events.
-
-------------------------------------------------------------------------
-
-# MEMBER 3 (AALIYA) --- FRONTEND / GAME CLIENT
-
-## Branch
-
-`feature/frontend-game`
-
-## Mission
-
-Build the complete player-facing game interface.
-
-## Responsibilities
-
--   Landing page
--   Create/join room
--   Lobby
--   Game HUD
--   Map
--   Player representation
--   Task UI
--   Chat UI
--   Meeting UI
--   Voting UI
--   Results UI
-
-## Suggested Stack
-
-``` text
-React
-Tailwind
-Phaser or Three.js
-Socket.IO client
-```
-
-## Component Ownership
-
-``` text
-GameMap
-Player
-PlayerList
-TaskPanel
-ChatPanel
-MeetingPanel
-VotingPanel
-Timer
-EventFeed
-ResultScreen
-```
-
-## Important
-
-Do not implement game rules in the frontend.
-
-Frontend sends actions; backend validates them.
-
-## Done When
-
-A player can complete a full match through the UI.
-
-------------------------------------------------------------------------
-
-# MEMBER 4 (UBAID) --- TASKS, INCIDENTS & VOTING
-
-## Branch
-
-`feature/tasks-incidents`
-
-## Mission
-
-Build the actual game mechanics that create evidence for the AI.
-
-## Responsibilities
-
-### Tasks
-
--   Task assignment
--   Task validation
--   Task completion
--   Task timers
--   Task difficulty
--   Task events
-
-### Incidents
-
--   Sabotage
--   Power failure
--   Missing object
--   Emergency
--   Player elimination
--   Incident timestamps/location
-
-### Voting
-
--   Start vote
--   Submit vote
--   Validate vote
--   Count votes
--   Handle ties
--   Record vote history
-
-## Example Tasks
-
-``` text
-Decode Signal
-Repair Generator
-Find Missing File
-Restore Network
-Match Symbols
-```
-
-## Data
-
-``` text
-Task
-TaskAssignment
-Incident
-Vote
-```
-
-## Done When
-
-Gameplay produces enough structured events for analytics and ML.
-
-------------------------------------------------------------------------
-
-# MEMBER 5 (SHAHZAN) --- NLP & COMMUNICATION INTELLIGENCE
-
-## Branch
-
-`feature/nlp`
-
-## Mission
-
-Analyze player communication without claiming to detect lies.
-
-## Responsibilities
-
--   Chat ingestion
--   Text preprocessing
--   Sentiment analysis
--   Accusation detection
--   Defense detection
--   Claim extraction
--   Question detection
--   Potential contradiction detection
--   Communication features
-
-## Example
-
-Input:
-
-``` text
-"I was in the lab."
-```
-
-Output:
-
-``` json
-{
-  "type": "claim",
-  "subject": "player",
-  "location": "lab",
-  "confidence": 0.91
-}
-```
-
-Later:
-
-``` text
-"I was near storage."
-```
-
-System may produce:
-
-``` text
-Potential statement inconsistency.
-```
-
-## Feature Output
-
-``` text
-accusation_count
-defense_count
-claim_count
-question_count
-sentiment_score
-contradiction_count
-message_frequency
-```
-
-## API
-
-``` text
-POST /nlp/analyze-message
-POST /nlp/analyze-batch
-```
-
-## Done When
-
-Messages can be converted into structured behavioral features consumed
-by the ML service.
-
-------------------------------------------------------------------------
-
-# MEMBER 6 (ABUBAKER) --- ML SUSPICION ENGINE
-
-## Branch
-
-`feature/ml-suspicion`
-
-## Mission
-
-Build the project's main machine-learning component.
-
-## Responsibilities
-
--   Dataset creation
--   Feature engineering
--   Baseline models
--   Model training
--   Model evaluation
--   Prediction API
--   Suspicion score
--   Explainability
-
-## Input Features
-
-``` text
-task_completion_rate
-task_duration
-task_failure_rate
-incident_proximity
-vote_switch_rate
-vote_consistency
-accusation_count
-defense_count
-communication_frequency
-contradiction_count
-meeting_participation
-social_interaction_count
-```
-
-## Model Pipeline
-
-``` text
-Game Events
-    ↓
-Feature Builder
-    ↓
-Feature Vector
-    ↓
-ML Model
-    ↓
-Impostor Probability
-    ↓
-Suspicion Score
-```
-
-## Models
-
-Start with:
-
-``` text
-Logistic Regression
-Random Forest
-```
-
-Then experiment with:
-
-``` text
-XGBoost
-Neural Network
-GNN
-```
-
-## Evaluation
-
-Record:
-
-``` text
-Accuracy
-Precision
-Recall
-F1
-ROC-AUC
-Confusion Matrix
-```
-
-## Important
-
-The model predicts probability.
-
-It must NOT output:
-
-``` text
-"Player 3 is definitely lying."
-```
-
-Prefer:
-
-``` text
-"Player 3 has an 82% model-based suspicion score based on current gameplay evidence."
-```
-
-## Done When
-
-A match can send structured player features to the model and receive a
-prediction.
-
-------------------------------------------------------------------------
-
-# MEMBER 7 (FATIMA) --- AI GAME MASTER
-
-## Branch
-
-`feature/ai-gamemaster`
-
-## Mission
-
-Build the AI system that dynamically creates contextual events and
-narrative.
-
-## Responsibilities
-
--   Event generation
--   Clue generation
--   Narrative generation
--   Difficulty suggestions
--   Prompt engineering
--   Structured LLM output
--   Validation layer
-
-## Input
-
-``` text
-round_number
-remaining_players
-recent_incidents
-completed_tasks
-game_time
-difficulty
-```
-
-## Output
-
-Example:
-
-``` json
-{
-  "event_type": "POWER_FAILURE",
-  "title": "Grid Failure",
-  "duration": 90,
-  "location": "main_block",
-  "description": "The main grid has failed."
-}
-```
-
-## Critical Architecture
-
-``` text
-LLM
- ↓
-Structured Output
- ↓
-Validator
- ↓
-Game Rules
- ↓
-Game Engine
-```
-
-The LLM must never directly control the game.
-
-## Future Features
-
--   AI-generated clues
--   Adaptive difficulty
--   Narrative mode
--   Dynamic tasks
--   Game-master commentary
-
-## Done When
-
-AI can generate valid contextual events that pass the game's rule
-validator.
-
-------------------------------------------------------------------------
-
-# MEMBER 8 (SAHIL) --- ANALYTICS & REPLAY
-
-## Branch
-
-`feature/analytics-replay`
-
-## Mission
-
-Turn raw game events into useful visual intelligence.
-
-## Responsibilities
-
-### Match Dashboard
-
--   Match duration
--   Winner
--   Incidents
--   Votes
--   Tasks
--   Eliminations
-
-### Player Analytics
-
--   Task performance
--   Suspicion trend
--   Voting behavior
--   Communication volume
--   Movement patterns
-
-### Social Graph
-
-Display:
-
-``` text
-Player A → Player B
-Player B → Player C
-Player A ↔ Player D
-```
-
-Based on communication/voting/interactions.
-
-### Replay
-
-Create chronological timeline:
-
-``` text
-00:12 P3 enters Lab
-00:24 Power failure
-00:31 P7 eliminated
-00:43 P3 leaves Lab
-01:02 P3 accuses P5
-01:40 P3 changes vote
-```
-
-### Model Dashboard
-
-Show:
-
-``` text
-Accuracy
-Precision
-Recall
-F1
-ROC-AUC
-```
-
-## Done When
-
-A completed match can be replayed and analyzed visually.
-
-------------------------------------------------------------------------
-
-# SHARED CONTRACTS
-
-These must be agreed upon BEFORE parallel development.
-
-## Player
-
-``` json
-{
-  "id": "p1",
-  "displayName": "Player 1",
-  "alive": true
-}
-```
-
-Never expose hidden role to unauthorized clients.
-
-------------------------------------------------------------------------
-
-## Game Event
-
-``` json
-{
-  "event_id": "evt_001",
-  "match_id": "match_01",
-  "player_id": "p3",
-  "event_type": "TASK_COMPLETED",
-  "timestamp": "ISO-8601",
-  "location": "lab",
-  "metadata": {}
-}
-```
-
-------------------------------------------------------------------------
-
-## Suspicion Response
-
-``` json
-{
-  "player_id": "p3",
-  "score": 0.82,
-  "confidence": 0.74,
-  "evidence": [
-    {
-      "type": "incident_proximity",
-      "strength": "high"
-    }
-  ]
-}
-```
-
-------------------------------------------------------------------------
-
-# BRANCH DEPENDENCIES
-
-``` text
-                    GAME ENGINE
-                         │
-               ┌─────────┴─────────┐
-               │                   │
-        REALTIME BACKEND      TASKS/INCIDENTS
-               │                   │
-               └─────────┬─────────┘
-                         │
-                   FRONTEND GAME
-                         │
-                         ▼
-                    EVENT LOG
-                         │
-             ┌───────────┼───────────┐
-             ▼           ▼           ▼
-            NLP         ML       ANALYTICS
-                         │
-                         ▼
-                    AI GAME MASTER
-```
-
-------------------------------------------------------------------------
-
-# RECOMMENDED WORK ORDER
-
-## Sprint 0 --- Foundation
-
-Everyone agrees on: - Repo structure - Coding standards - API
-contracts - Event schema - Database schema - Environment variables
-
-Mayiz (Member 1), Abdul Qadir (Member 2), and Aaliya (Member 3) establish the base architecture.
-
-------------------------------------------------------------------------
-
-## Sprint 1 --- Playable Prototype
-
-Goal:
-
-> Two or more players can join a room and play a minimal game.
-
-Priority: 1. Game Engine 2. WebSocket 3. Frontend 4. Basic tasks/voting
-
-------------------------------------------------------------------------
-
-## Sprint 2 --- Complete Game Loop
-
-Add: - 6--10 players - Tasks - Incidents - Meetings - Voting - Win
-conditions
-
-------------------------------------------------------------------------
-
-## Sprint 3 --- Data Collection
-
-Add event logging for:
-
-``` text
-Movement
-Tasks
-Chat
-Votes
-Incidents
-Meetings
-Eliminations
-```
-
-------------------------------------------------------------------------
-
-## Sprint 4 --- AI
-
-NLP → ML → Suspicion engine.
-
-------------------------------------------------------------------------
-
-## Sprint 5 --- Advanced AI
-
-AI Game Master.
-
-------------------------------------------------------------------------
-
-## Sprint 6 --- Analytics
-
-Replay + dashboards + social graph.
-
-------------------------------------------------------------------------
-
-## Sprint 7 --- Integration
-
-Full end-to-end testing.
-
-------------------------------------------------------------------------
-
-# GIT RULES
-
-## Main branches
-
-``` text
-main
-develop
-```
-
-## Feature branches
-
-``` text
-feature/game-engine
-feature/realtime-backend
-feature/frontend-game
-feature/tasks-incidents
-feature/nlp
-feature/ml-suspicion
-feature/ai-gamemaster
-feature/analytics-replay
-```
-
-### Rules
-
--   No direct pushes to `main`.
--   Pull requests target `develop`.
--   PRs require review.
--   Rebase/merge from `develop` regularly.
--   Do not modify another person's module without discussion.
--   Shared contracts require team approval.
--   Never commit `.env`.
--   Never commit API keys.
--   Every feature should have tests where practical.
-
-------------------------------------------------------------------------
-
-# PULL REQUEST TEMPLATE
-
-## What changed?
-
-Describe the feature.
-
-## Why?
-
-Explain the purpose.
-
-## Testing
-
--   [ ] Unit tests
--   [ ] Integration test
--   [ ] Manual test
-
-## API Changes
-
-List changed endpoints/events.
-
-## Database Changes
-
-List schema changes.
-
-## Screenshots
-
-Add screenshots for UI changes.
-
-## Breaking Changes
-
-Mention any breaking change.
-
-------------------------------------------------------------------------
-
-# FINAL INTEGRATION CHECKLIST
-
-### Core Game
-
--   [ ] Lobby works
--   [ ] Roles are secure
--   [ ] Game state synchronizes
--   [ ] Tasks work
--   [ ] Incidents work
--   [ ] Voting works
--   [ ] Win conditions work
-
-### AI
-
--   [ ] Events are logged
--   [ ] NLP works
--   [ ] Features are generated
--   [ ] ML model predicts
--   [ ] Suspicion is explainable
--   [ ] AI Game Master outputs are validated
-
-### Analytics
-
--   [ ] Match dashboard
--   [ ] Player analytics
--   [ ] Social graph
--   [ ] Replay
--   [ ] Model metrics
-
-### Engineering
-
--   [ ] Authentication
--   [ ] Error handling
--   [ ] Security checks
--   [ ] Database migrations
--   [ ] Docker setup
--   [ ] Deployment
--   [ ] Documentation
-
-------------------------------------------------------------------------
-
-# TEAM PRINCIPLE
-
-Each member owns a feature.
-
-But the team owns the product.
-
-Do not optimize for:
-
-> "My branch works."
-
-Optimize for:
-
-> "My branch integrates cleanly with the other seven branches."
-
-The final demonstration should feel like **one coherent product**, not
-eight separate college projects.
+# BLACKOUT — Team Split & Ownership
+
+**Companion docs:** `prd.md` (requirements/scope), `design.md` (systems/architecture)
+
+This document proposes how to divide the MVP scope across a small team, mapped directly to
+the module breakdown in `design.md` §6.3. Team size and exact headcount will vary — the
+roles below are functional areas, and one person may own more than one area on a small
+team, or areas may be merged/split further on a larger one.
+
+---
+
+## 1. Functional Areas Overview
+
+| Area | Primary Responsibility | Maps to (design.md) |
+|---|---|---|
+| Game Systems / Backend | Authoritative server logic, state machine, anti-cheat validation | `game_state`, `role_manager`, `task_manager`, `blackout_manager`, `blackout_recovery`, `sabotage_manager`, `meeting_manager`, `voting_manager`, `meltdown_manager`, `win_condition_manager` |
+| Gameplay / Content Design | Task definitions, objective balance, evidence design, pacing | `crew_tasks`, `impostor_tasks`, `evidence_manager`, config values |
+| Client / Gameplay Programming | Player movement, task/mini-game interactions, client-side prediction | `player` (client half), mini-game input layer |
+| UI/UX | All screens, HUD, timers, meeting/voting flow, result screens | `ui/` module tree entirely |
+| Map & Environment Art | Facility layout, room art, lighting states (normal vs. blackout) | `map_manager`, environment assets |
+| Audio | SFX for sabotage, ambient blackout tension, meeting/voting stingers, alarms | Cross-cutting |
+| Production / QA | Scope tracking, playtesting cadence, balance tuning coordination | Cross-cutting |
+
+---
+
+## 2. Suggested Role Split
+
+### 2.1 Backend / Game Systems Engineer(s)
+**Owns the server-authoritative core.** This is the highest-risk, most central area —
+should be staffed first and protected from scope creep.
+
+Responsibilities:
+- Implement the top-level state machine (`LOBBY → … → GAME_OVER`).
+- Role assignment and secure per-client role reveal.
+- Task completion validation (Crew and Impostor).
+- Blackout unlock gating, remote activation, countdown, fixed/configurable timer.
+- Blackout recovery system tracking and early-termination logic (X-of-Y systems).
+- Impostor blackout objective tracking (file theft, ORION objectives, sabotage) —
+  validated server-side, hidden from other clients.
+- Evidence generation (server decides what becomes discoverable and when).
+- Meeting trigger handling, vote collection/tally/resolution.
+- Meltdown timer, 3 emergency task validation, Impostor interference during Meltdown.
+- Win/lose determination.
+
+Key interfaces to other areas:
+- Exposes network events/RPCs for every client-facing state change (task progress,
+  blackout state, evidence flags, vote results, meltdown progress).
+- Defines the config schema (blackout duration, recovery threshold, etc.) that Design will
+  tune.
+
+### 2.2 Gameplay / Content Designer(s)
+**Owns balance and "does this feel fair and fun."**
+
+Responsibilities:
+- Author the specific task list content for Crew and Impostor (names, locations,
+  interaction type/mini-game per task).
+- Design the Impostor's blackout objective set and how each maps to a mini-game.
+- Design evidence rules: what evidence each Impostor action generates, and how
+  discoverable/subtle it should be.
+- Own the tunable config values from `design.md` §6.4 (blackout duration, recovery
+  threshold, prerequisite task count, vote rule, visibility radius) and drive playtesting
+  to converge on values.
+- Define meeting-trigger mechanics (final decision on the open question in `prd.md` §9.3).
+- Track the "Important Gameplay Rules" list in `design.md` §5 as non-negotiable
+  constraints during design reviews.
+
+Key interfaces to other areas:
+- Hands off task/objective specs to Client Programming and UI for implementation.
+- Works directly with Backend on config schema and with QA on balance test results.
+
+### 2.3 Client / Gameplay Programmer(s)
+**Owns what the player directly touches, moment to moment.**
+
+Responsibilities:
+- Player movement/controller, room-to-room traversal, spawn handling.
+- Task and mini-game interaction implementation (input layer; correctness is
+  server-validated per `design.md` §6.2).
+- Client-side rendering of visibility changes during blackout (vision radius, emergency
+  lighting look).
+- Client-side handling of door malfunction states, camera unavailability, etc.
+- Reconciliation with server-authoritative state (client never assumes an action
+  succeeded until server confirms).
+
+Key interfaces to other areas:
+- Consumes Backend's network events; renders through UI's screens/HUD.
+- Consumes Map & Environment Art's room layouts and interactable placements.
+
+### 2.4 UI/UX Designer/Programmer(s)
+**Owns every screen listed in `design.md` §6.3 `ui/` tree.**
+
+Responsibilities:
+- Role reveal screen.
+- Task UI (list, progress, per-task interaction framing).
+- Blackout UI (activation prompt for Impostor, countdown, ambient state indicators for
+  Crew).
+- Timer UI (blackout countdown, meltdown countdown — should feel tense but readable).
+- Sabotage UI (Impostor-only objective tracker).
+- Meeting UI (discussion/chat surface, call-meeting affordance).
+- Voting UI (vote casting, tally reveal, result/ejection reveal).
+- Meltdown UI (3-task tracker, Impostor interference feedback if relevant).
+- Result screen (win/lose, role reveal, summary).
+
+Key interfaces to other areas:
+- Needs early API/event contracts from Backend to build against real state rather than
+  mocked data.
+- Coordinates with Content Design on exact task/evidence text and iconography.
+
+### 2.5 Map & Environment Artist(s)
+Responsibilities:
+- Facility layout for the 9 suggested rooms (Cafeteria, Security Room, Laboratory, Server
+  Room, Storage, Generator Room, Office, Medical Bay, ORION Core Chamber).
+- Two lighting/visual states per relevant space: normal and blackout (emergency
+  lighting), matching the reduced-visibility design intent.
+- Visual treatment for sabotaged/damaged systems vs. functioning ones (so "still damaged
+  despite claimed repair" evidence is visually legible on inspection).
+- Interactable/prop placement in collaboration with Content Design (task stations,
+  recovery system panels, restricted terminal for file theft, etc.).
+
+Key interfaces to other areas:
+- Delivers room layouts to `map_manager` (Backend) and to Client Programming for
+  traversal/collision.
+
+### 2.6 Audio
+Responsibilities:
+- Ambient loops: normal facility hum vs. blackout tension.
+- Blackout activation stinger/countdown sound.
+- Task completion, sabotage, and alarm/warning cues (e.g., classified files missing,
+  meltdown alarm).
+- Meeting call and voting result stingers.
+- Meltdown countdown tension audio (escalating as timer approaches zero).
+
+### 2.7 Production / QA
+Responsibilities:
+- Track MVP scope against `prd.md` §7 — flag anything trending toward the explicitly
+  out-of-scope list (multiple maps, extra roles, cosmetics, etc.).
+- Own the playtesting cadence needed to resolve config values (blackout duration, recovery
+  threshold) — this is a joint effort with Content Design but needs a driver.
+- Track resolution of the Open Questions list in `prd.md` §9 and make sure each has an
+  owner and a decision date.
+- Server-authority regression testing: verify no win-relevant state can be manipulated
+  client-side (ties to NFR-2 in `prd.md`).
+
+---
+
+## 3. Minimum Viable Team (Small Team Guidance)
+
+If the team is small (e.g., 3–5 people), a workable consolidation:
+
+| Person/Pair | Combined Ownership |
+|---|---|
+| Engineer A | Backend / Game Systems (2.1) — full-time, do not split this role early |
+| Engineer B | Client Programming (2.3) + basic UI implementation (2.4) |
+| Designer | Content Design (2.2) + meeting/UI copy + QA/balance driving (2.7, design half) |
+| Artist | Map & Environment Art (2.5) + Audio sourcing/integration (2.6), or bring in a contractor for audio |
+| (Optional) Producer | Production/QA (2.7) full scope, or absorbed by Designer on very small teams |
+
+**Do not split Backend/Game Systems across multiple people early in MVP** — the state
+machine and server-authority model in `design.md` §2 and §6 is the connective tissue for
+every other system, and fragmenting ownership here early tends to create integration
+bugs across the state transitions (blackout unlock, recovery, meeting/vote, meltdown).
+
+---
+
+## 4. Sequencing Recommendation
+
+Given the MVP scope in `prd.md` §7, a rough build order that lets areas unblock each other
+as early as possible:
+
+1. **Backend:** state machine skeleton + role assignment + task completion validation
+   (unblocks everyone).
+2. **Client + UI (parallel):** basic movement, task UI, role reveal — build against
+   Backend's early event contracts.
+3. **Backend:** blackout unlock/activation/timer + recovery system tracking.
+4. **Content Design + UI (parallel):** author real task/objective content, blackout UI,
+   sabotage UI.
+5. **Backend:** evidence generation + meeting/voting.
+6. **UI:** meeting/voting screens.
+7. **Backend:** meltdown manager + win condition manager.
+8. **UI:** meltdown UI + result screen.
+9. **Art + Audio:** integrate throughout in parallel with above, prioritizing rooms/cues
+   tied to whichever system is currently being built.
+10. **QA/Production:** playtesting passes begin as soon as the full loop (step 1–8) is
+    minimally connected end-to-end, even with placeholder art/audio — validating the loop
+    matters more early than polish.
+
+---
+
+## 5. Open Ownership Questions
+
+Carried over from `prd.md` §9 — these need an owner assigned during kickoff, not just a
+decision:
+
+- Platform target (affects Client Programming + Backend networking choice).
+- Meeting trigger mechanism (Content Design decision, implemented by Backend + UI).
+- Vote resolution rule (Content Design decision, implemented by Backend).
+- Communication scope during blackout (Content Design + Backend joint decision).
+- Disconnect/reconnect handling (Backend, with Production sign-off on acceptable MVP
+  behavior).
+- Engine/networking stack selection (Backend + Client Programming joint decision — this
+  determines the final concrete file/module structure referenced in `design.md` §6.3).
