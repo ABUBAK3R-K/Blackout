@@ -8,23 +8,24 @@ This document establishes the official ownership breakdown, module mapping, cros
 
 ## 1. 8-Member Team Roster & Ownership Matrix
 
-| Member | Role / Title | Primary Area | Key Modules Owned (`design.md` §6.3) | Primary Collaborators |
+| Member | Assignee | Dedicated Branch | Role / Title | Key Modules Owned (`design.md` §6.3) |
 |---|---|---|---|---|
-| **Member 1** | **Lead Backend & Network Engineer** | Core State Machine, Networking & Anti-Cheat | `game_state`, `role_manager`, `player` (server), networking | M2, M3, M8 |
-| **Member 2** | **Gameplay Backend Engineer** | Game Phases, Objectives, Sabotage & Meltdown | `task_manager`, `blackout_manager`, `blackout_recovery`, `sabotage_manager`, `evidence_manager`, `meeting_manager`, `voting_manager`, `meltdown_manager`, `win_condition_manager` | M1, M4, M6 |
-| **Member 3** | **Lead Client & Gameplay Programmer** | Controller, Traversal, Dynamic Vision & Engine | `player` (client), `map_manager` (client/rendering), camera, vision system | M1, M4, M7 |
-| **Member 4** | **Client Interaction & Mini-Game Programmer** | Task Systems, Mini-Games & Objective Inputs | `crew_tasks` (client), `impostor_tasks` (client), mini-game layer | M2, M5, M6 |
-| **Member 5** | **UI/UX Designer & Frontend Programmer** | All HUDs, Meeting/Voting Screens & Menus | `ui/` (`role_reveal`, `task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`, `meeting_ui`, `voting_ui`, `meltdown_ui`, `result_screen`) | M3, M4, M6, M7 |
-| **Member 6** | **Game Systems & Content Designer** | Task Specs, Balance, Evidence Rules & Map Flow | Content definitions, evidence rules, balance configs (§6.4) | M2, M4, M5, M7, M8 |
-| **Member 7** | **2D Environment & Technical Artist** | Map Layouts, Dual Lighting, Sprites & VFX | Environment assets, sprite sheets, lighting states, VFX | M3, M5, M6 |
-| **Member 8** | **Audio Designer & QA / Production Lead** | Soundscapes, SFX, Playtests & Scope Tracking | Audio engine/assets, playtest operations, QA & anti-cheat test suites | All Members |
+| **Member 1** | **Mayiz** | `member-1/backend-network` | **Lead Backend & Network Engineer** | `game_state`, `role_manager`, `player` (server), networking |
+| **Member 2** | **Abdul Qadir** | `member-2/gameplay-backend` | **Gameplay Backend Engineer** | `task_manager`, `blackout_manager`, `blackout_recovery`, `sabotage_manager`, `evidence_manager`, `meeting_manager`, `voting_manager`, `meltdown_manager`, `win_condition_manager` |
+| **Member 3** | **Aaliya** | `member-3/client-engine` | **Lead Client & Gameplay Programmer** | `player` (client), `map_manager` (client/rendering), camera, vision system |
+| **Member 4** | **Ubaid** | `member-4/mini-games` | **Client Interaction & Mini-Game Programmer** | `crew_tasks` (client), `impostor_tasks` (client), mini-game layer |
+| **Member 5** | **Shahzan** | `member-5/ui-frontend` | **UI/UX Designer & Frontend Programmer** | `ui/` (`role_reveal`, `task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`, `meeting_ui`, `voting_ui`, `meltdown_ui`, `result_screen`) |
+| **Member 6** | **Abubaker** | `member-6/game-design` | **Game Systems & Content Designer** | Content definitions, evidence rules, balance configs (§6.4) |
+| **Member 7** | **Fatima** | `member-7/environment-art` | **2D Environment & Technical Artist** | Environment assets, sprite sheets, lighting states, VFX |
+| **Member 8** | **Sahil** | `member-8/audio-qa` | **Audio Designer & QA / Production Lead** | Audio engine/assets, playtest operations, QA & anti-cheat test suites |
 
 ---
 
 ## 2. Detailed Member Responsibilities & Deliverables
 
-### Member 1 — Lead Backend & Network Engineer
-**Focus:** Authoritative server architecture, real-time networking, state machine backbone, and anti-cheat validation.
+### Member 1 (Mayiz) — Lead Backend & Network Engineer
+- **Dedicated Branch:** `member-1/backend-network`
+- **Focus:** Authoritative server architecture, real-time networking, state machine backbone, and anti-cheat validation.
 
 - **Core Responsibilities:**
   - Implement the authoritative top-level state machine (`LOBBY → ROLE_ASSIGNMENT → INITIAL_TASK_PHASE → BLACKOUT_AVAILABLE → BLACKOUT_ACTIVE → POST_BLACKOUT_INVESTIGATION → MEETING → VOTING → MELTDOWN → GAME_OVER`).
@@ -41,8 +42,9 @@ This document establishes the official ownership breakdown, module mapping, cros
 
 ---
 
-### Member 2 — Gameplay Backend Engineer
-**Focus:** Server-authoritative phase logic, task validation, blackout mechanics, sabotage/evidence rules, meeting/voting, and meltdown.
+### Member 2 (Abdul Qadir) — Gameplay Backend Engineer
+- **Dedicated Branch:** `member-2/gameplay-backend`
+- **Focus:** Server-authoritative phase logic, task validation, blackout mechanics, sabotage/evidence rules, meeting/voting, and meltdown.
 
 - **Core Responsibilities:**
   - Task completion validation for Crew tasks and Impostor prerequisite tasks (FR-7, FR-8).
@@ -62,8 +64,9 @@ This document establishes the official ownership breakdown, module mapping, cros
 
 ---
 
-### Member 3 — Lead Client & Gameplay Programmer
-**Focus:** 2D player movement, collision, camera systems, dynamic blackout lighting/vision, and room traversal.
+### Member 3 (Aaliya) — Lead Client & Gameplay Programmer
+- **Dedicated Branch:** `member-3/client-engine`
+- **Focus:** 2D player movement, collision, camera systems, dynamic blackout lighting/vision, and room traversal.
 
 - **Core Responsibilities:**
   - Responsive 2D top-down player movement, collision boundaries, and spawn point management.
@@ -80,8 +83,9 @@ This document establishes the official ownership breakdown, module mapping, cros
 
 ---
 
-### Member 4 — Client Interaction & Mini-Game Programmer
-**Focus:** Mini-game mechanics, interactive stations, input systems, and client-side gameplay feedback.
+### Member 4 (Ubaid) — Client Interaction & Mini-Game Programmer
+- **Dedicated Branch:** `member-4/mini-games`
+- **Focus:** Mini-game mechanics, interactive stations, input systems, and client-side gameplay feedback.
 
 - **Core Responsibilities:**
   - Build interactive mini-game interfaces for all Crew Phase 1 tasks (Power Repair, Server Calibration, Coolant System, Medical Check, Data Transfer, etc.).
@@ -97,8 +101,9 @@ This document establishes the official ownership breakdown, module mapping, cros
 
 ---
 
-### Member 5 — UI/UX Designer & Frontend Programmer
-**Focus:** User interface design, HUD elements, screen navigation, meeting/voting flows, and visual UX polish.
+### Member 5 (Shahzan) — UI/UX Designer & Frontend Programmer
+- **Dedicated Branch:** `member-5/ui-frontend`
+- **Focus:** User interface design, HUD elements, screen navigation, meeting/voting flows, and visual UX polish.
 
 - **Core Responsibilities:**
   - In-game HUD: task checklist, blackout countdown banner, meltdown 5-minute emergency timer, recovery `X/Y` progress tracker.
@@ -115,8 +120,9 @@ This document establishes the official ownership breakdown, module mapping, cros
 
 ---
 
-### Member 6 — Game Systems & Content Designer
-**Focus:** Task specifications, gameplay balancing, evidence design, config tuning, and facility floorplan flow.
+### Member 6 (Abubaker) — Game Systems & Content Designer
+- **Dedicated Branch:** `member-6/game-design`
+- **Focus:** Task specifications, gameplay balancing, evidence design, config tuning, and facility floorplan flow.
 
 - **Core Responsibilities:**
   - Author detailed mechanical specifications for all ~10 Crew tasks, 3 Impostor prerequisite tasks, 5 Impostor blackout objectives, and 3 Meltdown emergency tasks.
@@ -132,8 +138,9 @@ This document establishes the official ownership breakdown, module mapping, cros
 
 ---
 
-### Member 7 — 2D Environment & Technical Artist
-**Focus:** Tilemaps, room art, dual-state lighting assets, character sprites, animations, and visual effects.
+### Member 7 (Fatima) — 2D Environment & Technical Artist
+- **Dedicated Branch:** `member-7/environment-art`
+- **Focus:** Tilemaps, room art, dual-state lighting assets, character sprites, animations, and visual effects.
 
 - **Core Responsibilities:**
   - Create 2D top-down environmental tilemaps and prop assets for all 9 facility rooms (Cafeteria, Security, Lab, Server Room, Storage, Generator, Office, MedBay, ORION Core) and corridors.
@@ -150,8 +157,9 @@ This document establishes the official ownership breakdown, module mapping, cros
 
 ---
 
-### Member 8 — Audio Designer & QA / Production Lead
-**Focus:** Soundscapes, audio implementation, 8-player playtest operations, test automation, and milestone tracking.
+### Member 8 (Sahil) — Audio Designer & QA / Production Lead
+- **Dedicated Branch:** `member-8/audio-qa`
+- **Focus:** Soundscapes, audio implementation, 8-player playtest operations, test automation, and milestone tracking.
 
 - **Core Responsibilities:**
   - Design, source, and integrate all game audio and soundscapes:
