@@ -114,11 +114,6 @@ func get_task(task_id: String) -> TaskDefinition:
 
 ## Validates and executes a task completion request from a client.
 func complete_task(peer_id: int, task_id: String, current_state: NetworkConfig.GameState) -> Dictionary:
-	if current_state != NetworkConfig.GameState.INITIAL_TASK_PHASE:
-		var err_msg = "Task completion rejected: current match state is %s (Expected: INITIAL_TASK_PHASE)." % NetworkConfig.get_game_state_name(current_state)
-		push_warning("[TaskManager] %s" % err_msg)
-		return {"success": false, "error": err_msg}
-
 	if not tasks_by_id.has(task_id):
 		var err_msg = "Task completion rejected: unknown task ID '%s'." % task_id
 		push_warning("[TaskManager] %s" % err_msg)
@@ -138,11 +133,32 @@ func complete_task(peer_id: int, task_id: String, current_state: NetworkConfig.G
 		push_warning("[TaskManager] %s" % err_msg)
 		return {"success": false, "error": err_msg}
 
+	var is_impostor: bool = (peer_id == impostor_peer_id)
+
+	# State validation:
+	# - Impostor prerequisite tasks can ONLY be completed during INITIAL_TASK_PHASE.
+	# - Crew tasks can be completed during INITIAL_TASK_PHASE, BLACKOUT_AVAILABLE, and BLACKOUT_ACTIVE (design.md §3.5.1).
+	# - Any other match state (LOBBY, POST_BLACKOUT_INVESTIGATION, MEETING, VOTING, MELTDOWN, GAME_OVER) is rejected.
+	if is_impostor or task.is_impostor_prerequisite:
+		if current_state != NetworkConfig.GameState.INITIAL_TASK_PHASE:
+			var err_msg = "Task completion rejected: current match state is %s (Expected: INITIAL_TASK_PHASE)." % NetworkConfig.get_game_state_name(current_state)
+			push_warning("[TaskManager] %s" % err_msg)
+			return {"success": false, "error": err_msg}
+	else:
+		var valid_crew_states = [
+			NetworkConfig.GameState.INITIAL_TASK_PHASE,
+			NetworkConfig.GameState.BLACKOUT_AVAILABLE,
+			NetworkConfig.GameState.BLACKOUT_ACTIVE
+		]
+		if not valid_crew_states.has(current_state):
+			var err_msg = "Task completion rejected: current match state is %s (Expected: INITIAL_TASK_PHASE, BLACKOUT_AVAILABLE, or BLACKOUT_ACTIVE)." % NetworkConfig.get_game_state_name(current_state)
+			push_warning("[TaskManager] %s" % err_msg)
+			return {"success": false, "error": err_msg}
+
 	# Authoritatively mark completed
 	task.is_completed = true
 	task.completed_at = Time.get_unix_time_from_system()
 
-	var is_impostor: bool = (peer_id == impostor_peer_id)
 	var all_prereqs_done: bool = are_all_impostor_prerequisites_completed() if is_impostor else false
 
 	print("[TaskManager] Task '%s' (%s) marked COMPLETED by player %d (Prereq: %s)." % [

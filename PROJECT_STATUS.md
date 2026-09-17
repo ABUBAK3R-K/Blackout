@@ -27,7 +27,7 @@
 | Member | Assignee | Dedicated Branch | Subsystem / Modules Owned | Current Status |
 |---|---|---|---|---|
 | **Member 1** | **Mayiz** | `member-1/backend-network` | `server_network_manager.gd`, `client_network_manager.gd`, `network_manager.gd`, room lifecycle, RPC dispatch, role assignment | 🟢 Merged to `main` (Steps 1–10) |
-| **Member 2** | **Abdul Qadir** | `member-2/gameplay-backend` | `task_manager.gd`, `blackout_manager.gd`, `blackout_recovery_manager.gd`, `impostor_objective_manager.gd`, `evidence_manager.gd`, `meeting_manager.gd`, `voting_manager.gd`, `meltdown_manager.gd` | 🟢 Core Backend Merged; 🟡 Gameplay Tuning & Edge-Case Hardening Active |
+| **Member 2** | **Abdul Qadir** | `member-2/gameplay-backend` | `task_manager.gd`, `blackout_manager.gd`, `blackout_recovery_manager.gd`, `impostor_objective_manager.gd`, `evidence_manager.gd`, `meeting_manager.gd`, `voting_manager.gd`, `meltdown_manager.gd`, `win_condition_manager.gd` | 🟢 Complete & Hardened (Phases 1–5 Executed) |
 | **Member 3** | **Aaliya** | `member-3/client-engine` | `client/player/` (controller, movement, prediction, state reconciliation), `map_manager`, dynamic vision-cone/lighting shader | 🟡 In Progress |
 | **Member 4** | **Ubaid** | `member-4/mini-games` | `client/interactions/mini_games/` (Crew tasks, prerequisite tasks, Meltdown emergency mini-games), input handling | 🟡 In Progress |
 | **Member 5** | **Shahzan** | `member-5/ui-frontend` | In-game HUD (`task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`), meeting & voting screens, role reveal, game over | 🟡 In Progress |
@@ -47,15 +47,16 @@ Member 2 is the primary owner and maintainer of the authoritative server gamepla
 
 | Module | Source File | Shared Config / Defs | Test Suite | Status |
 |---|---|---|---|---|
-| **Task Management** | `server/task_manager.gd` | `shared/task_config.gd`, `shared/task_definition.gd` | `tests/test_task_system.gd` | 🟢 Implemented & Tested |
-| **Blackout System** | `server/blackout_manager.gd` | `shared/blackout_config.gd` | `tests/test_blackout_system.gd` | 🟢 Implemented & Tested |
-| **Blackout Recovery** | `server/blackout_recovery_manager.gd` | `shared/blackout_recovery_config.gd`, `shared/blackout_recovery_definition.gd` | `tests/test_blackout_recovery_objectives.gd` | 🟢 Implemented & Tested |
-| **Impostor Objectives & Sabotage** | `server/impostor_objective_manager.gd` | `shared/blackout_objective_config.gd`, `shared/blackout_objective_definition.gd` | `tests/test_blackout_recovery_objectives.gd` | 🟢 Implemented & Tested |
-| **Evidence System** | `server/evidence_manager.gd` | `shared/evidence_config.gd`, `shared/evidence_definition.gd` | `tests/test_evidence_system.gd` | 🟢 Implemented & Tested |
-| **Meeting Management** | `server/meeting_manager.gd` | `shared/meeting_config.gd` | `tests/test_meeting_voting_system.gd` | 🟢 Implemented & Tested |
-| **Voting Management** | `server/voting_manager.gd` | `shared/meeting_config.gd` | `tests/test_meeting_voting_system.gd` | 🟢 Implemented & Tested |
-| **Meltdown Protocol** | `server/meltdown_manager.gd` | `shared/meltdown_config.gd` | `tests/test_meltdown_system.gd` | 🟢 Implemented & Tested |
-| **Network & RPC Handlers** | `server/server_network_manager.gd` | `shared/network_config.gd`, `shared/network_manager.gd` | `tests/test_multiplayer_server.gd` | 🟢 Implemented & Tested |
+| **Task Management** | `server/task_manager.gd` | `shared/task_config.gd`, `shared/task_definition.gd` | `tests/test_task_system.gd` | 🟢 Complete & Hardened |
+| **Blackout System** | `server/blackout_manager.gd` | `shared/blackout_config.gd` | `tests/test_blackout_system.gd` | 🟢 Complete & Hardened |
+| **Blackout Recovery** | `server/blackout_recovery_manager.gd` | `shared/blackout_recovery_config.gd`, `shared/blackout_recovery_definition.gd` | `tests/test_blackout_recovery_objectives.gd` | 🟢 Complete & Hardened |
+| **Impostor Objectives & Sabotage** | `server/impostor_objective_manager.gd` | `shared/blackout_objective_config.gd`, `shared/blackout_objective_definition.gd` | `tests/test_blackout_recovery_objectives.gd` | 🟢 Complete & Hardened |
+| **Evidence System** | `server/evidence_manager.gd` | `shared/evidence_config.gd`, `shared/evidence_definition.gd` | `tests/test_evidence_system.gd` | 🟢 Complete & Hardened |
+| **Meeting Management** | `server/meeting_manager.gd` | `shared/meeting_config.gd` | `tests/test_meeting_voting_system.gd` | 🟢 Complete & Hardened |
+| **Voting Management** | `server/voting_manager.gd` | `shared/meeting_config.gd` | `tests/test_meeting_voting_system.gd` | 🟢 Complete & Hardened |
+| **Meltdown Protocol** | `server/meltdown_manager.gd` | `shared/meltdown_config.gd` | `tests/test_meltdown_system.gd` | 🟢 Complete & Hardened |
+| **Win Condition Management** | `server/win_condition_manager.gd` | `shared/meltdown_config.gd`, `shared/network_config.gd` | `tests/test_win_condition_manager.gd` | 🟢 Complete & Hardened |
+| **Network & RPC Handlers** | `server/server_network_manager.gd` | `shared/network_config.gd`, `shared/network_manager.gd` | `tests/test_multiplayer_server.gd` | 🟢 Complete & Hardened |
 
 ---
 
@@ -146,6 +147,28 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 ---
 
 ## 7. Change Log
+
+### [2026-09-17] — Member 2 (Abdul Qadir) Gameplay Backend Workflow Execution
+- **Author:** Abdul Qadir (Member 2 — Gameplay Backend Engineer)
+- **Branch / PR:** `member-2/gameplay-backend`
+- **Modules Affected:**
+  - `server/task_manager.gd`
+  - `server/win_condition_manager.gd`
+  - `server/meltdown_manager.gd`
+  - `server/server_network_manager.gd`
+  - `tests/test_win_condition_manager.gd`
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Hardening / Architecture`
+- **Description:**
+  - **Phase 1 (Task System):** Hardened `TaskManager.complete_task()` to allow Crew tasks during `INITIAL_TASK_PHASE`, `BLACKOUT_AVAILABLE`, and `BLACKOUT_ACTIVE` per `design.md` §3.5.1, while strictly guarding Impostor prerequisites to `INITIAL_TASK_PHASE`.
+  - **Phase 2 (Blackout System):** Verified countdown authority, timer ticking, remote activation trigger, and 3-of-4 recovery threshold early termination.
+  - **Phase 3 (Sabotage, Evidence & Voting):** Verified Facts-Only evidence creation without player metadata leaks, discussion timer, and deterministic plurality voting resolution.
+  - **Phase 4 (Meltdown & Win Conditions):** Implemented standalone `WinConditionManager` deliverable (`server/win_condition_manager.gd`), integrated it into `MeltdownManager` and `ServerNetworkManager`, and added headless unit test suite (`tests/test_win_condition_manager.gd`).
+  - **Phase 5 (Verification & Documentation):** Verified full requirements traceability (FR-5 through FR-44) and updated `PROJECT_STATUS.md` module matrix to 🟢 Complete & Hardened.
+- **Breaking Changes / Contract Impacts:** None. Backwards-compatible with all existing server-client network RPCs.
+- **Verification / Testing:** Verified via `tests/test_win_condition_manager.gd` and regression verified across all 10 headless test suites (`tests/test_*.gd`).
+
+---
 
 ### [2026-09-17] — Synced `main` into `member-2/gameplay-backend` (Backend Ready Merge)
 - **Author:** Abdul Qadir (Member 2 — Gameplay Backend Engineer)

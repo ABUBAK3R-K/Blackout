@@ -16,6 +16,7 @@ const MeetingManager = preload("res://server/meeting_manager.gd")
 const VotingManager = preload("res://server/voting_manager.gd")
 const MeltdownConfig = preload("res://shared/meltdown_config.gd")
 const MeltdownManager = preload("res://server/meltdown_manager.gd")
+const WinConditionManager = preload("res://server/win_condition_manager.gd")
 
 signal server_started(port: int)
 signal server_stopped()
@@ -56,6 +57,7 @@ var evidence_manager: EvidenceManager = null
 var meeting_manager: MeetingManager = null
 var voting_manager: VotingManager = null
 var meltdown_manager: MeltdownManager = null
+var win_condition_manager: WinConditionManager = null
 
 var is_impostor_eliminated: bool = false
 
@@ -71,6 +73,7 @@ func _init() -> void:
 	meeting_manager = MeetingManager.new()
 	voting_manager = VotingManager.new()
 	meltdown_manager = MeltdownManager.new()
+	win_condition_manager = meltdown_manager.win_condition_manager
 
 	blackout_manager.countdown_started.connect(_on_blackout_countdown_started)
 	blackout_manager.countdown_cancelled.connect(_on_blackout_countdown_cancelled)
