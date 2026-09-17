@@ -1,6 +1,6 @@
 # BLACKOUT — Team Split & Ownership (8-Member Team)
 
-**Companion docs:** [prd.md](file:///e:/projects/blackout/prd.md) (requirements/scope), [design.md](file:///e:/projects/blackout/design.md) (systems/architecture)
+**Companion docs:** [PRD.md](./PRD.md) (requirements/scope), [design.md](./design.md) (systems/architecture), [PROJECT_STATUS.md](./PROJECT_STATUS.md) (status & changelog)
 
 This document establishes the official ownership breakdown, module mapping, cross-functional pairings, and production workflow for an **8-member development team** building the MVP of **BLACKOUT**.
 

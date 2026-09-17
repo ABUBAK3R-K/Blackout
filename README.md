@@ -151,6 +151,8 @@ blackout/
 
 ## 📚 Companion Documents
 
-- 📄 **[PRD (Product Requirements Document)](file:///e:/projects/blackout/prd.md)** — Requirements, functional specifications, and MVP definition of done.
-- 📐 **[Design Document](file:///e:/projects/blackout/design.md)** — Technical architecture, state machine, phase mechanics, and design constraints.
-- 📋 **[Team Split & Ownership](file:///e:/projects/blackout/team_split.md)** — Detailed role deliverables, collaboration pairings, and sprint roadmap.
+- 📄 **[PRD (Product Requirements Document)](./PRD.md)** — Requirements, functional specifications, and MVP definition of done.
+- 📐 **[Design Document](./design.md)** — Technical architecture, state machine, phase mechanics, and design constraints.
+- 📋 **[Team Split & Ownership](./TEAM_SPLIT.md)** — Detailed role deliverables, collaboration pairings, and sprint roadmap.
+- 📊 **[Project Status & Change Log](./PROJECT_STATUS.md)** — Live tracking of sprint milestones, module status, and team change history.
+
