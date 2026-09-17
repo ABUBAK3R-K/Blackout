@@ -5,9 +5,22 @@
 
 ---
 
-## 📖 Overview & Concept
+## 💡 What is the Game About? (Quick Summary)
 
-**BLACKOUT** is an 8-player social deduction game where deduction is driven purely by player observation, memory, and discussion (no AI or automatic lie-detection). 
+> **"Among Us" meets high-stakes survival.**  
+> 8 players are working in a compromised research facility: **7 loyal Crew Members** and **1 hidden Impostor**.
+
+- 🛠️ **Crew Members:** Complete daily maintenance tasks to keep the facility running, spot physical clues when things go wrong, discuss and vote out the traitor in emergency meetings, and cooperate to stop a facility meltdown.
+- 🕵️ **The Impostor:** Pretends to work normally, unlocks and triggers a facility-wide **Blackout** (killing the lights!), sneaks through the dark to steal classified research files and sabotage the core, and deceives everyone during meetings.
+- ⚡ **What makes it unique?**
+  - **Pure Social Deduction:** No instant kills and no automated AI lie detectors — catching the traitor depends entirely on player memory, observation, and physical evidence (e.g., missing files, damaged relays).
+  - **Two-Stage Climax:** Finding the Impostor is only half the battle; the match ends in a tense 5-minute **Meltdown** where the crew must fix critical systems before the facility is lost!
+
+---
+
+## 📖 Match Flow & Phases
+
+**BLACKOUT** is an 8-player social deduction match structured across 4 distinct phases:
 
 - **Phase 1: Normal Operations** — Crew completes facility tasks; the Impostor completes disguise prerequisite tasks to unlock the remote **Blackout** ability.
 - **Phase 2: Blackout Window** — Impostor remotely cuts power and races to complete secret objectives (Classified File Theft, ORION Core sabotage); Crew races to complete distributed recovery systems (`3 of 4`) to restore power early.
