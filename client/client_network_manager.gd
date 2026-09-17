@@ -8,8 +8,12 @@ extends Node
 const NetworkConfig = preload("res://shared/network_config.gd")
 const MeetingConfig = preload("res://shared/meeting_config.gd")
 const MeltdownConfig = preload("res://shared/meltdown_config.gd")
+const SabotageManager = preload("res://shared/sabotage_manager.gd")
+const RoundManager = preload("res://shared/round_manager.gd")
 
 signal connection_succeeded()
+
+
 signal connection_failed(reason: String)
 signal disconnected_from_server(reason: String)
 signal player_assigned(peer_id: int, slot: int, total_players: int)
@@ -40,8 +44,14 @@ signal vote_result_received(result: Dictionary)
 signal meltdown_started(duration: float, impostor_alive: bool)
 signal emergency_system_completed(system_id: String, completed_systems: Array)
 signal game_over_received(winner_role: NetworkConfig.PlayerRole, reason: int, result_data: Dictionary)
+signal remote_player_position_updated(peer_id: int, pos: Vector2, vel: Vector2, facing: Vector2)
+signal sabotage_state_synced(sabotage_type: int, state: int, duration: float)
+signal sabotage_requested()
+signal round_state_synced(round_state: int)
 
 var peer: ENetMultiplayerPeer = null
+
+
 var connection_status: NetworkConfig.ConnectionStatus = NetworkConfig.ConnectionStatus.DISCONNECTED
 
 var assigned_slot: int = 0
@@ -54,7 +64,14 @@ var is_blackout_active: bool = false
 var blackout_countdown_remaining: float = 0.0
 var blackout_remaining_duration: float = 0.0
 
+var current_sabotage_type: int = 0
+var current_sabotage_state: int = 0
+var is_sabotage_active: bool = false
+var current_round_state: int = 0
+
 var active_recovery_systems: Array = []
+
+
 var required_recovery_count: int = 0
 var completed_recovery_count: int = 0
 var assigned_blackout_objectives: Array = []
@@ -129,7 +146,13 @@ func connect_to_server(host: String = NetworkConfig.DEFAULT_HOST, port: int = Ne
 	is_blackout_active = false
 	blackout_countdown_remaining = 0.0
 	blackout_remaining_duration = 0.0
+	current_sabotage_type = 0
+	current_sabotage_state = 0
+	is_sabotage_active = false
+	current_round_state = 0
 	active_recovery_systems.clear()
+
+
 	required_recovery_count = 0
 	completed_recovery_count = 0
 	assigned_blackout_objectives.clear()
@@ -211,6 +234,22 @@ func request_activate_blackout() -> void:
 	var net_mgr = get_parent()
 	if net_mgr != null and net_mgr.has_method("request_activate_blackout"):
 		net_mgr.request_activate_blackout()
+
+func request_sabotage(sabotage_type: int = 1) -> void:
+	if not is_connected_to_server():
+		push_warning("[CLIENT] Cannot request sabotage: not connected to server.")
+		return
+
+	if assigned_role != NetworkConfig.PlayerRole.IMPOSTOR:
+		push_warning("[CLIENT] Cannot request sabotage: player is not the Impostor.")
+		return
+
+	print("[CLIENT] Local Impostor requesting sabotage (Type %d)..." % sabotage_type)
+	sabotage_requested.emit()
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("send_sabotage_request"):
+		net_mgr.send_sabotage_request(sabotage_type)
+
 
 func request_recover_system(system_id: String) -> void:
 	if not is_connected_to_server():
@@ -339,7 +378,12 @@ func _cleanup_connection() -> void:
 	is_blackout_active = false
 	blackout_countdown_remaining = 0.0
 	blackout_remaining_duration = 0.0
+	current_sabotage_type = 0
+	current_sabotage_state = 0
+	is_sabotage_active = false
+	current_round_state = 0
 	active_recovery_systems.clear()
+
 	required_recovery_count = 0
 	completed_recovery_count = 0
 	assigned_blackout_objectives.clear()
@@ -581,5 +625,26 @@ func handle_game_over(p_winner_role: int, p_reason: int, result_data: Dictionary
 		MeltdownConfig.get_game_over_reason_name(p_reason as MeltdownConfig.GameOverReason)
 	])
 	game_over_received.emit(game_winner, p_reason, result_data)
+
+func handle_remote_player_position(peer_id: int, pos: Vector2, vel: Vector2, facing: Vector2) -> void:
+	remote_player_position_updated.emit(peer_id, pos, vel, facing)
+
+func handle_sabotage_state_sync(p_sabotage_type: int, p_state: int, duration: float) -> void:
+	current_sabotage_type = p_sabotage_type
+	current_sabotage_state = p_state
+	is_sabotage_active = (p_state == SabotageManager.SabotageState.ACTIVE)
+	print("[CLIENT] Authoritative sabotage state received: %s -> %s (Duration: %.1fs)." % [
+		SabotageManager.get_sabotage_display_name(p_sabotage_type as SabotageManager.SabotageType),
+		SabotageManager.get_state_name(p_state as SabotageManager.SabotageState),
+		duration
+	])
+	sabotage_state_synced.emit(p_sabotage_type, p_state, duration)
+
+func handle_round_state_sync(p_round_state: int) -> void:
+	current_round_state = p_round_state
+	print("[CLIENT] Authoritative round state received: %s." % RoundManager.get_state_name(p_round_state as RoundManager.RoundState))
+	round_state_synced.emit(p_round_state)
+
+
 
 

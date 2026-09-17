@@ -91,6 +91,13 @@ func activate_blackout() -> void:
 	elif is_server():
 		push_warning("[NetworkManager] Dedicated server instance cannot initiate Blackout directly without Impostor client request.")
 
+func request_sabotage(sabotage_type: int) -> void:
+	if is_client():
+		client.request_sabotage(sabotage_type)
+	elif is_server():
+		push_warning("[NetworkManager] Dedicated server instance cannot initiate sabotage directly without Impostor client request.")
+
+
 func recover_system(system_id: String) -> void:
 	if is_client():
 		client.request_recover_system(system_id)
@@ -132,6 +139,10 @@ func request_complete_task(task_id: String) -> void:
 func request_activate_blackout() -> void:
 	rpc_request_activate_blackout.rpc_id(1)
 
+func send_sabotage_request(sabotage_type: int) -> void:
+	rpc_request_sabotage.rpc_id(1, sabotage_type)
+
+
 func request_recover_system(system_id: String) -> void:
 	rpc_request_recover_system.rpc_id(1, system_id)
 
@@ -146,6 +157,9 @@ func request_cast_vote(target_peer_id: int) -> void:
 
 func request_complete_emergency_system(system_id: String) -> void:
 	rpc_request_complete_emergency_system.rpc_id(1, system_id)
+
+func send_player_position(pos: Vector2, vel: Vector2, facing: Vector2) -> void:
+	rpc_send_player_position.rpc_id(1, pos, vel, facing)
 
 # --- Server-side RPC Dispatch Helpers ---
 
@@ -182,6 +196,16 @@ func broadcast_blackout_started(duration: float, recipients: Array) -> void:
 func broadcast_blackout_ended(recipients: Array) -> void:
 	for pid in recipients:
 		rpc_notify_blackout_ended.rpc_id(pid)
+
+func broadcast_sabotage_state(sabotage_type: int, state: int, duration: float, recipients: Array) -> void:
+	for pid in recipients:
+		rpc_sync_sabotage_state.rpc_id(pid, sabotage_type, state, duration)
+
+func broadcast_round_state(round_state: int, recipients: Array) -> void:
+	for pid in recipients:
+		rpc_sync_round_state.rpc_id(pid, round_state)
+
+
 
 func broadcast_recovery_initialization(required_count: int, systems_data: Array, recipients: Array) -> void:
 	for pid in recipients:
@@ -250,6 +274,11 @@ func broadcast_player_left(peer_id: int, recipients: Array) -> void:
 	for pid in recipients:
 		rpc_notify_player_disconnected.rpc_id(pid, peer_id)
 
+func broadcast_player_position(sender_id: int, pos: Vector2, vel: Vector2, facing: Vector2, recipients: Array) -> void:
+	for pid in recipients:
+		if pid != sender_id:
+			rpc_receive_remote_player_position.rpc_id(pid, sender_id, pos, vel, facing)
+
 # --- Client-to-Server RPC Endpoints ---
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -275,6 +304,15 @@ func rpc_request_activate_blackout() -> void:
 		server.process_blackout_activation_request(sender_id)
 	else:
 		push_warning("[NetworkManager] Received blackout activation request on non-server node from peer %d." % sender_id)
+
+@rpc("any_peer", "call_remote", "reliable")
+func rpc_request_sabotage(sabotage_type: int) -> void:
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if is_server():
+		server.process_sabotage_request(sender_id, sabotage_type)
+	else:
+		push_warning("[NetworkManager] Received sabotage request on non-server node from peer %d." % sender_id)
+
 
 @rpc("any_peer", "call_remote", "reliable")
 func rpc_request_recover_system(system_id: String) -> void:
@@ -315,6 +353,14 @@ func rpc_request_complete_emergency_system(system_id: String) -> void:
 		server.process_emergency_system_completion_request(sender_id, system_id)
 	else:
 		push_warning("[NetworkManager] Received emergency system completion request on non-server node from peer %d." % sender_id)
+
+@rpc("any_peer", "call_remote", "unreliable")
+func rpc_send_player_position(pos: Vector2, vel: Vector2, facing: Vector2) -> void:
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if is_server():
+		broadcast_player_position(sender_id, pos, vel, facing, server.connected_players.keys())
+	else:
+		push_warning("[NetworkManager] Received position update on non-server node from peer %d." % sender_id)
 
 # --- Server-Authoritative RPC Definitions ---
 # Only the authority (Server, peer ID 1) can call these remote methods.
@@ -453,3 +499,20 @@ func rpc_notify_player_connected(p_peer_id: int, p_slot: int) -> void:
 func rpc_notify_player_disconnected(p_peer_id: int) -> void:
 	if client != null:
 		client.handle_player_left(p_peer_id)
+
+@rpc("authority", "call_remote", "unreliable")
+func rpc_receive_remote_player_position(sender_peer_id: int, pos: Vector2, vel: Vector2, facing: Vector2) -> void:
+	if client != null:
+		client.handle_remote_player_position(sender_peer_id, pos, vel, facing)
+
+@rpc("authority", "call_remote", "reliable")
+func rpc_sync_sabotage_state(sabotage_type: int, state: int, duration: float) -> void:
+	if client != null:
+		client.handle_sabotage_state_sync(sabotage_type, state, duration)
+
+@rpc("authority", "call_remote", "reliable")
+func rpc_sync_round_state(round_state: int) -> void:
+	if client != null:
+		client.handle_round_state_sync(round_state)
+
+

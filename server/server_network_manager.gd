@@ -16,8 +16,13 @@ const MeetingManager = preload("res://server/meeting_manager.gd")
 const VotingManager = preload("res://server/voting_manager.gd")
 const MeltdownConfig = preload("res://shared/meltdown_config.gd")
 const MeltdownManager = preload("res://server/meltdown_manager.gd")
+const RoleManager = preload("res://shared/role_manager.gd")
+const SabotageManager = preload("res://shared/sabotage_manager.gd")
+const RoundManager = preload("res://shared/round_manager.gd")
 
 signal server_started(port: int)
+
+
 signal server_stopped()
 signal player_connected(peer_id: int, player_data: PlayerConnectionData)
 signal player_disconnected(peer_id: int, slot: int)
@@ -42,8 +47,13 @@ signal player_eliminated_on_server(peer_id: int, was_impostor: bool)
 signal meltdown_phase_started(duration: float, impostor_alive: bool)
 signal emergency_system_completed_on_server(peer_id: int, system_id: String, completed_systems: Array)
 signal match_concluded(winner_role: NetworkConfig.PlayerRole, reason: MeltdownConfig.GameOverReason, result_data: Dictionary)
+signal sabotage_activated_on_server(sabotage_type: int, initiator_peer_id: int)
+signal sabotage_resolved_on_server(sabotage_type: int, reason: String)
+signal round_state_updated(previous_state: RoundManager.RoundState, new_state: RoundManager.RoundState)
 
 var peer: ENetMultiplayerPeer = null
+
+
 var is_running: bool = false
 var active_port: int = 0
 var current_game_state: NetworkConfig.GameState = NetworkConfig.GameState.LOBBY
@@ -56,8 +66,12 @@ var evidence_manager: EvidenceManager = null
 var meeting_manager: MeetingManager = null
 var voting_manager: VotingManager = null
 var meltdown_manager: MeltdownManager = null
+var sabotage_manager: SabotageManager = null
+var round_manager: RoundManager = null
 
 var is_impostor_eliminated: bool = false
+
+
 
 ## Server-authoritative collection of connected players: { peer_id (int) -> PlayerConnectionData }
 var connected_players: Dictionary = {}
@@ -71,11 +85,19 @@ func _init() -> void:
 	meeting_manager = MeetingManager.new()
 	voting_manager = VotingManager.new()
 	meltdown_manager = MeltdownManager.new()
+	sabotage_manager = SabotageManager.new()
+	round_manager = RoundManager.new()
 
 	blackout_manager.countdown_started.connect(_on_blackout_countdown_started)
 	blackout_manager.countdown_cancelled.connect(_on_blackout_countdown_cancelled)
 	blackout_manager.blackout_started.connect(_on_blackout_started)
 	blackout_manager.blackout_ended.connect(_on_blackout_ended)
+
+	sabotage_manager.sabotage_started.connect(_on_sabotage_started)
+	sabotage_manager.sabotage_resolved.connect(_on_sabotage_resolved)
+
+	round_manager.round_state_changed.connect(_on_round_state_changed)
+
 
 	recovery_manager.recovery_systems_initialized.connect(_on_recovery_systems_initialized)
 	recovery_manager.recovery_system_completed.connect(_on_recovery_system_completed)
@@ -100,10 +122,16 @@ func _process(delta: float) -> void:
 	if is_running:
 		if blackout_manager != null:
 			blackout_manager.tick(delta)
+		if sabotage_manager != null:
+			sabotage_manager.tick(delta)
+		if round_manager != null:
+			round_manager.tick(delta)
 		if meeting_manager != null:
 			meeting_manager.tick(delta, connected_players, blackout_manager.impostor_peer_id, voting_manager)
 		if meltdown_manager != null:
 			meltdown_manager.tick(delta)
+
+
 
 func _get_mp() -> MultiplayerAPI:
 	if is_inside_tree():
@@ -145,7 +173,11 @@ func start_server(port: int = NetworkConfig.DEFAULT_PORT, max_players: int = Net
 	meeting_manager.clear()
 	voting_manager.clear()
 	meltdown_manager.clear()
+	sabotage_manager.clear()
+	round_manager.clear()
 	is_impostor_eliminated = false
+
+
 
 	print("[SERVER] Authoritative ENet server started on port %d (Max Players: %d | State: LOBBY)." % [port, max_players])
 	server_started.emit(port)
@@ -178,7 +210,11 @@ func stop_server() -> void:
 	evidence_manager.clear()
 	meeting_manager.clear()
 	voting_manager.clear()
+	sabotage_manager.clear()
+	round_manager.clear()
 	is_impostor_eliminated = false
+
+
 
 	if peer != null:
 		peer.close()
@@ -254,10 +290,17 @@ func _check_lobby_start_condition() -> void:
 		print("[SERVER] Match start condition satisfied! Exactly %d/%d players connected and all are READY." % [
 			total_players, NetworkConfig.MAX_PLAYERS
 		])
-		_transition_game_state(NetworkConfig.GameState.ROLE_ASSIGNMENT)
-		assign_roles()
+		if round_manager != null:
+			if round_manager.is_lobby():
+				round_manager.transition_to(RoundManager.RoundState.STARTING)
+			if round_manager.is_starting():
+				round_manager.transition_to(RoundManager.RoundState.ROLE_ASSIGNMENT)
+		else:
+			_transition_game_state(NetworkConfig.GameState.ROLE_ASSIGNMENT)
+			assign_roles()
 
-func assign_roles() -> bool:
+
+func assign_roles(allow_variable_player_count: bool = false, deterministic_impostor_index: int = -1) -> bool:
 	if not is_running:
 		push_warning("[SERVER] Cannot assign roles: server is not active.")
 		return false
@@ -269,34 +312,41 @@ func assign_roles() -> bool:
 		return false
 
 	var total_players: int = connected_players.size()
-	if total_players != NetworkConfig.MAX_PLAYERS:
+	if not allow_variable_player_count and total_players != NetworkConfig.MAX_PLAYERS:
 		push_warning("[SERVER] Cannot assign roles: requires exactly %d players (Current: %d)." % [
 			NetworkConfig.MAX_PLAYERS, total_players
 		])
 		return false
 
+	if total_players == 0:
+		push_warning("[SERVER] Cannot assign roles: no connected players.")
+		return false
+
 	print("[SERVER] Authoritative role assignment started for %d players..." % total_players)
 
 	var peer_ids: Array = connected_players.keys()
-	var impostor_index: int = randi() % peer_ids.size()
-	var impostor_peer_id: int = peer_ids[impostor_index]
+	var role_map: Dictionary = RoleManager.calculate_role_assignments(peer_ids, NetworkConfig.IMPOSTOR_COUNT, deterministic_impostor_index)
 
 	var crew_count: int = 0
 	var impostor_count: int = 0
+	var first_impostor_id: int = 0
 
 	for pid in peer_ids:
+		var p_role: NetworkConfig.PlayerRole = role_map.get(pid, NetworkConfig.PlayerRole.CREW)
 		var player_data: PlayerConnectionData = connected_players[pid]
-		if pid == impostor_peer_id:
-			player_data.role = NetworkConfig.PlayerRole.IMPOSTOR
+		player_data.role = p_role
+		if p_role == NetworkConfig.PlayerRole.IMPOSTOR:
 			impostor_count += 1
+			if first_impostor_id == 0:
+				first_impostor_id = pid
 		else:
-			player_data.role = NetworkConfig.PlayerRole.CREW
 			crew_count += 1
 
 	print("[SERVER] Authoritative role assignment completed: %d Crew, %d Impostor." % [crew_count, impostor_count])
 
-	# Setup BlackoutManager with the assigned Impostor
-	blackout_manager.setup(impostor_peer_id)
+	# Setup BlackoutManager with the assigned Impostor if present
+	if first_impostor_id > 0 and blackout_manager != null:
+		blackout_manager.setup(first_impostor_id)
 
 	# Privately deliver each role to its specific peer connection only
 	var net_mgr = get_parent()
@@ -370,6 +420,143 @@ func process_blackout_activation_request(peer_id: int) -> Dictionary:
 		return {"success": false, "error": "BlackoutManager not initialized"}
 
 	return blackout_manager.request_activation(peer_id, current_game_state)
+
+## Authoritatively processes a sabotage activation request from a client.
+## Strictly validates the player's server-stored role to ensure only IMPOSTOR can trigger sabotage,
+## and restricts sabotage strictly to the PLAYING round state.
+func process_sabotage_request(peer_id: int, sabotage_type: int) -> Dictionary:
+	if not is_running:
+		return {"success": false, "error": "Server not running"}
+
+	# Restrict sabotage strictly to PLAYING round state
+	if round_manager != null and not round_manager.is_playing():
+		var msg = "Sabotage request rejected: match is not in PLAYING state (Current Round: %s)." % RoundManager.get_state_name(round_manager.current_state)
+		push_warning("[SERVER] %s" % msg)
+		return {"success": false, "error": msg}
+
+	if sabotage_manager == null:
+		return {"success": false, "error": "SabotageManager not initialized"}
+
+	# Authoritative role lookup from server's internal connected_players table
+	var player_data: PlayerConnectionData = get_player_data(peer_id)
+	if player_data == null:
+		push_warning("[SERVER] Sabotage request rejected: unknown or disconnected peer %d." % peer_id)
+		return {"success": false, "error": "Unknown or disconnected player"}
+
+
+	var s_type = sabotage_type as SabotageManager.SabotageType
+	var check = sabotage_manager.can_trigger_sabotage(peer_id, player_data.role, s_type)
+	if not check.allowed:
+		push_warning("[SERVER] %s" % check.reason)
+		return {"success": false, "error": check.reason}
+
+	# Authoritatively start the sabotage
+	var duration: float = blackout_manager.blackout_duration if blackout_manager != null else 25.0
+	var result = sabotage_manager.start_sabotage(s_type, duration, peer_id)
+
+	sabotage_activated_on_server.emit(sabotage_type, peer_id)
+
+	# If this is POWER_BLACKOUT, activate the facility blackout system
+	if s_type == SabotageManager.SabotageType.POWER_BLACKOUT:
+		print("[SERVER] Authoritative IMPOSTOR (Peer %d) activated POWER_BLACKOUT sabotage!" % peer_id)
+		if blackout_manager != null:
+			if not blackout_manager.is_blackout_active:
+				blackout_manager._start_blackout()
+		else:
+			_transition_game_state(NetworkConfig.GameState.BLACKOUT_ACTIVE)
+
+	# Broadcast authoritative sabotage state to all connected players
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("broadcast_sabotage_state"):
+		net_mgr.broadcast_sabotage_state(sabotage_type, SabotageManager.SabotageState.ACTIVE, duration, connected_players.keys())
+
+	return result
+
+## Resolves the current sabotage authoritatively and restores power.
+func resolve_sabotage(reason: String = "") -> Dictionary:
+	if sabotage_manager == null:
+		return {"success": false, "error": "SabotageManager not initialized"}
+
+	var prev_type = sabotage_manager.get_active_sabotage_type()
+	var result = sabotage_manager.resolve_sabotage(reason)
+
+	if prev_type != SabotageManager.SabotageType.NONE:
+		sabotage_resolved_on_server.emit(prev_type, reason)
+
+		# End blackout early if active
+		if blackout_manager != null and blackout_manager.is_blackout_active:
+			blackout_manager.end_blackout_early(reason)
+
+		# Broadcast resolved state to all connected players
+		var net_mgr = get_parent()
+		if net_mgr != null and net_mgr.has_method("broadcast_sabotage_state"):
+			net_mgr.broadcast_sabotage_state(prev_type, SabotageManager.SabotageState.RESOLVED, 0.0, connected_players.keys())
+
+	return result
+
+func _on_sabotage_started(_type: SabotageManager.SabotageType, _duration: float) -> void:
+	pass
+
+func _on_sabotage_resolved(_type: SabotageManager.SabotageType, _reason: String) -> void:
+	pass
+
+func _on_round_state_changed(prev: RoundManager.RoundState, next: RoundManager.RoundState) -> void:
+	round_state_updated.emit(prev, next)
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("broadcast_round_state"):
+		net_mgr.broadcast_round_state(next, connected_players.keys())
+
+	match next:
+		RoundManager.RoundState.ROLE_ASSIGNMENT:
+			_transition_game_state(NetworkConfig.GameState.ROLE_ASSIGNMENT)
+			assign_roles(true)
+			if round_manager != null and round_manager.is_role_assignment():
+				round_manager.transition_to(RoundManager.RoundState.PLAYING)
+
+		RoundManager.RoundState.PLAYING:
+			_transition_game_state(NetworkConfig.GameState.INITIAL_TASK_PHASE)
+
+		RoundManager.RoundState.ENDING:
+			if sabotage_manager != null and sabotage_manager.is_sabotage_active():
+				resolve_sabotage("Round Ending")
+
+		RoundManager.RoundState.RESULTS:
+			pass
+
+		RoundManager.RoundState.LOBBY:
+			_transition_game_state(NetworkConfig.GameState.LOBBY)
+			for p: PlayerConnectionData in connected_players.values():
+				p.is_ready = false
+				p.role = NetworkConfig.PlayerRole.NONE
+			_broadcast_lobby_sync()
+
+## Starts the round lifecycle (Development & test helper).
+func start_round(allow_variable_players: bool = true, countdown: float = 0.0) -> bool:
+	if not is_running or round_manager == null:
+		return false
+	if countdown > 0.0:
+		return round_manager.start_round_countdown(countdown)
+	else:
+		if not round_manager.transition_to(RoundManager.RoundState.STARTING):
+			return false
+		return round_manager.transition_to(RoundManager.RoundState.ROLE_ASSIGNMENT)
+
+## Ends the active round (Development & test helper).
+func end_round(reason: String = "Test End of Round") -> bool:
+	if round_manager == null:
+		return false
+	var ok = round_manager.end_round(reason)
+	if ok:
+		round_manager.transition_to(RoundManager.RoundState.RESULTS)
+	return ok
+
+## Resets the round state back to LOBBY (Development & test helper).
+func reset_round() -> bool:
+	if round_manager == null:
+		return false
+	return round_manager.reset_round()
+
+
 
 func _on_blackout_countdown_started(duration: float) -> void:
 	var net_mgr = get_parent()
@@ -550,11 +737,18 @@ func _on_game_over_triggered(winner_role: NetworkConfig.PlayerRole, reason: Melt
 		net_mgr.broadcast_game_over(winner_role, reason, result_data, connected_players.keys())
 
 func _on_blackout_ended() -> void:
+	if sabotage_manager != null and sabotage_manager.is_sabotage_active():
+		sabotage_manager.resolve_sabotage("Authoritative Blackout duration ended.")
+		var net_mgr_sab = get_parent()
+		if net_mgr_sab != null and net_mgr_sab.has_method("broadcast_sabotage_state"):
+			net_mgr_sab.broadcast_sabotage_state(SabotageManager.SabotageType.POWER_BLACKOUT, SabotageManager.SabotageState.RESOLVED, 0.0, connected_players.keys())
+
 	_transition_game_state(NetworkConfig.GameState.POST_BLACKOUT_INVESTIGATION)
 	var net_mgr = get_parent()
 	if net_mgr != null:
 		if net_mgr.has_method("broadcast_blackout_ended"):
 			net_mgr.broadcast_blackout_ended(connected_players.keys())
+
 
 		if evidence_manager != null:
 			var pub_evidence = evidence_manager.finalize_investigation()
@@ -654,6 +848,9 @@ func _on_peer_disconnected(peer_id: int) -> void:
 
 	if meltdown_manager != null:
 		meltdown_manager.handle_player_disconnect(peer_id)
+
+	if round_manager != null and round_manager.is_starting() and connected_players.size() < NetworkConfig.MAX_PLAYERS:
+		round_manager.cancel_start("Player disconnected during countdown.")
 
 	print("[SERVER] Player disconnected. Peer ID: %d (Slot %d) | Remaining Players: %d/%d (Ready: %d/%d)" % [
 		peer_id, slot, connected_players.size(), NetworkConfig.MAX_PLAYERS, get_ready_player_count(), connected_players.size()

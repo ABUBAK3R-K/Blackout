@@ -1,26 +1,41 @@
-[gd_scene load_steps=2 format=3 uid="uid://c8q1nxy0v1a2b"]
+[gd_scene load_steps=8 format=3 uid="uid://c8q1nxy0v1a2b"]
 
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://d3m8f9q2k1v5x" path="res://scenes/map/facility_map.tscn" id="2_map"]
+[ext_resource type="PackedScene" uid="uid://b8x7y6w5v4u3t" path="res://scenes/player/player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://client/player/spawn_manager.gd" id="4_spawn"]
+[ext_resource type="PackedScene" uid="uid://e5f6a7b8c9d0e" path="res://scenes/environment/blackout_lighting.tscn" id="5_lighting"]
+[ext_resource type="Script" path="res://client/player/state_sync.gd" id="6_sync"]
+[ext_resource type="PackedScene" uid="uid://b1c2d3e4f5a6b" path="res://scenes/ui/objective_tracker.tscn" id="7_tracker"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
 
+[node name="FacilityMap" parent="." instance=ExtResource("2_map")]
+
+[node name="SpawnManager" type="Node2D" parent="."]
+script = ExtResource("4_spawn")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(800, 550)
+
+[node name="StateSync" type="Node" parent="."]
+script = ExtResource("6_sync")
+
+[node name="BlackoutLighting" parent="." instance=ExtResource("5_lighting")]
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="CenterContainer" type="CenterContainer" parent="CanvasLayer"]
-anchors_preset = 15
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -94.0
-offset_top = -19.0
-offset_right = -94.0
-offset_bottom = -19.0
+offset_top = 20.0
+offset_bottom = 120.0
 grow_horizontal = 2
-grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/CenterContainer"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="TitleLabel" type="Label" parent="CanvasLayer/CenterContainer/VBoxContainer"]
 layout_mode = 2
@@ -30,6 +45,57 @@ horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="CanvasLayer/CenterContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Project Foundation Initialized (Godot 4.x - Member 1)"
+theme_override_font_sizes/font_size = 14
+text = "Asterion Facility (Member 3) — WASD Move | E Interact | B Toggle Blackout"
 horizontal_alignment = 1
+
+[node name="ObjectiveTracker" parent="CanvasLayer" instance=ExtResource("7_tracker")]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 260.0
+offset_bottom = 160.0
+
+[node name="RoleContainer" type="MarginContainer" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -190.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 60.0
+grow_horizontal = 0
+
+[node name="RolePanel" type="PanelContainer" parent="CanvasLayer/RoleContainer"]
+layout_mode = 2
+
+[node name="RoleLabel" type="Label" parent="CanvasLayer/RoleContainer/RolePanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+text = "ROLE: CREW"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RoundContainer" type="MarginContainer" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -190.0
+offset_top = 66.0
+offset_right = -20.0
+offset_bottom = 100.0
+grow_horizontal = 0
+
+[node name="RoundPanel" type="PanelContainer" parent="CanvasLayer/RoundContainer"]
+layout_mode = 2
+
+[node name="RoundLabel" type="Label" parent="CanvasLayer/RoundContainer/RoundPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.85, 0.95, 1)
+theme_override_font_sizes/font_size = 12
+text = "ROUND: LOBBY"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+
+

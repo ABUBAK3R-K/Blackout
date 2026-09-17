@@ -1,0 +1,103 @@
+[gd_scene load_steps=6 format=3 uid="uid://b8x7y6w5v4u3t"]
+
+[ext_resource type="Script" path="res://client/player/player_controller.gd" id="1_controller"]
+[ext_resource type="Script" path="res://client/camera/game_camera.gd" id="2_camera"]
+[ext_resource type="Script" path="res://client/player/footstep_audio.gd" id="3_footstep"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 16.0
+
+[sub_resource type="Gradient" id="Gradient_Radial_Vision"]
+offsets = PackedFloat32Array(0, 0.4, 0.85, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.85, 0.92, 1, 0.65, 0.4, 0.5, 0.7, 0.15, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_Vision"]
+gradient = SubResource("Gradient_Radial_Vision")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0.0)
+
+[sub_resource type="Gradient" id="Gradient_Flashlight"]
+offsets = PackedFloat32Array(0, 0.2, 0.65, 1)
+colors = PackedColorArray(1, 1, 1, 0.9, 0.85, 0.94, 1, 0.65, 0.4, 0.6, 0.85, 0.2, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_Flashlight"]
+gradient = SubResource("Gradient_Flashlight")
+width = 256
+height = 256
+fill = 0
+fill_from = Vector2(0.5, 0.0)
+fill_to = Vector2(0.5, 1.0)
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("1_controller")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_1")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+script = ExtResource("2_camera")
+
+[node name="VisionLight" type="PointLight2D" parent="."]
+enabled = false
+energy = 0.0
+texture = SubResource("GradientTexture2D_Vision")
+texture_scale = 3.0
+
+[node name="FlashlightPivot" type="Node2D" parent="."]
+
+[node name="DirectionalLight" type="PointLight2D" parent="FlashlightPivot"]
+enabled = false
+energy = 0.0
+offset = Vector2(0, 240)
+texture = SubResource("GradientTexture2D_Flashlight")
+texture_scale = 2.0
+
+[node name="FootstepAudio" type="Node2D" parent="."]
+script = ExtResource("3_footstep")
+
+[node name="FootstepPlayer" type="AudioStreamPlayer2D" parent="FootstepAudio"]
+max_distance = 650.0
+attenuation = 1.2
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Body" type="Polygon2D" parent="Visual"]
+color = Color(0.22, 0.65, 0.88, 1)
+polygon = PackedVector2Array(-12, -12, -5, -16, 5, -16, 12, -12, 16, -5, 16, 5, 12, 12, 5, 16, -5, 16, -12, 12, -16, 5, -16, -5)
+
+[node name="Visor" type="Polygon2D" parent="Visual"]
+color = Color(0.1, 0.2, 0.35, 1)
+polygon = PackedVector2Array(-7, -8, 7, -8, 9, -2, 7, 3, -7, 3, -9, -2)
+
+[node name="DirectionIndicator" type="Polygon2D" parent="Visual"]
+color = Color(0.35, 0.88, 1, 0.95)
+polygon = PackedVector2Array(-4, 10, 4, 10, 0, 17)
+
+[node name="NameLabel" type="Label" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -70.0
+offset_top = -36.0
+offset_right = 70.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_outline_color = Color(0.04, 0.06, 0.1, 0.95)
+theme_override_constants/outline_size = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 12
+text = "Player 1 (YOU)"
+horizontal_alignment = 1
+vertical_alignment = 1
