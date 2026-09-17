@@ -5,8 +5,8 @@
 > **Engine / Framework:** Godot 4.x (GDScript)  
 > **Target Version:** 1.0 (MVP)  
 > **Last Updated:** 2026-09-17  
-> **Active Branch:** `member-2/gameplay-backend`  
-> **Status:** Active Development (Step 10 Complete — Core Authoritative Backend & Network Infrastructure Merged to `main` and synced to `member-2/gameplay-backend`)
+> **Active Branch:** `member-7/environment-art`  
+> **Status:** Active Development (Step 10 Complete — Core Authoritative Backend Merged; Member 7 Environment Art Initialized)
 
 ---
 
@@ -17,7 +17,7 @@
 | **Current Phase** | **Backend Infrastructure & Gameplay Mechanics (Steps 1–10 Complete)** | Core authoritative network managers, task systems, blackout, recovery, evidence, meeting/voting, and meltdown logic implemented and verified via unit test suites |
 | **Overall Health** | 🟢 **Green** | Core authoritative loop passes 10 headless test suites |
 | **Engine Confirmed** | **Godot 4.x (GDScript)** | `project.godot` configured, headless GDScript test runner validated |
-| **Next Major Milestone** | **Client Gameplay Integration (Steps 11+)** | Client player movement (M3), mini-game UI/interaction framework (M4), HUD/UI screens (M5), environment tilemaps (M7) |
+| **Next Major Milestone** | **Client Gameplay Integration (Steps 11+)** | Client player movement (M3), mini-game UI/interaction framework (M4), HUD/UI screens (M5), environment tilemaps & lighting (M7) |
 | **Target MVP Completion** | End of Sprint 5 | Full 8-player end-to-end playable match loop |
 
 ---
@@ -32,7 +32,7 @@
 | **Member 4** | **Ubaid** | `member-4/mini-games` | `client/interactions/mini_games/` (Crew tasks, prerequisite tasks, Meltdown emergency mini-games), input handling | 🟡 In Progress |
 | **Member 5** | **Shahzan** | `member-5/ui-frontend` | In-game HUD (`task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`), meeting & voting screens, role reveal, game over | 🟡 In Progress |
 | **Member 6** | **Abubaker** | `member-6/game-design` | Balance configs (`shared/*_config.gd`), task specs, evidence rules, 9-room layout flow | 🟡 In Progress |
-| **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟡 In Progress |
+| **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟡 In Progress (Assets Initialized & Art Spec Published) |
 | **Member 8** | **Sahil** | `member-8/audio-qa` | SFX & tension soundscapes, `tests/` automated test suites, 8-player playtest operations | 🟢 Automated Test Suites Implemented (Tests 1–10) |
 
 *Status Legend:* ⚪ *Not Started* | 🟡 *In Progress* | 🔵 *Under Review (PR Open)* | 🟢 *Merged to `main`* | 🔴 *Blocked*
@@ -60,7 +60,24 @@ Member 2 is the primary owner and maintainer of the authoritative server gamepla
 
 ---
 
-## 4. Sprint Milestones Roadmap
+## 4. Member 7 (Fatima) — 2D Environment & Technical Art Status & Ownership
+
+Member 7 is the primary owner of all environmental art, tilemaps, lighting assets, character sprites, and visual effects in `assets/sprites/`, `assets/vfx/`, and `scenes/environment/`.
+
+### Subsystem Breakdown:
+
+| Module / Asset Group | Target Directory | Specifications / Controller | Status |
+|---|---|---|---|
+| **Technical Art Specification** | `docs/` | `docs/environment_art_spec.md` | 🟢 Complete & Approved |
+| **Dual-State Lighting System** | `assets/sprites/lighting/` | `facility_lighting_controller.gd`, `flashlight_mask.png`, `radial_light_cookie.png`, `vignette_mask.png` | 🟢 Initialized & Active |
+| **9-Room Facility Tilemaps** | `assets/sprites/environment/` | 32×32 grid tilemaps for all 9 rooms (Cafeteria, Security, Lab, Server Room, Storage, Generator, Office, MedBay, ORION Core) | 🟡 Pipeline Initialized |
+| **Station & Evidence Visuals** | `assets/sprites/stations/` | Visual states (Intact, Sabotaged, Repairing, Repaired, Evidence markers) | 🟡 In Progress |
+| **2D Character Sprite Sheets** | `assets/sprites/characters/` | 8-player color variants, 4-directional walk/idle/task/ghost animations | 🟡 In Progress |
+| **Visual Effects (VFX)** | `assets/vfx/` | Particle presets (sparks, steam) & Meltdown heat distortion shader | 🟡 In Progress |
+
+---
+
+## 5. Sprint Milestones Roadmap
 
 ### Sprint 1: Core Foundation & Map Layout
 - [x] Engine selection confirmed: **Godot 4.x**.
@@ -104,7 +121,7 @@ Member 2 is the primary owner and maintainer of the authoritative server gamepla
 
 ---
 
-## 5. Open Questions Resolution Log (`prd.md` §9)
+## 6. Open Questions Resolution Log (`prd.md` §9)
 
 | # | Question | Owner | Status | Decision / Current Implementation |
 |---|---|---|---|---|
@@ -120,7 +137,7 @@ Member 2 is the primary owner and maintainer of the authoritative server gamepla
 
 ---
 
-## 6. Change Log Protocol (Instructions for All Team Members)
+## 7. Change Log Protocol (Instructions for All Team Members)
 
 Whenever ANY change is made to the codebase or documentation, the modifying team member MUST append an entry to this file:
 
@@ -146,7 +163,27 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 
 ---
 
-## 7. Change Log
+## 8. Change Log
+
+### [2026-09-17] — Initialized Member 7 (Fatima) Environment Art Architecture & Asset Pipeline
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `docs/` (`environment_art_spec.md`)
+  - `assets/sprites/` (`environment/`, `stations/`, `lighting/`, `characters/`)
+  - `assets/vfx/`
+  - `scenes/environment/` (`facility_lighting_controller.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Process Setup / Art Pipeline`
+- **Description:**
+  - Initialized asset directory structure across environment, stations, lighting, characters, and VFX.
+  - Published comprehensive 2D Environment & Technical Art Specification (`docs/environment_art_spec.md`) detailing grid standards, 9-room layout geometry, collision masks, dual-state lighting, station visual states, evidence markers, character color palettes, and shaders.
+  - Created foundational lighting textures: `radial_light_cookie.png`, `flashlight_mask.png`, and `vignette_mask.png`.
+  - Implemented `FacilityLightingController` GDScript node to manage seamless state transitions between Normal, Blackout Warning, Blackout Active, and Meltdown with animated emergency sirens and network signal hooks.
+- **Breaking Changes / Contract Impacts:** None. Seamlessly hooks into `ClientNetworkManager` signals and aligns with `TaskConfig`, `EvidenceConfig`, `BlackoutRecoveryConfig`, and `MeltdownConfig`.
+- **Verification / Testing:** Asset dimensions and texture import profiles verified; lighting state machine tested against network event contracts.
+
+---
 
 ### [2026-09-17] — Member 2 (Abdul Qadir) Gameplay Backend Workflow Execution
 - **Author:** Abdul Qadir (Member 2 — Gameplay Backend Engineer)
@@ -203,3 +240,4 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 - **Verification / Testing:** Cross-referenced against `PRD.md`, `design.md`, and `TEAM_SPLIT.md` for 100% requirements coverage.
 
 ---
+
