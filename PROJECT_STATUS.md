@@ -32,7 +32,7 @@
 | **Member 4** | **Ubaid** | `member-4/mini-games` | `client/interactions/mini_games/` (Crew tasks, prerequisite tasks, Meltdown emergency mini-games), input handling | 🟡 In Progress |
 | **Member 5** | **Shahzan** | `member-5/ui-frontend` | In-game HUD (`task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`), meeting & voting screens, role reveal, game over | 🟡 In Progress |
 | **Member 6** | **Abubaker** | `member-6/game-design` | Balance configs (`shared/*_config.gd`), task specs, evidence rules, 9-room layout flow | 🟡 In Progress |
-| **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟡 In Progress (Phase 3 Tileset & Room Props Complete) |
+| **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟡 In Progress (Phase 4 Master Map Complete) |
 | **Member 8** | **Sahil** | `member-8/audio-qa` | SFX & tension soundscapes, `tests/` automated test suites, 8-player playtest operations | 🟢 Automated Test Suites Implemented (Tests 1–10) |
 
 *Status Legend:* ⚪ *Not Started* | 🟡 *In Progress* | 🔵 *Under Review (PR Open)* | 🟢 *Merged to `main`* | 🔴 *Blocked*
@@ -69,7 +69,7 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 |---|---|---|---|
 | **Technical Art Specification** | `docs/` | `docs/environment_art_spec.md` | 🟢 Complete & Approved |
 | **Dual-State Lighting System** | `assets/sprites/lighting/`, `scenes/environment/` | `facility_lighting_controller.tscn`, `player_flashlight.tscn`, `vignette_overlay.tscn`, `tests/test_facility_lighting_controller.gd` | 🟢 Phase 2 Complete & Tested |
-| **9-Room Facility Tilemaps** | `assets/sprites/environment/`, `scenes/environment/` | `tileset_floor_walls.png`, `facility_tileset.tres`, 10 room prop sprites, `room_prop.tscn`, `tests/test_environment_tileset_props.gd` | 🟢 Phase 3 Complete & Tested |
+| **9-Room Facility Tilemaps & Master Map** | `assets/sprites/environment/`, `scenes/environment/` | `facility_map.tscn`, `facility_map.gd`, `tileset_floor_walls.png`, `facility_tileset.tres`, 10 props, `tests/test_facility_map.gd` | 🟢 Phase 4 Complete & Tested |
 | **Station & Evidence Visuals** | `assets/sprites/stations/` | Visual states (Intact, Sabotaged, Repairing, Repaired, Evidence markers) | 🟡 In Progress |
 | **2D Character Sprite Sheets** | `assets/sprites/characters/` | 8-player color variants, 4-directional walk/idle/task/ghost animations | 🟡 In Progress |
 | **Visual Effects (VFX)** | `assets/vfx/` | Particle presets (sparks, steam) & Meltdown heat distortion shader | 🟡 In Progress |
@@ -256,4 +256,25 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 - **Verification / Testing:** Headless test assertions in `tests/test_environment_tileset_props.gd` executed with 100% pass rate.
 
 ---
+
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 4: Full 9-Room Master Facility Map & Spatial System
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `scenes/environment/` (`facility_map.gd`, `facility_map.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_facility_map.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Master Map / Spatial System / Lighting Integration`
+- **Description:**
+  - Assembled the full 9-room master facility map scene (`facility_map.tscn`) adhering to the 3×3 matrix geometry (Cafeteria center hub, surrounded by Storage, Server Room, MedBay, Generator Room, Executive Office, Security Room, Laboratory, and ORION Core).
+  - Implemented `FacilityMap` controller (`facility_map.gd`) with exact world-space bounding rectangles for all 9 rooms, 8-player Cafeteria spawn anchors (`get_spawn_position()`), and fast spatial room detection (`get_room_at_position()`).
+  - Integrated 10 interactive station props across their respective rooms and enabled station lookup via `get_station_prop()`.
+  - Integrated `FacilityLightingController` with complete arrays of normal ceiling fixtures and emergency crimson sirens across all 9 rooms.
+  - Authored automated test suite (`tests/test_facility_map.gd`) validating map instantiation, 9-room spatial queries, 8-player spawn boundaries, station linkages, and dual lighting arrays.
+- **Breaking Changes / Contract Impacts:** None. Fully backwards compatible and ready for Player Controller (M3) and Mini-game (M4) integration.
+- **Verification / Testing:** Headless test assertions in `tests/test_facility_map.gd` executed with 100% pass rate.
+
+---
+
 
