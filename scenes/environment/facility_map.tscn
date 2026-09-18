@@ -1,0 +1,330 @@
+[gd_scene load_steps=15 format=3 uid="uid://c7w8n5k2m4q9p"]
+
+[ext_resource type="Script" path="res://scenes/environment/facility_map.gd" id="1_map"]
+[ext_resource type="PackedScene" uid="uid://b7qm4v2yx8j4w" path="res://scenes/environment/facility_lighting_controller.tscn" id="2_lighting"]
+[ext_resource type="PackedScene" uid="uid://c8r3u1w2m7y5p" path="res://scenes/environment/room_prop.tscn" id="3_room_prop"]
+[ext_resource type="Texture2D" path="res://assets/sprites/environment/prop_cafeteria_meeting_console.png" id="4_console"]
+[ext_resource type="Texture2D" path="res://assets/sprites/environment/prop_cafeteria_table.png" id="5_table"]
+[ext_resource type="Texture2D" path="res://assets/sprites/environment/prop_security_desk.png" id="6_sec_desk"]
+[ext_resource type="Texture2D" path="res://assets/sprites/environment/prop_lab_fume_hood.png" id="7_fume"]
+[ext_resource type="Texture2D" path="res://assets/sprites/environment/prop_server_rack.png" id="8_rack"]
+[ext_resource type="Texture2D" path="res://assets/sprites/environment/prop_storage_crates.png" id="9_crates"]
+[ext_resource type="Texture2D" path="res://assets/sprites/environment/prop_generator_unit.png" id="10_generator"]
+[ext_resource type="Texture2D" path="res://assets/sprites/environment/prop_executive_desk.png" id="11_exec_desk"]
+[ext_resource type="Texture2D" path="res://assets/sprites/environment/prop_medbay_bed.png" id="12_med_bed"]
+[ext_resource type="Texture2D" path="res://assets/sprites/environment/prop_orion_core_reactor.png" id="13_reactor"]
+[ext_resource type="Texture2D" path="res://assets/sprites/lighting/radial_light_cookie.png" id="14_cookie"]
+
+[node name="FacilityMap" type="Node2D" node_paths=PackedStringArray("lighting_controller", "spawn_points_parent", "props_parent")]
+script = ExtResource("1_map")
+lighting_controller = NodePath("FacilityLightingController")
+spawn_points_parent = NodePath("SpawnPoints")
+props_parent = NodePath("Props")
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+
+[node name="SpawnPoint_0" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(0, -160)
+
+[node name="SpawnPoint_1" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(120, -120)
+
+[node name="SpawnPoint_2" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(160, 0)
+
+[node name="SpawnPoint_3" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(120, 120)
+
+[node name="SpawnPoint_4" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(0, 160)
+
+[node name="SpawnPoint_5" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(-120, 120)
+
+[node name="SpawnPoint_6" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(-160, 0)
+
+[node name="SpawnPoint_7" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(-120, -120)
+
+[node name="Props" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="MeetingConsole" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(0, 0)
+prop_name = "Emergency Meeting Button"
+room_id = "cafeteria"
+station_id = "emergency_meeting_console"
+is_interactable = true
+
+[node name="Sprite2D" parent="Props/MeetingConsole" index="0"]
+texture = ExtResource("4_console")
+
+[node name="CafeteriaTable1" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(-220, -120)
+prop_name = "Cafeteria Dining Table 1"
+room_id = "cafeteria"
+
+[node name="Sprite2D" parent="Props/CafeteriaTable1" index="0"]
+texture = ExtResource("5_table")
+
+[node name="CafeteriaTable2" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(220, -120)
+prop_name = "Cafeteria Dining Table 2"
+room_id = "cafeteria"
+
+[node name="Sprite2D" parent="Props/CafeteriaTable2" index="0"]
+texture = ExtResource("5_table")
+
+[node name="CafeteriaTable3" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(-220, 120)
+prop_name = "Cafeteria Dining Table 3"
+room_id = "cafeteria"
+
+[node name="Sprite2D" parent="Props/CafeteriaTable3" index="0"]
+texture = ExtResource("5_table")
+
+[node name="CafeteriaTable4" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(220, 120)
+prop_name = "Cafeteria Dining Table 4"
+room_id = "cafeteria"
+
+[node name="Sprite2D" parent="Props/CafeteriaTable4" index="0"]
+texture = ExtResource("5_table")
+
+[node name="SecurityDesk" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(-650, 600)
+prop_name = "Security Surveillance Workstation"
+room_id = "security_room"
+station_id = "security_repair"
+is_interactable = true
+
+[node name="Sprite2D" parent="Props/SecurityDesk" index="0"]
+texture = ExtResource("6_sec_desk")
+
+[node name="LabFumeHood" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(0, 600)
+prop_name = "Chemical Fume Hood & Centrifuge"
+room_id = "laboratory"
+station_id = "laboratory_org"
+is_interactable = true
+
+[node name="Sprite2D" parent="Props/LabFumeHood" index="0"]
+texture = ExtResource("7_fume")
+
+[node name="ServerRack1" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(-60, -600)
+prop_name = "Server Calibration Unit"
+room_id = "server_room"
+station_id = "server_calibration"
+is_interactable = true
+
+[node name="Sprite2D" parent="Props/ServerRack1" index="0"]
+texture = ExtResource("8_rack")
+
+[node name="ServerRack2" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(60, -600)
+prop_name = "Data Uplink Terminal"
+room_id = "server_room"
+station_id = "data_transfer"
+is_interactable = true
+
+[node name="Sprite2D" parent="Props/ServerRack2" index="0"]
+texture = ExtResource("8_rack")
+
+[node name="StorageCrates" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(-700, -600)
+prop_name = "Auxiliary Power Canister Crate"
+room_id = "storage"
+station_id = "backup_power"
+is_interactable = true
+
+[node name="Sprite2D" parent="Props/StorageCrates" index="0"]
+texture = ExtResource("9_crates")
+
+[node name="GeneratorUnit" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(-750, 0)
+prop_name = "Main High-Voltage Generator"
+room_id = "generator_room"
+station_id = "repair_power"
+is_interactable = true
+
+[node name="Sprite2D" parent="Props/GeneratorUnit" index="0"]
+texture = ExtResource("10_generator")
+
+[node name="ExecutiveDesk" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(650, 0)
+prop_name = "Executive Safe & Desk"
+room_id = "executive_office"
+station_id = "classified_files"
+is_interactable = true
+
+[node name="Sprite2D" parent="Props/ExecutiveDesk" index="0"]
+texture = ExtResource("11_exec_desk")
+
+[node name="MedBayBed1" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(660, -600)
+prop_name = "Medical Biometric Bed 1"
+room_id = "medbay"
+station_id = "medical_supply_check"
+is_interactable = true
+
+[node name="Sprite2D" parent="Props/MedBayBed1" index="0"]
+texture = ExtResource("12_med_bed")
+
+[node name="MedBayBed2" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(740, -600)
+prop_name = "Medical Biometric Bed 2"
+room_id = "medbay"
+
+[node name="Sprite2D" parent="Props/MedBayBed2" index="0"]
+texture = ExtResource("12_med_bed")
+
+[node name="OrionReactor" parent="Props" instance=ExtResource("3_room_prop")]
+position = Vector2(750, 650)
+prop_name = "ORION Reactor Core"
+room_id = "orion_core"
+station_id = "stabilize_orion"
+is_interactable = true
+
+[node name="Sprite2D" parent="Props/OrionReactor" index="0"]
+texture = ExtResource("13_reactor")
+
+[node name="FacilityLightingController" parent="." instance=ExtResource("2_lighting")]
+
+[node name="CeilingLight_Storage" type="PointLight2D" parent="FacilityLightingController/NormalLights" index="2"]
+position = Vector2(-700, -600)
+color = Color(1, 0.97, 0.91, 1)
+energy = 1.0
+texture = ExtResource("14_cookie")
+texture_scale = 3.5
+
+[node name="CeilingLight_Server" type="PointLight2D" parent="FacilityLightingController/NormalLights" index="3"]
+position = Vector2(0, -600)
+color = Color(1, 0.97, 0.91, 1)
+energy = 1.0
+texture = ExtResource("14_cookie")
+texture_scale = 3.5
+
+[node name="CeilingLight_MedBay" type="PointLight2D" parent="FacilityLightingController/NormalLights" index="4"]
+position = Vector2(700, -600)
+color = Color(1, 0.97, 0.91, 1)
+energy = 1.0
+texture = ExtResource("14_cookie")
+texture_scale = 3.5
+
+[node name="CeilingLight_Generator" type="PointLight2D" parent="FacilityLightingController/NormalLights" index="5"]
+position = Vector2(-750, 0)
+color = Color(1, 0.97, 0.91, 1)
+energy = 1.0
+texture = ExtResource("14_cookie")
+texture_scale = 3.5
+
+[node name="CeilingLight_Executive" type="PointLight2D" parent="FacilityLightingController/NormalLights" index="6"]
+position = Vector2(650, 0)
+color = Color(1, 0.97, 0.91, 1)
+energy = 1.0
+texture = ExtResource("14_cookie")
+texture_scale = 3.5
+
+[node name="CeilingLight_Security" type="PointLight2D" parent="FacilityLightingController/NormalLights" index="7"]
+position = Vector2(-650, 600)
+color = Color(1, 0.97, 0.91, 1)
+energy = 1.0
+texture = ExtResource("14_cookie")
+texture_scale = 3.5
+
+[node name="CeilingLight_Lab" type="PointLight2D" parent="FacilityLightingController/NormalLights" index="8"]
+position = Vector2(0, 600)
+color = Color(1, 0.97, 0.91, 1)
+energy = 1.0
+texture = ExtResource("14_cookie")
+texture_scale = 3.5
+
+[node name="CeilingLight_Orion" type="PointLight2D" parent="FacilityLightingController/NormalLights" index="9"]
+position = Vector2(750, 650)
+color = Color(1, 0.97, 0.91, 1)
+energy = 1.0
+texture = ExtResource("14_cookie")
+texture_scale = 4.5
+
+[node name="EmergencySiren_Storage" type="PointLight2D" parent="FacilityLightingController/EmergencySirens" index="1"]
+position = Vector2(-700, -600)
+color = Color(1, 0.1, 0.18, 1)
+energy = 0.2
+shadow_enabled = true
+texture = ExtResource("14_cookie")
+texture_scale = 4.0
+
+[node name="EmergencySiren_Server" type="PointLight2D" parent="FacilityLightingController/EmergencySirens" index="2"]
+position = Vector2(0, -600)
+color = Color(1, 0.1, 0.18, 1)
+energy = 0.2
+shadow_enabled = true
+texture = ExtResource("14_cookie")
+texture_scale = 4.0
+
+[node name="EmergencySiren_MedBay" type="PointLight2D" parent="FacilityLightingController/EmergencySirens" index="3"]
+position = Vector2(700, -600)
+color = Color(1, 0.1, 0.18, 1)
+energy = 0.2
+shadow_enabled = true
+texture = ExtResource("14_cookie")
+texture_scale = 4.0
+
+[node name="EmergencySiren_Generator" type="PointLight2D" parent="FacilityLightingController/EmergencySirens" index="4"]
+position = Vector2(-750, 0)
+color = Color(1, 0.1, 0.18, 1)
+energy = 0.2
+shadow_enabled = true
+texture = ExtResource("14_cookie")
+texture_scale = 4.0
+
+[node name="EmergencySiren_Executive" type="PointLight2D" parent="FacilityLightingController/EmergencySirens" index="5"]
+position = Vector2(650, 0)
+color = Color(1, 0.1, 0.18, 1)
+energy = 0.2
+shadow_enabled = true
+texture = ExtResource("14_cookie")
+texture_scale = 4.0
+
+[node name="EmergencySiren_Security" type="PointLight2D" parent="FacilityLightingController/EmergencySirens" index="6"]
+position = Vector2(-650, 600)
+color = Color(1, 0.1, 0.18, 1)
+energy = 0.2
+shadow_enabled = true
+texture = ExtResource("14_cookie")
+texture_scale = 4.0
+
+[node name="EmergencySiren_Lab" type="PointLight2D" parent="FacilityLightingController/EmergencySirens" index="7"]
+position = Vector2(0, 600)
+color = Color(1, 0.1, 0.18, 1)
+energy = 0.2
+shadow_enabled = true
+texture = ExtResource("14_cookie")
+texture_scale = 4.0
+
+[node name="EmergencySiren_Orion" type="PointLight2D" parent="FacilityLightingController/EmergencySirens" index="8"]
+position = Vector2(750, 650)
+color = Color(1, 0.1, 0.18, 1)
+energy = 0.2
+shadow_enabled = true
+texture = ExtResource("14_cookie")
+texture_scale = 4.5
+
+[editable path="Props/MeetingConsole"]
+[editable path="Props/CafeteriaTable1"]
+[editable path="Props/CafeteriaTable2"]
+[editable path="Props/CafeteriaTable3"]
+[editable path="Props/CafeteriaTable4"]
+[editable path="Props/SecurityDesk"]
+[editable path="Props/LabFumeHood"]
+[editable path="Props/ServerRack1"]
+[editable path="Props/ServerRack2"]
+[editable path="Props/StorageCrates"]
+[editable path="Props/GeneratorUnit"]
+[editable path="Props/ExecutiveDesk"]
+[editable path="Props/MedBayBed1"]
+[editable path="Props/MedBayBed2"]
+[editable path="Props/OrionReactor"]
+[editable path="FacilityLightingController"]
