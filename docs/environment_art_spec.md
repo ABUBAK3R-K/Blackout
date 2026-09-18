@@ -200,7 +200,7 @@ Players are assigned one of 8 distinct suit colors:
 
 - [x] Phase 1: Directory initialization & technical art specification (`docs/environment_art_spec.md`).
 - [x] Phase 2: Base lighting texture assets (`flashlight_mask.png`, `radial_light_cookie.png`, `vignette_mask.png`), `facility_lighting_controller.tscn`, `player_flashlight.tscn`, `vignette_overlay.tscn`, and automated test suite (`tests/test_facility_lighting_controller.gd`).
-- [ ] Phase 3: Modular 32×32 tileset resources & room prop sprites (`assets/sprites/environment/`).
+- [x] Phase 3: Modular 32×32 tileset resources (`tileset_floor_walls.png`, `facility_tileset.tres`), 10 room prop sprites, `RoomProp` base node (`room_prop.gd`, `room_prop.tscn`), and test suite (`tests/test_environment_tileset_props.gd`).
 - [ ] Phase 4: Full 9-room master facility map scene (`scenes/environment/facility_map.tscn`).
 - [ ] Phase 5: Station visual states & evidence marker props (`assets/sprites/stations/`).
 - [ ] Phase 6: Player character sprite sheets (8 colors, 4 directions) & animation controller.
