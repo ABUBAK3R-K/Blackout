@@ -1,0 +1,123 @@
+{
+  "_meta": {
+    "description": "Canonical design-owned reference for all BLACKOUT MVP balance levers. Owned by Member 6 (Abubaker) per TEAM_SPLIT.md and design.md §6.4.",
+    "status": "Reference document — values below mirror the live defaults already hardcoded in shared/*_config.gd (source of truth for the running game). This file is not yet loaded by the engine at runtime; it is the single place to propose/track tuning changes before they are ported into shared/*_config.gd by Member 2.",
+    "version": "1.0.0-mvp",
+    "last_updated": "2026-09-18",
+    "related_docs": [
+      "design.md#6.4",
+      "design/specs/task_specifications.md",
+      "design/specs/evidence_matrix.md",
+      "design/specs/map_station_layout.md"
+    ]
+  },
+
+  "task_system": {
+    "_source": "shared/task_config.gd",
+    "crew_task_count": {
+      "value": 4,
+      "range": [3, 5],
+      "notes": "Tasks per Crew member, drawn without repetition from the 10-entry TASK_CATALOG."
+    },
+    "impostor_prerequisite_count": {
+      "value": 2,
+      "range": [1, 3],
+      "notes": "Must stay below crew_task_count to satisfy FR-6's 'smaller/easier' cover requirement."
+    },
+    "task_catalog_size": 10
+  },
+
+  "blackout": {
+    "_source": "shared/blackout_config.gd",
+    "duration_sec": {
+      "value": 60.0,
+      "range": [45.0, 120.0],
+      "notes": "Primary balance lever between 'Impostor can't finish objectives' (too short) and 'Crew has no tension' (too long). Design placeholder in design.md §6.4 (legacy 15 min) is explicitly superseded by this live default. Tune jointly with impostor_objectives.assigned_count and blackout_recovery.required_count per playtest data (PRD Open Question #6)."
+    },
+    "countdown_duration_sec": {
+      "value": 3.0,
+      "range": [2.0, 5.0],
+      "notes": "3-2-1 activation countdown visible to all players before blackout effects apply."
+    },
+    "max_activations": 1
+  },
+
+  "blackout_recovery": {
+    "_source": "shared/blackout_recovery_config.gd",
+    "total_systems": 4,
+    "required_systems": {
+      "value": 3,
+      "range": [2, 4],
+      "notes": "X-of-4 early-termination threshold. Never set to total_systems (would make it a single mandatory checklist rather than a distributed race). PRD Open Question #7."
+    }
+  },
+
+  "impostor_objectives": {
+    "_source": "shared/blackout_objective_config.gd",
+    "catalog_size": 5,
+    "assigned_count": {
+      "value": 3,
+      "range": [2, 5],
+      "notes": "Objectives randomly assigned per match from the 5-entry catalog. Lower increases match-to-match variance; 5 (all) removes variance entirely."
+    },
+    "sabotage_cooldown_sec": {
+      "value": 0.0,
+      "range": [0.0, 15.0],
+      "notes": "NOT YET IMPLEMENTED in server/impostor_objective_manager.gd (no cooldown/cost gating exists between objective completions today). Recorded here as the design-intended lever from design.md §3.5.3 ('sabotage actions should have cooldowns/costs') for Member 2 to wire in if secondary/repeatable sabotage actions are added post-MVP. Current MVP objectives are each single-use per match, which makes a cooldown unnecessary until that scope lands."
+    }
+  },
+
+  "meeting_voting": {
+    "_source": "shared/meeting_config.gd, server/voting_manager.gd",
+    "discussion_duration_sec": {
+      "value": 30.0,
+      "range": [20.0, 60.0]
+    },
+    "voting_duration_sec": {
+      "value": 30.0,
+      "range": [20.0, 45.0]
+    },
+    "vote_resolution_rule": {
+      "value": "plurality",
+      "notes": "Resolved per PRD Open Question #2: highest single vote count wins; ties (including a tie with Skip's plurality) result in no ejection; Skip winning outright also results in no ejection. Implemented in server/voting_manager.gd calculate_results()."
+    },
+    "meeting_trigger": {
+      "value": "free_call_no_cooldown",
+      "notes": "Resolved per PRD Open Question #3 as a simple 'call meeting' action, valid only during POST_BLACKOUT_INVESTIGATION and only while no meeting is already active (server/meeting_manager.gd can_call_meeting()) — there is exactly one meeting/vote per match in the current state machine, so no additional per-player cooldown or spam-limiting has been implemented. If a future revision allows multiple meetings per match, an anti-spam cooldown (recommended: 1 call per player per match, or a shared 45-60s server-wide cooldown) should be added — this is the still-open half of PRD Open Question #8."
+    },
+    "comms_scope_during_blackout": {
+      "value": "unrestricted_text_chat",
+      "notes": "PRD Open Question #4 baseline per PROJECT_STATUS.md: text chat remains active during Discussion; the source concept's 'may be affected during blackout' note is not currently enforced (no blackout-time chat restriction is implemented). Recommended default if implemented: proximity-limited chat during BLACKOUT_ACTIVE only, unrestricted during MEETING."
+    }
+  },
+
+  "meltdown": {
+    "_source": "shared/meltdown_config.gd",
+    "duration_sec": {
+      "value": 300.0,
+      "notes": "Fixed 5 minutes per design.md's hard constraint — not treated as a balancing lever."
+    },
+    "emergency_system_count": 3,
+    "task_duration_no_interference_sec": {
+      "restore_power": 15.0,
+      "restore_cooling": 15.0,
+      "stabilize_orion": 18.0,
+      "notes": "Design targets from design/specs/task_specifications.md §5, not yet enforced server-side (mini-game timing owned by Member 4). Sum (~48s across 3 tasks, sequential worst case) leaves large slack against the 300s budget even accounting for travel time and Impostor interference."
+    }
+  },
+
+  "visibility": {
+    "_source": "Not yet implemented server-side; client-only per design.md §3.5",
+    "blackout_visibility_radius_normalized": {
+      "value": 0.35,
+      "range": [0.2, 0.5],
+      "notes": "Fraction of normal view radius during BLACKOUT_ACTIVE, as a starting point for Member 3's vision-cone shader. 1.0 = full normal visibility. Needs server-side validation once any vision-gated mechanic (e.g. proximity chat) depends on it, per design.md §3.5's authority note."
+    }
+  },
+
+  "balance_targets": {
+    "_source": "PRD.md §10 Success Metrics",
+    "crew_win_rate_pct": [45, 55],
+    "avg_match_length_min": [15, 25]
+  }
+}
