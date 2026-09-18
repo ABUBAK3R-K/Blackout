@@ -199,7 +199,7 @@ Players are assigned one of 8 distinct suit colors:
 ## 9. Delivery Milestones & File Roadmap
 
 - [x] Phase 1: Directory initialization & technical art specification (`docs/environment_art_spec.md`).
-- [ ] Phase 2: Base lighting texture assets (`flashlight_mask.png`, `light_cookie_radial.png`) & `FacilityLightingController`.
+- [x] Phase 2: Base lighting texture assets (`flashlight_mask.png`, `radial_light_cookie.png`, `vignette_mask.png`), `facility_lighting_controller.tscn`, `player_flashlight.tscn`, `vignette_overlay.tscn`, and automated test suite (`tests/test_facility_lighting_controller.gd`).
 - [ ] Phase 3: Modular 32×32 tileset resources & room prop sprites (`assets/sprites/environment/`).
 - [ ] Phase 4: Full 9-room master facility map scene (`scenes/environment/facility_map.tscn`).
 - [ ] Phase 5: Station visual states & evidence marker props (`assets/sprites/stations/`).

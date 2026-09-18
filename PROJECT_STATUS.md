@@ -32,7 +32,7 @@
 | **Member 4** | **Ubaid** | `member-4/mini-games` | `client/interactions/mini_games/` (Crew tasks, prerequisite tasks, Meltdown emergency mini-games), input handling | 🟡 In Progress |
 | **Member 5** | **Shahzan** | `member-5/ui-frontend` | In-game HUD (`task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`), meeting & voting screens, role reveal, game over | 🟡 In Progress |
 | **Member 6** | **Abubaker** | `member-6/game-design` | Balance configs (`shared/*_config.gd`), task specs, evidence rules, 9-room layout flow | 🟡 In Progress |
-| **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟡 In Progress (Assets Initialized & Art Spec Published) |
+| **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟡 In Progress (Phase 2 Dual-State Lighting Complete) |
 | **Member 8** | **Sahil** | `member-8/audio-qa` | SFX & tension soundscapes, `tests/` automated test suites, 8-player playtest operations | 🟢 Automated Test Suites Implemented (Tests 1–10) |
 
 *Status Legend:* ⚪ *Not Started* | 🟡 *In Progress* | 🔵 *Under Review (PR Open)* | 🟢 *Merged to `main`* | 🔴 *Blocked*
@@ -68,7 +68,7 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 | Module / Asset Group | Target Directory | Specifications / Controller | Status |
 |---|---|---|---|
 | **Technical Art Specification** | `docs/` | `docs/environment_art_spec.md` | 🟢 Complete & Approved |
-| **Dual-State Lighting System** | `assets/sprites/lighting/` | `facility_lighting_controller.gd`, `flashlight_mask.png`, `radial_light_cookie.png`, `vignette_mask.png` | 🟢 Initialized & Active |
+| **Dual-State Lighting System** | `assets/sprites/lighting/`, `scenes/environment/` | `facility_lighting_controller.tscn`, `player_flashlight.tscn`, `vignette_overlay.tscn`, `tests/test_facility_lighting_controller.gd` | 🟢 Phase 2 Complete & Tested |
 | **9-Room Facility Tilemaps** | `assets/sprites/environment/` | 32×32 grid tilemaps for all 9 rooms (Cafeteria, Security, Lab, Server Room, Storage, Generator, Office, MedBay, ORION Core) | 🟡 Pipeline Initialized |
 | **Station & Evidence Visuals** | `assets/sprites/stations/` | Visual states (Intact, Sabotaged, Repairing, Repaired, Evidence markers) | 🟡 In Progress |
 | **2D Character Sprite Sheets** | `assets/sprites/characters/` | 8-player color variants, 4-directional walk/idle/task/ghost animations | 🟡 In Progress |
@@ -218,3 +218,22 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 
 ---
 
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 2: Dual-State Facility Lighting Architecture & Test Suite
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `scenes/environment/` (`facility_lighting_controller.gd`, `facility_lighting_controller.tscn`, `player_flashlight.gd`, `player_flashlight.tscn`, `vignette_overlay.gd`, `vignette_overlay.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_facility_lighting_controller.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Visual Systems / Testing`
+- **Description:**
+  - Upgraded `FacilityLightingController` with robust network signal handlers, defensive default arguments, dynamic room light registration methods, and spec-accurate lighting colors (`COLOR_NORMAL_AMBIENT`, `COLOR_BLACKOUT_AMBIENT`, `COLOR_MELTDOWN_AMBIENT`, `COLOR_SIREN_RED`).
+  - Created `facility_lighting_controller.tscn` preconfigured with `CanvasModulate`, `NormalLights`, and `EmergencySirens` fixture containers.
+  - Implemented `PlayerFlashlight2D` component (`player_flashlight.gd` & `.tscn`) with 70° spotlight beam (240px reach), 48px proximity halo, shadow occluders, and smooth directional aiming.
+  - Implemented `VignetteOverlay` component (`vignette_overlay.gd` & `.tscn`) for smooth fullscreen atmospheric darkness transitions.
+  - Authored comprehensive 12-point automated test suite (`tests/test_facility_lighting_controller.gd`) verifying all lighting states, dynamic light registrations, network event hooks, flashlight orientation, and vignette alpha modulation.
+- **Breaking Changes / Contract Impacts:** None. Fully backwards compatible and connects to `ClientNetworkManager` signals.
+- **Verification / Testing:** 12-point automated test assertions in `tests/test_facility_lighting_controller.gd` validated across state transitions, delta processing, light energies, and component bindings.
+
+---
