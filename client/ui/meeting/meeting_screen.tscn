@@ -260,7 +260,7 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.35, 0.35, 0.95)
 theme_override_font_sizes/font_size = 11
-text = "ASTEROID RESEARCH FACILITY"
+text = "ASTERION RESEARCH FACILITY"
 
 [node name="MainTitleLabel" type="Label" parent="DiscussionContainer/HeaderPanel/HBoxContainer/LeftInfo"]
 layout_mode = 2
@@ -429,10 +429,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_column_panel")
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="VoteTally" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer" instance=ExtResource("3_vote_tally")]
-visible = false
-layout_mode = 2
-
 [node name="HeaderRow" type="HBoxContainer" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 8
@@ -535,6 +531,10 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.65, 0.68, 0.75, 0.85)
 theme_override_font_sizes/font_size = 11
 text = "Exchange intelligence with active crew members. Voting phase will commence shortly."
+
+[node name="VoteTally" parent="." instance=ExtResource("3_vote_tally")]
+visible = false
+layout_mode = 1
 
 [node name="EmergencyMeetingAlert" parent="." instance=ExtResource("2_alert_ui")]
 layout_mode = 1

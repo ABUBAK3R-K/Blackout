@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://b8y4g2v6f1a8c"]
+[gd_scene load_steps=10 format=3 uid="uid://b8y4g2v6f1a8c"]
 
 [ext_resource type="Script" path="res://client/ui/hud/hud.gd" id="1_hud"]
 [ext_resource type="PackedScene" uid="uid://dkn8r00p3h5m2" path="res://client/ui/hud/task_checklist.tscn" id="2_task_ui"]
@@ -7,6 +7,9 @@
 [ext_resource type="PackedScene" uid="uid://df5q1m8v7y3r4" path="res://client/ui/hud/meltdown_hud.tscn" id="5_meltdown_ui"]
 [ext_resource type="PackedScene" uid="uid://cx8m4y2q7p1w5" path="res://client/ui/hud/impostor_hud.tscn" id="6_impostor_ui"]
 [ext_resource type="PackedScene" uid="uid://df7k2m9v3y1w8" path="res://client/ui/meeting/meeting_screen.tscn" id="7_meeting_ui"]
+[ext_resource type="PackedScene" uid="uid://cx4j2n8p5w1k9" path="res://client/ui/meeting/ejection_reveal.tscn" id="8_ejection_ui"]
+[ext_resource type="PackedScene" uid="uid://c8v4d1w9vicscreen" path="res://client/ui/screens/victory_defeat_screen.tscn" id="9_vic_ui"]
+[ext_resource type="PackedScene" uid="uid://c7m5e3v0result" path="res://client/ui/screens/result_screen.tscn" id="10_result_ui"]
 
 [node name="InGameHUD" type="CanvasLayer"]
 layer = 10
@@ -23,3 +26,9 @@ script = ExtResource("1_hud")
 [node name="ImpostorHUD" parent="." instance=ExtResource("6_impostor_ui")]
 
 [node name="MeetingScreen" parent="." instance=ExtResource("7_meeting_ui")]
+
+[node name="EjectionReveal" parent="." instance=ExtResource("8_ejection_ui")]
+
+[node name="VictoryDefeatScreen" parent="." instance=ExtResource("9_vic_ui")]
+
+[node name="ResultScreen" parent="." instance=ExtResource("10_result_ui")]

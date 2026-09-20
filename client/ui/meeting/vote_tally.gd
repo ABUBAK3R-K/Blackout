@@ -1,16 +1,19 @@
 class_name VoteTallyUI
-extends PanelContainer
+extends Control
 
 ## VoteTallyUI — Member 5 (UI/UX Frontend)
-## Authoritative Live Vote Tally Display for BLACKOUT.
+## Authoritative Vote Results & Tally Overlay for BLACKOUT.
 ##
-## Displays live voting status and vote counts provided strictly by authoritative server state.
+## Appears as a dedicated results modal overlay on top of the Meeting Screen
+## once the voting timer ends / upon receiving authoritative voting resolution.
 ## Features:
-## 1. Header with 'VOTE STATUS' and 'X / Y PLAYERS VOTED' or 'NO VOTES CAST' / 'VOTING COMPLETE'.
-## 2. Row-based candidate layout showing mini suit badge, name, compact progress bar, count, and status.
-## 3. Dedicated Skip Vote row.
-## 4. Strict authoritative data contract: Frontend does NOT calculate vote totals, resolve ties,
-##    declare winners, or decide ejections.
+## 1. Full-screen backdrop overlay with centered high-tech modal card.
+## 2. 2-column balanced grid displaying all 8 personnel with suit pips, names,
+##    animated progress bars, and authoritative vote counts.
+## 3. Prominent Skip Vote section with amber progress bar and count.
+## 4. Strict authoritative contract: displays numbers strictly as reported by server.
+
+signal tally_closed()
 
 const NetworkConfig = preload("res://shared/network_config.gd")
 const MeetingConfig = preload("res://shared/meeting_config.gd")
@@ -30,19 +33,19 @@ const PLAYER_PALETTE: Array[Color] = [
 ## Styling Constants
 const COLOR_ACTIVE_GREEN: Color = Color(0.20, 0.85, 0.40, 1.0)
 const COLOR_EJECTED_RED: Color = Color(0.85, 0.28, 0.28, 1.0)
-const COLOR_BAR_BG: Color = Color(0.10, 0.11, 0.14, 0.9)
-const COLOR_BAR_FILL: Color = Color(0.85, 0.22, 0.24, 0.95)
-const COLOR_BAR_SKIP: Color = Color(0.95, 0.75, 0.20, 0.90)
+const COLOR_BAR_BG: Color = Color(0.10, 0.11, 0.14, 0.95)
+const COLOR_BAR_FILL: Color = Color(0.90, 0.25, 0.28, 0.98)
+const COLOR_BAR_SKIP: Color = Color(0.95, 0.75, 0.20, 0.95)
 const COLOR_COUNT_ZERO: Color = Color(0.45, 0.48, 0.55, 0.65)
-const COLOR_COUNT_ACTIVE: Color = Color(0.95, 0.96, 0.98, 1.0)
+const COLOR_COUNT_ACTIVE: Color = Color(0.98, 0.98, 1.0, 1.0)
 const COLOR_TEXT_MUTED: Color = Color(0.60, 0.64, 0.72, 0.85)
 
 ## Node references
-@onready var title_label: Label = find_child("TitleLabel", true, false)
 @onready var count_status_label: Label = find_child("CountStatusLabel", true, false)
-@onready var rows_container: VBoxContainer = find_child("RowsContainer", true, false)
-@onready var empty_notice_label: Label = find_child("EmptyNoticeLabel", true, false)
+@onready var rows_grid: GridContainer = find_child("RowsGrid", true, false)
 @onready var skip_row_container: Control = find_child("SkipRowContainer", true, false)
+@onready var footer_label: Label = find_child("FooterLabel", true, false)
+@onready var modal_card: PanelContainer = find_child("ModalCard", true, false)
 
 ## Internal state
 var _players_data: Array = []
@@ -53,22 +56,24 @@ var _skip_count: int = 0
 var _has_explicit_tally_data: bool = false
 var _is_voting_complete: bool = false
 var _leader_peer_id: int = 0
+var _fade_tween: Tween = null
 
 func _ready() -> void:
 	_ensure_node_references()
-	_update_tally_display()
+	visible = false
+	modulate.a = 0.0
 
 func _ensure_node_references() -> void:
-	if title_label == null:
-		title_label = find_child("TitleLabel", true, false) as Label
 	if count_status_label == null:
 		count_status_label = find_child("CountStatusLabel", true, false) as Label
-	if rows_container == null:
-		rows_container = find_child("RowsContainer", true, false) as VBoxContainer
-	if empty_notice_label == null:
-		empty_notice_label = find_child("EmptyNoticeLabel", true, false) as Label
+	if rows_grid == null:
+		rows_grid = find_child("RowsGrid", true, false) as GridContainer
 	if skip_row_container == null:
 		skip_row_container = find_child("SkipRowContainer", true, false) as Control
+	if footer_label == null:
+		footer_label = find_child("FooterLabel", true, false) as Label
+	if modal_card == null:
+		modal_card = find_child("ModalCard", true, false) as PanelContainer
 
 ## Updates players cache from authoritative connection list
 func set_players(players_array: Array, local_peer_id: int = 0) -> void:
@@ -87,7 +92,7 @@ func record_player_voted(voter_peer_id: int) -> void:
 		_voted_peer_ids.append(voter_peer_id)
 	_update_tally_display()
 
-## Sets explicit authoritative tally breakdown from server (if supplied)
+## Sets explicit authoritative tally breakdown from server
 func set_authoritative_tally(votes_per_target: Dictionary, skip_votes: int, total_votes_cast: int = -1, leader_peer_id: int = 0) -> void:
 	_has_explicit_tally_data = true
 	_votes_per_target = votes_per_target.duplicate()
@@ -100,6 +105,29 @@ func set_voting_complete(is_complete: bool = true) -> void:
 	_is_voting_complete = is_complete
 	_update_tally_display()
 
+## Shows the overlay with a smooth fade in
+func reveal_tally() -> void:
+	_ensure_node_references()
+	_update_tally_display()
+	visible = true
+	if _fade_tween and _fade_tween.is_valid():
+		_fade_tween.kill()
+	_fade_tween = create_tween().set_parallel(true)
+	_fade_tween.tween_property(self, "modulate:a", 1.0, 0.35).from(0.0)
+	if modal_card != null:
+		_fade_tween.tween_property(modal_card, "scale", Vector2.ONE, 0.35).from(Vector2(0.95, 0.95))
+
+## Hides the overlay
+func hide_tally() -> void:
+	if _fade_tween and _fade_tween.is_valid():
+		_fade_tween.kill()
+	_fade_tween = create_tween()
+	_fade_tween.tween_property(self, "modulate:a", 0.0, 0.25)
+	_fade_tween.tween_callback(func():
+		visible = false
+		tally_closed.emit()
+	)
+
 ## Resets all tally state for a new session
 func reset_tally() -> void:
 	_voted_peer_ids.clear()
@@ -108,6 +136,8 @@ func reset_tally() -> void:
 	_has_explicit_tally_data = false
 	_is_voting_complete = false
 	_leader_peer_id = 0
+	visible = false
+	modulate.a = 0.0
 	_update_tally_display()
 
 ## Returns the number of eligible voters (active & alive)
@@ -122,7 +152,7 @@ func get_eligible_voter_count() -> int:
 ## Main render routine
 func _update_tally_display() -> void:
 	_ensure_node_references()
-	if rows_container == null or count_status_label == null:
+	if rows_grid == null or count_status_label == null:
 		return
 
 	var eligible_count: int = get_eligible_voter_count()
@@ -130,7 +160,10 @@ func _update_tally_display() -> void:
 
 	# 1. Update Header Status
 	if _is_voting_complete:
-		count_status_label.text = "VOTING COMPLETE"
+		if eligible_count > 0:
+			count_status_label.text = "VOTING COMPLETE (%d / %d VOTED)" % [voted_count, eligible_count]
+		else:
+			count_status_label.text = "VOTING COMPLETE"
 		count_status_label.add_theme_color_override("font_color", COLOR_ACTIVE_GREEN)
 	elif voted_count == 0 and not _has_explicit_tally_data:
 		count_status_label.text = "NO VOTES CAST"
@@ -143,8 +176,8 @@ func _update_tally_display() -> void:
 		count_status_label.add_theme_color_override("font_color", COLOR_ACTIVE_GREEN)
 
 	# 2. Clear previous candidate rows
-	for child in rows_container.get_children():
-		rows_container.remove_child(child)
+	for child in rows_grid.get_children():
+		rows_grid.remove_child(child)
 		child.queue_free()
 
 	var max_scale_votes: int = maxi(1, eligible_count)
@@ -155,7 +188,7 @@ func _update_tally_display() -> void:
 				highest = int(count)
 		max_scale_votes = maxi(max_scale_votes, highest)
 
-	# 3. Build Player Rows
+	# 3. Build Player Rows in 2-Column Grid
 	for p in _players_data:
 		var peer_id: int = int(p.get("peer_id", 0))
 		var slot: int = int(p.get("player_slot", 1))
@@ -167,17 +200,31 @@ func _update_tally_display() -> void:
 			vote_count = int(_votes_per_target.get(peer_id, 0))
 
 		var is_leader: bool = (_leader_peer_id > 0 and _leader_peer_id == peer_id)
-		var row: Control = _create_player_tally_row(peer_id, slot, is_active, vote_count, max_scale_votes, show_count, is_leader)
-		rows_container.add_child(row)
+		var card: Control = _create_player_tally_card(peer_id, slot, is_active, vote_count, max_scale_votes, show_count, is_leader)
+		rows_grid.add_child(card)
 
 	# 4. Build / Update Skip Vote Row
 	_update_skip_row(max_scale_votes)
 
-func _create_player_tally_row(peer_id: int, slot: int, is_active: bool, vote_count: int, max_scale: int, show_count: bool, is_leader: bool) -> Control:
+func _create_player_tally_card(peer_id: int, slot: int, is_active: bool, vote_count: int, max_scale: int, show_count: bool, is_leader: bool) -> Control:
+	var container = PanelContainer.new()
+	container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	container.custom_minimum_size = Vector2(0, 38)
+
+	var style = StyleBoxFlat.new()
+	style.content_margin_left = 10.0
+	style.content_margin_right = 12.0
+	style.content_margin_top = 6.0
+	style.content_margin_bottom = 6.0
+	style.bg_color = Color(0.09, 0.095, 0.12, 0.95) if is_active else Color(0.06, 0.065, 0.08, 0.65)
+	style.set_border_width_all(1)
+	style.border_color = Color(0.22, 0.25, 0.32, 0.5) if is_active else Color(0.16, 0.18, 0.22, 0.3)
+	style.set_corner_radius_all(6)
+	container.add_theme_stylebox_override("panel", style)
+
 	var row = HBoxContainer.new()
-	row.custom_minimum_size = Vector2(0, 24)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 8)
+	row.add_theme_constant_override("separation", 10)
 
 	# 1. Color Pip / Mini Avatar
 	var color_index = clampi(slot - 1, 0, PLAYER_PALETTE.size() - 1)
@@ -189,15 +236,15 @@ func _create_player_tally_row(peer_id: int, slot: int, is_active: bool, vote_cou
 	var name_lbl = Label.new()
 	var you_suffix = " (You)" if peer_id == _local_peer_id and _local_peer_id > 0 else ""
 	name_lbl.text = "Player %d%s" % [peer_id if peer_id > 0 else slot, you_suffix]
-	name_lbl.custom_minimum_size = Vector2(100, 0)
-	name_lbl.add_theme_font_size_override("font_size", 11)
-	name_lbl.add_theme_color_override("font_color", Color(0.92, 0.94, 0.96, 1.0) if is_active else Color(0.50, 0.52, 0.56, 0.65))
+	name_lbl.custom_minimum_size = Vector2(95, 0)
+	name_lbl.add_theme_font_size_override("font_size", 12)
+	name_lbl.add_theme_color_override("font_color", Color(0.94, 0.95, 0.98, 1.0) if is_active else Color(0.50, 0.52, 0.56, 0.65))
 	row.add_child(name_lbl)
 
 	# 3. Compact Progress Bar
 	var bar_container = Control.new()
 	bar_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bar_container.custom_minimum_size = Vector2(60, 10)
+	bar_container.custom_minimum_size = Vector2(80, 12)
 	bar_container.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 	var fill_ratio: float = 0.0
@@ -209,24 +256,22 @@ func _create_player_tally_row(peer_id: int, slot: int, is_active: bool, vote_cou
 	bar_canvas.draw.connect(func():
 		var w = bar_canvas.size.x
 		var h = bar_canvas.size.y
-		# Background track
-		bar_canvas.draw_rect(Rect2(0, 1, w, h - 2), COLOR_BAR_BG, true)
-		bar_canvas.draw_rect(Rect2(0, 1, w, h - 2), Color(0.20, 0.22, 0.26, 0.4), false, 1.0)
-		# Fill rect
+		bar_canvas.draw_rect(Rect2(0, 2, w, h - 4), COLOR_BAR_BG, true)
+		bar_canvas.draw_rect(Rect2(0, 2, w, h - 4), Color(0.22, 0.25, 0.30, 0.4), false, 1.0)
 		if fill_ratio > 0.0:
 			var fill_w = max(4.0, w * fill_ratio)
 			var fill_col = COLOR_BAR_FILL.lightened(0.15) if is_leader else COLOR_BAR_FILL
-			bar_canvas.draw_rect(Rect2(0, 1, fill_w, h - 2), fill_col, true)
+			bar_canvas.draw_rect(Rect2(0, 2, fill_w, h - 4), fill_col, true)
 	)
 	bar_container.add_child(bar_canvas)
 	row.add_child(bar_container)
 
 	# 4. Status or Count Label
 	var count_lbl = Label.new()
-	count_lbl.custom_minimum_size = Vector2(24, 0)
+	count_lbl.custom_minimum_size = Vector2(30, 0)
 	count_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	count_lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	count_lbl.add_theme_font_size_override("font_size", 11)
+	count_lbl.add_theme_font_size_override("font_size", 12)
 
 	if not is_active:
 		count_lbl.text = "EJECTED"
@@ -243,48 +288,48 @@ func _create_player_tally_row(peer_id: int, slot: int, is_active: bool, vote_cou
 		count_lbl.add_theme_color_override("font_color", COLOR_COUNT_ZERO)
 
 	row.add_child(count_lbl)
-	return row
+	container.add_child(row)
+	return container
 
 func _update_skip_row(max_scale: int) -> void:
 	if skip_row_container == null:
 		return
 
-	# Clear previous skip elements
 	for child in skip_row_container.get_children():
 		skip_row_container.remove_child(child)
 		child.queue_free()
 
 	var row = HBoxContainer.new()
-	row.custom_minimum_size = Vector2(0, 24)
+	row.custom_minimum_size = Vector2(0, 28)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 8)
+	row.add_theme_constant_override("separation", 10)
 
 	# 1. Skip Icon Pip
 	var pip = Control.new()
-	pip.custom_minimum_size = Vector2(14, 14)
+	pip.custom_minimum_size = Vector2(16, 16)
 	pip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var pip_canvas = Control.new()
 	pip_canvas.set_anchors_preset(Control.PRESET_FULL_RECT)
 	pip_canvas.draw.connect(func():
 		var cx = pip_canvas.size.x * 0.5
 		var cy = pip_canvas.size.y * 0.5
-		pip_canvas.draw_circle(Vector2(cx, cy), 5.5, Color(0.95, 0.75, 0.20, 0.85))
+		pip_canvas.draw_circle(Vector2(cx, cy), 6.5, Color(0.95, 0.75, 0.20, 0.85))
 	)
 	pip.add_child(pip_canvas)
 	row.add_child(pip)
 
 	# 2. Skip Name Label
 	var name_lbl = Label.new()
-	name_lbl.text = "Skip Vote"
-	name_lbl.custom_minimum_size = Vector2(100, 0)
-	name_lbl.add_theme_font_size_override("font_size", 11)
-	name_lbl.add_theme_color_override("font_color", Color(0.95, 0.80, 0.35, 1.0))
+	name_lbl.text = "⏭  Skip Vote"
+	name_lbl.custom_minimum_size = Vector2(120, 0)
+	name_lbl.add_theme_font_size_override("font_size", 12)
+	name_lbl.add_theme_color_override("font_color", Color(0.98, 0.85, 0.35, 1.0))
 	row.add_child(name_lbl)
 
 	# 3. Compact Progress Bar for Skip
 	var bar_container = Control.new()
 	bar_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bar_container.custom_minimum_size = Vector2(60, 10)
+	bar_container.custom_minimum_size = Vector2(80, 12)
 	bar_container.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 	var fill_ratio: float = 0.0
@@ -296,21 +341,21 @@ func _update_skip_row(max_scale: int) -> void:
 	bar_canvas.draw.connect(func():
 		var w = bar_canvas.size.x
 		var h = bar_canvas.size.y
-		bar_canvas.draw_rect(Rect2(0, 1, w, h - 2), COLOR_BAR_BG, true)
-		bar_canvas.draw_rect(Rect2(0, 1, w, h - 2), Color(0.20, 0.22, 0.26, 0.4), false, 1.0)
+		bar_canvas.draw_rect(Rect2(0, 2, w, h - 4), COLOR_BAR_BG, true)
+		bar_canvas.draw_rect(Rect2(0, 2, w, h - 4), Color(0.22, 0.25, 0.30, 0.4), false, 1.0)
 		if fill_ratio > 0.0:
 			var fill_w = max(4.0, w * fill_ratio)
-			bar_canvas.draw_rect(Rect2(0, 1, fill_w, h - 2), COLOR_BAR_SKIP, true)
+			bar_canvas.draw_rect(Rect2(0, 2, fill_w, h - 4), COLOR_BAR_SKIP, true)
 	)
 	bar_container.add_child(bar_canvas)
 	row.add_child(bar_container)
 
 	# 4. Skip Count Label
 	var count_lbl = Label.new()
-	count_lbl.custom_minimum_size = Vector2(24, 0)
+	count_lbl.custom_minimum_size = Vector2(30, 0)
 	count_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	count_lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	count_lbl.add_theme_font_size_override("font_size", 11)
+	count_lbl.add_theme_font_size_override("font_size", 12)
 
 	if _has_explicit_tally_data:
 		count_lbl.text = str(_skip_count)
@@ -324,7 +369,7 @@ func _update_skip_row(max_scale: int) -> void:
 
 func _create_color_pip(color: Color, is_active: bool) -> Control:
 	var root = Control.new()
-	root.custom_minimum_size = Vector2(14, 14)
+	root.custom_minimum_size = Vector2(16, 16)
 	root.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 	var canvas = Control.new()
@@ -332,11 +377,11 @@ func _create_color_pip(color: Color, is_active: bool) -> Control:
 	canvas.draw.connect(func():
 		var cx = canvas.size.x * 0.5
 		var cy = canvas.size.y * 0.5
-		canvas.draw_circle(Vector2(cx, cy), 5.5, color)
+		canvas.draw_circle(Vector2(cx, cy), 6.5, color)
 		if not is_active:
 			var x_col = Color(1.0, 0.25, 0.25, 0.95)
-			canvas.draw_line(Vector2(cx - 3, cy - 3), Vector2(cx + 3, cy + 3), x_col, 1.5)
-			canvas.draw_line(Vector2(cx + 3, cy - 3), Vector2(cx - 3, cy + 3), x_col, 1.5)
+			canvas.draw_line(Vector2(cx - 4, cy - 4), Vector2(cx + 4, cy + 4), x_col, 1.8)
+			canvas.draw_line(Vector2(cx + 4, cy - 4), Vector2(cx - 4, cy + 4), x_col, 1.8)
 	)
 	root.add_child(canvas)
 	return root

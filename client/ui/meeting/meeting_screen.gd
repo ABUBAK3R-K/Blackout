@@ -19,16 +19,16 @@ const MeetingConfig = preload("res://shared/meeting_config.gd")
 const EmergencyMeetingAlertUI = preload("res://client/ui/meeting/emergency_meeting_alert.gd")
 const VoteTallyUI = preload("res://client/ui/meeting/vote_tally.gd")
 
-## Official 8-Player Suit Colors (docs/environment_art_spec.md §7.1)
+## Official 8-Player Department Colors (Asterion Nuclear Research Facility)
 const PLAYER_PALETTE: Array[Color] = [
-	Color(0.898, 0.224, 0.208), # 1. Crimson Red   (#e53935)
-	Color(0.118, 0.533, 0.898), # 2. Cobalt Blue   (#1e88e5)
-	Color(0.263, 0.627, 0.278), # 3. Emerald Green (#43a047)
-	Color(0.992, 0.847, 0.208), # 4. Vivid Yellow  (#fdd835)
-	Color(0.984, 0.549, 0.0),   # 5. Safety Orange (#fb8c00)
-	Color(0.557, 0.141, 0.667), # 6. Deep Purple   (#8e24aa)
-	Color(0.0, 0.675, 0.757),   # 7. Electric Cyan (#00acc1)
-	Color(0.925, 0.937, 0.945)  # 8. Arctic White  (#eceff1)
+	Color(0.12, 0.35, 0.75), # 1. Navy Blue   (Engineering)
+	Color(0.92, 0.40, 0.08), # 2. Safety Orange(Maintenance)
+	Color(0.92, 0.72, 0.05), # 3. Hazard Yellow(Radiation Safety)
+	Color(0.38, 0.44, 0.52), # 4. Steel Gray   (Technical Operations)
+	Color(0.12, 0.65, 0.32), # 5. Lab Green    (Scientific Personnel)
+	Color(0.85, 0.18, 0.22), # 6. Emergency Red(Security / Response)
+	Color(0.04, 0.62, 0.72), # 7. Electric Cyan(Diagnostics)
+	Color(0.88, 0.90, 0.94)  # 8. Cleanroom White(Reactor Physics)
 ]
 
 ## Styling constants
@@ -189,6 +189,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			_on_confirm_vote_pressed()
 		elif event.keycode == KEY_P and _current_phase == MeetingConfig.MeetingPhase.VOTING:
 			_simulate_peer_vote()
+		elif event.keycode == KEY_T:
+			if vote_tally != null and vote_tally.visible:
+				vote_tally.hide_tally()
+			else:
+				show_results_overlay({
+					"votes_per_target": {102: 2, 104: 1},
+					"skip_count": 1,
+					"total_votes_cast": 4
+				})
 
 func _is_connected_to_server() -> bool:
 	if is_inside_tree() and has_node("/root/NetworkManager"):
@@ -268,14 +277,7 @@ func _on_game_state_changed(new_state: NetworkConfig.GameState) -> void:
 			end_meeting(true)
 
 func _on_vote_result_received(result: Dictionary) -> void:
-	if vote_tally != null:
-		vote_tally.set_authoritative_tally(
-			result.get("votes_per_target", {}),
-			int(result.get("skip_count", 0)),
-			int(result.get("total_votes_cast", 0))
-		)
-		vote_tally.set_voting_complete(true)
-	end_meeting(true)
+	show_results_overlay(result)
 
 ## Public API to start the emergency meeting sequence (Discussion Phase)
 func start_meeting(caller_peer_id: int, discussion_duration: float) -> void:
@@ -330,7 +332,7 @@ func start_voting_phase(voting_duration: float) -> void:
 		_populate_offline_preview_players()
 		
 	if vote_tally != null:
-		vote_tally.visible = true
+		vote_tally.visible = false
 		vote_tally.set_players(_players_data, _local_peer_id)
 		
 	_update_header_info()
@@ -422,8 +424,8 @@ func _update_phase_ui() -> void:
 	if voting_controls != null:
 		voting_controls.visible = (_current_phase == MeetingConfig.MeetingPhase.VOTING)
 		
-	if vote_tally != null:
-		vote_tally.visible = (_current_phase == MeetingConfig.MeetingPhase.VOTING)
+	if vote_tally != null and _current_phase != MeetingConfig.MeetingPhase.RESULTS:
+		vote_tally.visible = false
 
 ## Rebuilds the player cards list
 func _rebuild_players_grid() -> void:
@@ -726,7 +728,7 @@ func _update_footer_status() -> void:
 		status_header_label.text = "DISCUSSION IN PROGRESS"
 		status_label.text = "Exchange intelligence with active crew members. Voting phase will commence shortly."
 
-## Creates an Among Us-style stylized astronaut helmet avatar placeholder
+## Creates a 2D Nuclear Facility Technician mini avatar badge
 func _create_astronaut_avatar(slot: int, is_active: bool) -> Control:
 	var root = Control.new()
 	root.custom_minimum_size = Vector2(40, 40)
@@ -750,37 +752,79 @@ func _draw_avatar_canvas(canvas: Control, base_color: Color, is_active: bool) ->
 	var cx = w * 0.5
 	var cy = h * 0.5
 	
-	# Background circle badge
+	# Background containment badge
 	canvas.draw_circle(Vector2(cx, cy), 19.0, Color(0.05, 0.055, 0.065, 0.95))
 	canvas.draw_arc(Vector2(cx, cy), 19.0, 0, TAU, 24, Color(0.20, 0.22, 0.26, 0.6), 1.0)
 	
-	# Oxygen tank snippet (left)
-	var tank_rect = Rect2(cx - 15, cy - 8, 5, 16)
-	canvas.draw_rect(tank_rect, base_color.darkened(0.35), true)
-	canvas.draw_rect(tank_rect, Color(0.03, 0.03, 0.04, 0.95), false, 1.2)
-	
-	# Helmet Body
-	var body_rect = Rect2(cx - 12, cy - 12, 22, 24)
-	canvas.draw_rect(body_rect, base_color, true)
-	
-	# Highlights & Outline
-	canvas.draw_rect(Rect2(cx - 10, cy - 10, 18, 6), base_color.lightened(0.25), true)
-	canvas.draw_rect(body_rect, Color(0.03, 0.03, 0.04, 0.95), false, 1.5)
-	
-	# Shiny Visor
-	var visor_center = Vector2(cx + 2, cy - 1)
-	var visor_col = Color(0.25, 0.72, 0.92, 0.95) if is_active else Color(0.20, 0.35, 0.45, 0.65)
-	_draw_ellipse(canvas, visor_center, 9.0, 6.0, Color(0.03, 0.03, 0.04, 0.95))
-	_draw_ellipse(canvas, visor_center, 8.0, 5.0, visor_col)
-	
-	# Visor Specular Reflection
+	# Mini Tactical Vest Collar Snippet
+	var collar_rect = Rect2(cx - 13, cy + 5, 26, 11)
+	_draw_rounded_box(canvas, collar_rect, 3.0, Color(0.12, 0.15, 0.20, 1.0), true)
 	if is_active:
-		_draw_ellipse(canvas, Vector2(visor_center.x + 2, visor_center.y - 2), 3.5, 1.5, Color(1, 1, 1, 0.85))
-	else:
+		# Hazard stripe & Dosimeter pip
+		canvas.draw_rect(Rect2(cx + 4, cy + 7, 7, 3), Color(0.95, 0.75, 0.10, 1.0), true)
+		canvas.draw_circle(Vector2(cx - 7, cy + 9), 1.2, Color(0.2, 0.95, 0.4, 1.0))
+	
+	# Industrial Protective Helmet
+	var helmet_rect = Rect2(cx - 12, cy - 15, 24, 20)
+	var helmet_col = base_color if is_active else base_color.darkened(0.3)
+	_draw_rounded_box(canvas, helmet_rect, 9.0, helmet_col, true)
+	
+	# Helmet Crown Ridge
+	var ridge_rect = Rect2(cx - 3, cy - 16, 6, 8)
+	_draw_rounded_box(canvas, ridge_rect, 2.0, helmet_col.lightened(0.2), true)
+	_draw_rounded_box(canvas, helmet_rect, 9.0, Color(0.02, 0.03, 0.05, 0.95), false, 1.5)
+	
+	# Comm headset side tabs
+	canvas.draw_rect(Rect2(cx - 14, cy - 8, 3, 8), Color(0.08, 0.10, 0.14, 1.0), true)
+	canvas.draw_rect(Rect2(cx + 11, cy - 8, 3, 8), Color(0.08, 0.10, 0.14, 1.0), true)
+	
+	# Narrow Protective Face Shield / Visor
+	var visor_center = Vector2(cx, cy - 5)
+	var visor_rx = 9.0
+	var visor_ry = 4.5
+	var visor_col = Color(0.15, 0.65, 0.85, 0.95) if is_active else Color(0.20, 0.35, 0.45, 0.65)
+	_draw_ellipse(canvas, visor_center, visor_rx + 1.0, visor_ry + 1.0, Color(0.02, 0.03, 0.05, 0.95))
+	_draw_ellipse(canvas, visor_center, visor_rx, visor_ry, Color(0.08, 0.12, 0.18, 1.0))
+	_draw_ellipse(canvas, Vector2(visor_center.x, visor_center.y + 0.5), visor_rx - 1.0, visor_ry - 1.0, visor_col)
+	
+	if is_active:
+		_draw_ellipse(canvas, Vector2(visor_center.x + 2.5, visor_center.y - 1.0), 3.0, 1.2, Color(1, 1, 1, 0.85))
+		
+	# Half-Respirator Filter Unit
+	var resp_rect = Rect2(cx - 8, cy - 1, 16, 8)
+	_draw_rounded_box(canvas, resp_rect, 3.0, Color(0.16, 0.20, 0.26, 1.0), true)
+	_draw_rounded_box(canvas, resp_rect, 3.0, Color(0.02, 0.03, 0.05, 1.0), false, 1.0)
+	
+	# Twin Mini Filter Pips
+	canvas.draw_circle(Vector2(cx - 4.5, cy + 3), 2.0, Color(0.25, 0.30, 0.38, 1.0))
+	canvas.draw_circle(Vector2(cx + 4.5, cy + 3), 2.0, Color(0.25, 0.30, 0.38, 1.0))
+	
+	if not is_active:
 		# Red Ejection Cross over Avatar
 		var x_col = Color(1.0, 0.25, 0.25, 0.95)
 		canvas.draw_line(Vector2(cx - 10, cy - 10), Vector2(cx + 10, cy + 10), x_col, 2.5)
 		canvas.draw_line(Vector2(cx + 10, cy - 10), Vector2(cx - 10, cy + 10), x_col, 2.5)
+
+func _draw_rounded_box(canvas: Control, rect: Rect2, radius: float, color: Color, filled: bool = true, line_width: float = 2.0) -> void:
+	var pts = PackedVector2Array()
+	var r = min(radius, min(rect.size.x, rect.size.y) * 0.5)
+	var corners = [
+		Vector2(rect.position.x + r, rect.position.y + r),
+		Vector2(rect.end.x - r, rect.position.y + r),
+		Vector2(rect.end.x - r, rect.end.y - r),
+		Vector2(rect.position.x + r, rect.end.y - r)
+	]
+	for i in range(4):
+		var center = corners[i]
+		var start_angle = float(i) * (PI * 0.5) + PI
+		for j in range(6):
+			var a = start_angle + (float(j) / 5.0) * (PI * 0.5)
+			pts.append(center + Vector2(cos(a) * r, sin(a) * r))
+	pts.append(pts[0])
+	if filled:
+		canvas.draw_colored_polygon(pts, color)
+	else:
+		canvas.draw_polyline(pts, color, line_width)
 
 func _draw_ellipse(canvas: Control, center: Vector2, rx: float, ry: float, color: Color) -> void:
 	var pts = PackedVector2Array()
@@ -900,6 +944,20 @@ func get_emergency_alert() -> EmergencyMeetingAlertUI:
 ## Returns the VoteTallyUI instance
 func get_vote_tally() -> VoteTallyUI:
 	return vote_tally
+
+## Shows the authoritative Vote Results / Tally modal overlay on top of the meeting screen
+func show_results_overlay(result_data: Dictionary = {}) -> void:
+	_ensure_node_references()
+	_current_phase = MeetingConfig.MeetingPhase.RESULTS
+	if vote_tally != null:
+		if not result_data.is_empty():
+			vote_tally.set_authoritative_tally(
+				result_data.get("votes_per_target", {}),
+				int(result_data.get("skip_count", 0)),
+				int(result_data.get("total_votes_cast", 0))
+			)
+		vote_tally.set_voting_complete(true)
+		vote_tally.reveal_tally()
 
 ## Sets authoritative vote tally breakdown on the VoteTallyUI
 func set_authoritative_tally(votes_per_target: Dictionary, skip_votes: int, total_votes_cast: int = -1, leader_peer_id: int = 0) -> void:

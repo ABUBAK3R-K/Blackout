@@ -26,16 +26,16 @@ const NetworkConfig = preload("res://shared/network_config.gd")
 const CREWMATE_BG_PATH: String = "C:/Users/shahz/.gemini/antigravity-ide/brain/d2d1e402-fa78-4055-a74e-93ff567c9829/.user_uploaded/media_1789731511640.png"
 const IMPOSTOR_BG_PATH: String = "C:/Users/shahz/.gemini/antigravity-ide/brain/d2d1e402-fa78-4055-a74e-93ff567c9829/.user_uploaded/media_1789731507634.png"
 
-## Official 8-Player Suit Colors (docs/environment_art_spec.md §7.1)
+## Official 8-Player Department Colors (Asterion Nuclear Research Facility)
 const PLAYER_PALETTE: Array[Color] = [
-	Color(0.898, 0.224, 0.208), # 1. Crimson Red   (#e53935)
-	Color(0.118, 0.533, 0.898), # 2. Cobalt Blue   (#1e88e5)
-	Color(0.263, 0.627, 0.278), # 3. Emerald Green (#43a047)
-	Color(0.992, 0.847, 0.208), # 4. Vivid Yellow  (#fdd835)
-	Color(0.984, 0.549, 0.0),   # 5. Safety Orange (#fb8c00)
-	Color(0.557, 0.141, 0.667), # 6. Deep Purple   (#8e24aa)
-	Color(0.0, 0.675, 0.757),   # 7. Electric Cyan (#00acc1)
-	Color(0.925, 0.937, 0.945)  # 8. Arctic White  (#eceff1)
+	Color(0.12, 0.35, 0.75), # 1. Navy Blue   (Engineering)
+	Color(0.92, 0.40, 0.08), # 2. Safety Orange(Maintenance)
+	Color(0.92, 0.72, 0.05), # 3. Hazard Yellow(Radiation Safety)
+	Color(0.38, 0.44, 0.52), # 4. Steel Gray   (Technical Operations)
+	Color(0.12, 0.65, 0.32), # 5. Lab Green    (Scientific Personnel)
+	Color(0.85, 0.18, 0.22), # 6. Emergency Red(Security / Response)
+	Color(0.04, 0.62, 0.72), # 7. Electric Cyan(Diagnostics)
+	Color(0.88, 0.90, 0.94)  # 8. Cleanroom White(Reactor Physics)
 ]
 
 ## Styling Colors
@@ -362,10 +362,10 @@ func _get_player_color(slot: int) -> Color:
 	var index = clamp(slot - 1, 0, PLAYER_PALETTE.size() - 1)
 	return PLAYER_PALETTE[index]
 
-## Creates an Among Us-like 2D stylized astronaut with dimensional shading & dark reflective visor
+## Creates a stylized 2D Nuclear Research Facility Technician with protective gear, vest, dosimeter, and helmet
 func _create_astronaut_node(slot: int, is_facing_back: bool = false) -> Control:
 	var root = Control.new()
-	root.name = "Astronaut_%d" % slot
+	root.name = "Technician_%d" % slot
 	root.custom_minimum_size = Vector2(160, 220)
 	root.size = Vector2(160, 220)
 	root.pivot_offset = Vector2(80, 190)
@@ -375,77 +375,179 @@ func _create_astronaut_node(slot: int, is_facing_back: bool = false) -> Control:
 	var canvas = Control.new()
 	canvas.name = "SuitCanvas"
 	canvas.set_anchors_preset(Control.PRESET_FULL_RECT)
-	canvas.draw.connect(func(): _draw_astronaut(canvas, suit_color, is_facing_back))
+	canvas.draw.connect(func(): _draw_technician(canvas, suit_color, is_facing_back, slot))
 	root.add_child(canvas)
 	
 	return root
 
-func _draw_astronaut(canvas: Control, base_color: Color, is_facing_back: bool = false) -> void:
+func _draw_technician(canvas: Control, base_color: Color, is_facing_back: bool, slot_num: int) -> void:
 	var w = canvas.size.x
 	var h = canvas.size.y
 	var cx = w * 0.5
 	var cy = h * 0.44
 	
-	# 1. Floor Drop Shadow & Wet Reflection
-	_draw_ellipse(canvas, Vector2(cx, cy + 90), 44, 12, Color(0.0, 0.0, 0.0, 0.65))
-	_draw_ellipse(canvas, Vector2(cx, cy + 90), 28, 6, Color(0.0, 0.0, 0.0, 0.85))
+	# 1. Ground Drop Shadow & Floor Contact
+	_draw_ellipse(canvas, Vector2(cx, cy + 90), 46, 13, Color(0.0, 0.0, 0.0, 0.70))
+	_draw_ellipse(canvas, Vector2(cx, cy + 90), 28, 6, Color(0.0, 0.0, 0.0, 0.90))
 	
+	# Wet Floor Reflection
 	var refl_color = base_color
-	refl_color.a = 0.18
-	_draw_ellipse(canvas, Vector2(cx, cy + 108), 34, 14, refl_color)
+	refl_color.a = 0.15
+	_draw_ellipse(canvas, Vector2(cx, cy + 106), 34, 12, refl_color)
 	
-	# 2. Oxygen Backpack
-	var tank_col_dark = base_color.darkened(0.40)
-	var tank_rect = Rect2(cx - 50, cy - 24, 18, 68) if not is_facing_back else Rect2(cx - 30, cy - 20, 60, 50)
-	_draw_rounded_box(canvas, tank_rect, 8.0, tank_col_dark, true)
-	_draw_rounded_box(canvas, tank_rect, 8.0, Color(0.02, 0.03, 0.05, 0.95), false, 3.0)
+	# 2. Heavy Industrial Steel-Toe Boots
+	var boot_dark = Color(0.08, 0.09, 0.12, 1.0)
+	var steel_cap = Color(0.24, 0.28, 0.35, 1.0)
+	var l_boot = Rect2(cx - 28, cy + 62, 22, 26)
+	var r_boot = Rect2(cx + 6, cy + 62, 22, 26)
 	
-	# 3. Legs & Boots
-	var leg_dark = base_color.darkened(0.35)
-	var leg_mid = base_color.darkened(0.12)
+	_draw_rounded_box(canvas, l_boot, 5.0, boot_dark, true)
+	_draw_rounded_box(canvas, l_boot, 5.0, Color(0.02, 0.03, 0.05, 1.0), false, 2.5)
+	_draw_rounded_box(canvas, Rect2(cx - 28, cy + 74, 22, 14), 4.0, steel_cap, true)
+	canvas.draw_line(Vector2(cx - 28, cy + 86), Vector2(cx - 6, cy + 86), Color(0.95, 0.75, 0.10, 0.9), 2.0)
 	
-	var l_leg = Rect2(cx - 28, cy + 42, 22, 45)
-	var r_leg = Rect2(cx + 6, cy + 42, 22, 45)
+	_draw_rounded_box(canvas, r_boot, 5.0, boot_dark, true)
+	_draw_rounded_box(canvas, r_boot, 5.0, Color(0.02, 0.03, 0.05, 1.0), false, 2.5)
+	_draw_rounded_box(canvas, Rect2(cx + 6, cy + 74, 22, 14), 4.0, steel_cap, true)
+	canvas.draw_line(Vector2(cx + 6, cy + 86), Vector2(cx + 28, cy + 86), Color(0.95, 0.75, 0.10, 0.9), 2.0)
+	
+	# 3. Heavy-Duty Coverall Pants & Kneepads
+	var leg_dark = base_color.darkened(0.30)
+	var leg_mid = base_color.darkened(0.10)
+	var l_leg = Rect2(cx - 26, cy + 20, 22, 46)
+	var r_leg = Rect2(cx + 4, cy + 20, 22, 46)
+	
 	_draw_rounded_box(canvas, l_leg, 6.0, leg_dark, true)
-	_draw_rounded_box(canvas, l_leg, 6.0, Color(0.02, 0.03, 0.05, 0.95), false, 3.0)
+	_draw_rounded_box(canvas, l_leg, 6.0, Color(0.02, 0.03, 0.05, 0.95), false, 2.5)
 	_draw_rounded_box(canvas, r_leg, 6.0, leg_mid, true)
-	_draw_rounded_box(canvas, r_leg, 6.0, Color(0.02, 0.03, 0.05, 0.95), false, 3.0)
+	_draw_rounded_box(canvas, r_leg, 6.0, Color(0.02, 0.03, 0.05, 0.95), false, 2.5)
 	
-	# 4. Main Suit Body (Rounded Capsule Bean)
-	var body_rect = Rect2(cx - 34, cy - 48, 68, 100)
-	_draw_rounded_box(canvas, body_rect, 32.0, base_color, true)
+	# Ballistic Kneepads
+	var kneepad_col = Color(0.12, 0.15, 0.20, 1.0)
+	_draw_rounded_box(canvas, Rect2(cx - 24, cy + 38, 18, 18), 4.0, kneepad_col, true)
+	_draw_rounded_box(canvas, Rect2(cx - 24, cy + 38, 18, 18), 4.0, Color(0.03, 0.04, 0.06, 1.0), false, 2.0)
+	_draw_rounded_box(canvas, Rect2(cx + 6, cy + 38, 18, 18), 4.0, kneepad_col, true)
+	_draw_rounded_box(canvas, Rect2(cx + 6, cy + 38, 18, 18), 4.0, Color(0.03, 0.04, 0.06, 1.0), false, 2.0)
 	
-	# Suit Top Highlight (Dimensional lighting)
-	var highlight_rect = Rect2(cx - 24, cy - 42, 48, 38)
-	var highlight_col = base_color.lightened(0.20)
-	highlight_col.a = 0.50
-	_draw_rounded_box(canvas, highlight_rect, 18.0, highlight_col, true)
+	# 4. Arms & Heavy Work Gloves
+	var arm_l = Rect2(cx - 42, cy - 28, 16, 48)
+	var arm_r = Rect2(cx + 26, cy - 28, 16, 48)
+	_draw_rounded_box(canvas, arm_l, 6.0, base_color.darkened(0.25), true)
+	_draw_rounded_box(canvas, arm_l, 6.0, Color(0.02, 0.03, 0.05, 0.95), false, 2.5)
+	_draw_rounded_box(canvas, arm_r, 6.0, base_color.darkened(0.08), true)
+	_draw_rounded_box(canvas, arm_r, 6.0, Color(0.02, 0.03, 0.05, 0.95), false, 2.5)
 	
-	# Suit Outer Outline
-	_draw_rounded_box(canvas, body_rect, 32.0, Color(0.02, 0.03, 0.05, 0.95), false, 3.5)
+	# Work Gloves
+	var glove_col = Color(0.10, 0.13, 0.18, 1.0)
+	var glove_l = Rect2(cx - 43, cy + 10, 18, 20)
+	var glove_r = Rect2(cx + 25, cy + 10, 18, 20)
+	_draw_rounded_box(canvas, glove_l, 5.0, glove_col, true)
+	_draw_rounded_box(canvas, glove_l, 5.0, Color(0.02, 0.03, 0.05, 1.0), false, 2.0)
+	_draw_rounded_box(canvas, glove_r, 5.0, glove_col, true)
+	_draw_rounded_box(canvas, glove_r, 5.0, Color(0.02, 0.03, 0.05, 1.0), false, 2.0)
 	
-	# 5. Large Glossy Visor (Only if facing forward/side)
+	# 5. Torso: Heavy Coveralls + Reinforced Utility Vest
+	var body_rect = Rect2(cx - 30, cy - 32, 60, 56)
+	_draw_rounded_box(canvas, body_rect, 10.0, base_color, true)
+	_draw_rounded_box(canvas, body_rect, 10.0, Color(0.02, 0.03, 0.05, 0.95), false, 3.0)
+	
+	# Utility Vest
+	var vest_rect = Rect2(cx - 26, cy - 30, 52, 50)
+	var vest_col = Color(0.13, 0.16, 0.21, 1.0)
+	_draw_rounded_box(canvas, vest_rect, 6.0, vest_col, true)
+	_draw_rounded_box(canvas, vest_rect, 6.0, Color(0.04, 0.05, 0.07, 1.0), false, 2.2)
+	canvas.draw_line(Vector2(cx, cy - 30), Vector2(cx, cy + 18), Color(0.06, 0.08, 0.10, 1.0), 2.5)
+	
 	if not is_facing_back:
-		var visor_center = Vector2(cx + 12, cy - 12)
-		var visor_rx = 28.0
-		var visor_ry = 18.0
+		# Hazard Stripe on Right Shoulder Strap
+		var stripe_rect = Rect2(cx + 4, cy - 28, 18, 8)
+		_draw_rounded_box(canvas, stripe_rect, 2.0, Color(0.95, 0.75, 0.10, 1.0), true)
+		canvas.draw_line(Vector2(cx + 8, cy - 28), Vector2(cx + 12, cy - 20), Color(0.1, 0.1, 0.1, 1.0), 2.0)
+		canvas.draw_line(Vector2(cx + 14, cy - 28), Vector2(cx + 18, cy - 20), Color(0.1, 0.1, 0.1, 1.0), 2.0)
 		
-		# Dark Visor Housing Rim
-		_draw_ellipse(canvas, visor_center, visor_rx + 3, visor_ry + 3, Color(0.02, 0.03, 0.06, 1.0))
-		_draw_ellipse(canvas, visor_center, visor_rx + 1, visor_ry + 1, Color(0.12, 0.18, 0.25, 1.0))
+		# Facility ID Badge on Left Chest
+		var badge_rect = Rect2(cx - 22, cy - 24, 14, 18)
+		_draw_rounded_box(canvas, badge_rect, 2.0, Color(0.92, 0.94, 0.98, 1.0), true)
+		_draw_rounded_box(canvas, badge_rect, 2.0, Color(0.05, 0.06, 0.08, 1.0), false, 1.2)
+		canvas.draw_rect(Rect2(cx - 20, cy - 22, 6, 8), Color(0.2, 0.25, 0.35, 1.0), true)
+		canvas.draw_line(Vector2(cx - 20, cy - 11), Vector2(cx - 10, cy - 11), Color(0.1, 0.5, 0.9, 1.0), 2.0)
 		
-		# Deep Glass Base
-		_draw_ellipse(canvas, visor_center, visor_rx, visor_ry, Color(0.05, 0.12, 0.20, 1.0))
+		# Pen Radiation Dosimeter on Chest with glowing indicator
+		var dosimeter_rect = Rect2(cx - 5, cy - 26, 4, 14)
+		_draw_rounded_box(canvas, dosimeter_rect, 2.0, Color(0.75, 0.80, 0.85, 1.0), true)
+		_draw_rounded_box(canvas, dosimeter_rect, 2.0, Color(0.05, 0.06, 0.08, 1.0), false, 1.0)
+		canvas.draw_circle(Vector2(cx - 3, cy - 23), 1.5, Color(0.2, 0.95, 0.4, 1.0))
+	
+	# 6. Tactical Belt & Pouches
+	var belt_rect = Rect2(cx - 28, cy + 15, 56, 8)
+	_draw_rounded_box(canvas, belt_rect, 2.0, Color(0.08, 0.10, 0.14, 1.0), true)
+	_draw_rounded_box(canvas, belt_rect, 2.0, Color(0.02, 0.03, 0.05, 1.0), false, 1.8)
+	_draw_rounded_box(canvas, Rect2(cx - 5, cy + 14, 10, 10), 2.0, Color(0.55, 0.60, 0.68, 1.0), true)
+	_draw_rounded_box(canvas, Rect2(cx - 5, cy + 14, 10, 10), 2.0, Color(0.05, 0.06, 0.08, 1.0), false, 1.2)
+	
+	# Left Tool Pouch / Geiger Counter
+	var pouch_l = Rect2(cx - 36, cy + 12, 11, 16)
+	_draw_rounded_box(canvas, pouch_l, 3.0, Color(0.16, 0.20, 0.26, 1.0), true)
+	_draw_rounded_box(canvas, pouch_l, 3.0, Color(0.03, 0.04, 0.06, 1.0), false, 1.5)
+	canvas.draw_circle(Vector2(cx - 31, cy + 16), 1.5, Color(0.95, 0.80, 0.2, 1.0))
+	
+	# Right Emergency Radio
+	var pouch_r = Rect2(cx + 25, cy + 12, 11, 16)
+	_draw_rounded_box(canvas, pouch_r, 3.0, Color(0.16, 0.20, 0.26, 1.0), true)
+	_draw_rounded_box(canvas, pouch_r, 3.0, Color(0.03, 0.04, 0.06, 1.0), false, 1.5)
+	canvas.draw_line(Vector2(cx + 33, cy + 12), Vector2(cx + 35, cy + 2), Color(0.1, 0.12, 0.15, 1.0), 2.0)
+	
+	# 7. Head: Industrial Protective Helmet & Comms
+	_draw_rounded_box(canvas, Rect2(cx - 10, cy - 38, 20, 10), 3.0, Color(0.12, 0.15, 0.20, 1.0), true)
+	
+	var helmet_rect = Rect2(cx - 24, cy - 74, 48, 38)
+	var helmet_col = base_color.lightened(0.10)
+	_draw_rounded_box(canvas, helmet_rect, 18.0, helmet_col, true)
+	
+	# Crown Ridge
+	var ridge_rect = Rect2(cx - 6, cy - 76, 12, 16)
+	_draw_rounded_box(canvas, ridge_rect, 4.0, helmet_col.lightened(0.25), true)
+	_draw_rounded_box(canvas, ridge_rect, 4.0, Color(0.02, 0.03, 0.05, 0.95), false, 2.0)
+	_draw_rounded_box(canvas, helmet_rect, 18.0, Color(0.02, 0.03, 0.05, 0.95), false, 3.0)
+	canvas.draw_line(Vector2(cx - 25, cy - 54), Vector2(cx + 25, cy - 54), Color(0.03, 0.04, 0.06, 1.0), 3.0)
+	
+	# Mini hazard pip on helmet
+	canvas.draw_circle(Vector2(cx, cy - 64), 3.0, Color(0.95, 0.75, 0.10, 1.0))
+	canvas.draw_circle(Vector2(cx, cy - 64), 1.5, Color(0.1, 0.1, 0.1, 1.0))
+	
+	# Comm Ear Cups
+	var ear_l = Rect2(cx - 28, cy - 60, 6, 16)
+	var ear_r = Rect2(cx + 22, cy - 60, 6, 16)
+	_draw_rounded_box(canvas, ear_l, 3.0, Color(0.08, 0.10, 0.14, 1.0), true)
+	_draw_rounded_box(canvas, ear_l, 3.0, Color(0.02, 0.03, 0.05, 1.0), false, 1.5)
+	_draw_rounded_box(canvas, ear_r, 3.0, Color(0.08, 0.10, 0.14, 1.0), true)
+	_draw_rounded_box(canvas, ear_r, 3.0, Color(0.02, 0.03, 0.05, 1.0), false, 1.5)
+	canvas.draw_line(Vector2(cx - 26, cy - 50), Vector2(cx - 16, cy - 42), Color(0.1, 0.12, 0.16, 1.0), 2.0)
+	canvas.draw_circle(Vector2(cx - 15, cy - 42), 2.0, Color(0.05, 0.06, 0.08, 1.0))
+	
+	if not is_facing_back:
+		# 8. Narrow Protective Visor
+		var visor_center = Vector2(cx, cy - 50)
+		var visor_rx = 18.0
+		var visor_ry = 8.0
+		_draw_ellipse(canvas, visor_center, visor_rx + 2, visor_ry + 2, Color(0.02, 0.03, 0.05, 1.0))
+		_draw_ellipse(canvas, visor_center, visor_rx, visor_ry, Color(0.08, 0.12, 0.18, 1.0))
 		
-		# Visor Horizon Reflection
+		# Visor sheen
 		var is_impostor = (assigned_role == NetworkConfig.PlayerRole.IMPOSTOR)
-		var glass_tone = Color(0.15, 0.65, 0.85, 0.85) if not is_impostor else Color(0.85, 0.15, 0.20, 0.85)
-		_draw_ellipse(canvas, Vector2(visor_center.x, visor_center.y + 2), visor_rx - 4, visor_ry - 7, glass_tone)
+		var glass_tone = Color(0.12, 0.55, 0.75, 0.75) if not is_impostor else Color(0.85, 0.15, 0.20, 0.85)
+		_draw_ellipse(canvas, Vector2(visor_center.x, visor_center.y + 1), visor_rx - 2, visor_ry - 2, glass_tone)
+		_draw_ellipse(canvas, Vector2(visor_center.x + 5, visor_center.y - 2), 6.0, 2.0, Color(1.0, 1.0, 1.0, 0.80))
 		
-		# Specular Arc Glare
-		var glare_pos = Vector2(visor_center.x + 5, visor_center.y - 6)
-		_draw_ellipse(canvas, glare_pos, 11, 4, Color(1.0, 1.0, 1.0, 0.85))
-		_draw_ellipse(canvas, Vector2(glare_pos.x + 5, glare_pos.y - 1), 3, 2, Color(1.0, 1.0, 1.0, 0.95))
+		# 9. Half-Face Respirator Mask with dual particulate filters
+		var resp_rect = Rect2(cx - 15, cy - 44, 30, 16)
+		_draw_rounded_box(canvas, resp_rect, 6.0, Color(0.16, 0.20, 0.26, 1.0), true)
+		_draw_rounded_box(canvas, resp_rect, 6.0, Color(0.02, 0.03, 0.05, 1.0), false, 2.2)
+		
+		_draw_ellipse(canvas, Vector2(cx - 9, cy - 38), 5.0, 5.0, Color(0.25, 0.30, 0.38, 1.0))
+		_draw_ellipse(canvas, Vector2(cx - 9, cy - 38), 5.0, 5.0, Color(0.04, 0.05, 0.07, 1.0), true, 1.2)
+		_draw_ellipse(canvas, Vector2(cx + 9, cy - 38), 5.0, 5.0, Color(0.25, 0.30, 0.38, 1.0))
+		_draw_ellipse(canvas, Vector2(cx + 9, cy - 38), 5.0, 5.0, Color(0.04, 0.05, 0.07, 1.0), true, 1.2)
 
 ## Helper to draw rounded rectangle boxes
 func _draw_rounded_box(canvas: Control, rect: Rect2, radius: float, color: Color, filled: bool = true, line_width: float = 2.0) -> void:
