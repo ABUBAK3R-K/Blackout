@@ -33,7 +33,7 @@
 | **Member 5** | **Shahzan** | `member-5/ui-frontend` | In-game HUD (`task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`), meeting & voting screens, role reveal, game over | 🟡 In Progress |
 | **Member 6** | **Abubaker** | `member-6/game-design` | Balance configs (`shared/*_config.gd`), task specs, evidence rules, 9-room layout flow | 🟢 Design Specs & Balance Config Delivered (Playtest Calibration Pending — Sprint 5) |
 | **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟡 In Progress (Phase 4 Master Map Complete) |
-| **Member 8** | **Sahil** | `member-8/audio-qa` | SFX & tension soundscapes, `tests/` automated test suites, 8-player playtest operations | 🟢 Automated Test Suites Implemented (Tests 1–10) |
+| **Member 8** | **Sahil** | `member-8/audio-qa` | Audio engine/assets (`assets/audio/`, `client/audio/`), anti-cheat server authority tests (`tests/server_authority_tests/`), playtest operations | 🟢 Audio Architecture & Anti-Cheat Suites Complete |
 
 *Status Legend:* ⚪ *Not Started* | 🟡 *In Progress* | 🔵 *Under Review (PR Open)* | 🟢 *Merged to `main`* | 🔴 *Blocked*
 
@@ -183,6 +183,27 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 ---
 
 ## 9. Change Log
+
+### [2026-09-20] — Audio Architecture & QA Server-Authority Test Automation
+- **Author:** Sahil (Member 8 — Audio Designer & QA / Production Lead)
+- **Branch / PR:** `member-8/audio-qa`
+- **Modules Affected:**
+  - `assets/audio/` (`audio_registry.gd`, `music/`, `ambience/`, `sfx/`, `ui/`)
+  - `client/audio/` (`audio_manager.gd`)
+  - `tests/server_authority_tests/` (`test_anti_cheat_tasks.gd`, `test_anti_cheat_blackout.gd`, `test_anti_cheat_voting.gd`, `test_anti_cheat_meltdown.gd`)
+  - `tests/` (`run_all_tests.gd`)
+  - `tests/playtest_checklists/` (`playtest_checklist_8player.md`, `anti_cheat_test_matrix.md`)
+  - `docs/reviews/` (`member_8_audio_qa_review.md`)
+- **Type of Change:** `Feature / QA Automation / Audio System`
+- **Description:**
+  - Implemented centralized `AudioManager` and `AudioRegistry` supporting 5 audio buses, ambient crossfades, escalating Meltdown tension alarms, and built-in procedural tone synthesis fallback.
+  - Authored 4 automated server-authority anti-cheat test suites (22 validations total) covering task spoofing, blackout gating, vote manipulation, and meltdown exploits.
+  - Implemented `tests/run_all_tests.gd` master test runner coordinating all 13 test suites (215 total checks).
+  - Authored operational 8-player playtest checklist and 14-point anti-cheat threat matrix.
+- **Breaking Changes / Contract Impacts:** None. All additions are additive and integrate directly with existing server managers.
+- **Verification / Testing:** Validated test suite syntax and manifest registry across all 13 test suites.
+
+---
 
 ### [2026-09-18] — Member 6 (Abubaker) Game Design Specs & Balance Configuration
 - **Author:** Abubaker (Member 6 — Game Systems & Content Designer)
