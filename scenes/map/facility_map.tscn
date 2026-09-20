@@ -1,9 +1,10 @@
-[gd_scene load_steps=25 format=3 uid="uid://d3m8f9q2k1v5x"]
+[gd_scene load_steps=26 format=3 uid="uid://d3m8f9q2k1v5x"]
 
 [ext_resource type="Script" path="res://client/environment/map_manager.gd" id="1_map"]
 [ext_resource type="PackedScene" uid="uid://c5t6y7u8v9w0x" path="res://scenes/objects/test_terminal.tscn" id="2_terminal"]
 [ext_resource type="PackedScene" uid="uid://d4e5f6a7b8c9d" path="res://scenes/objects/door.tscn" id="3_door"]
 [ext_resource type="PackedScene" uid="uid://e4f5a6b7c8d9e" path="res://scenes/objects/electrical_junction.tscn" id="4_junction"]
+[ext_resource type="PackedScene" uid="uid://c7x8y9z0a1b2c" path="res://scenes/objects/emergency_console.tscn" id="5_console"]
 
 [sub_resource type="RectangleShape2D" id="Rect_Bound_Top"]
 size = Vector2(1400, 24)
@@ -402,4 +403,24 @@ door_name = "Central Hub West Airlock"
 
 [node name="ElectricalJunction01" parent="Objectives" instance=ExtResource("4_junction")]
 position = Vector2(800, 160)
+
+[node name="EmergencyConsoles" type="Node2D" parent="."]
+
+[node name="EmergencyConsole_Power" parent="EmergencyConsoles" instance=ExtResource("5_console")]
+position = Vector2(880, 150)
+system_id = "restore_power"
+system_name = "Restore Power"
+room_location = "Generator Room"
+
+[node name="EmergencyConsole_Cooling" parent="EmergencyConsoles" instance=ExtResource("5_console")]
+position = Vector2(315, 600)
+system_id = "restore_cooling"
+system_name = "Restore Cooling"
+room_location = "Laboratory"
+
+[node name="EmergencyConsole_Orion" parent="EmergencyConsoles" instance=ExtResource("5_console")]
+position = Vector2(800, 965)
+system_id = "stabilize_orion"
+system_name = "Stabilize ORION"
+room_location = "ORION Core Chamber"
 

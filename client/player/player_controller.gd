@@ -32,6 +32,8 @@ const InteractableTrigger = preload("res://client/environment/interactable_trigg
 @export var can_move: bool = true
 ## Authoritative assigned role for this player (CREW or IMPOSTOR).
 @export var role: NetworkConfig.PlayerRole = NetworkConfig.PlayerRole.NONE
+## Flag indicating if this player has been eliminated.
+@export var is_eliminated: bool = false
 
 signal role_changed(new_role: NetworkConfig.PlayerRole)
 signal sabotage_triggered(sabotage_type: int)

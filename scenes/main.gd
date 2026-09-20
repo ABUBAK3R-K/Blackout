@@ -15,6 +15,10 @@ const BlackoutLightingManager = preload("res://client/environment/blackout_light
 const PlayerController = preload("res://client/player/player_controller.gd")
 const StateSync = preload("res://client/player/state_sync.gd")
 const MeetingVotingUI = preload("res://client/ui/meeting_voting_ui.gd")
+const MeltdownHUD = preload("res://client/ui/meltdown_hud.gd")
+const GameOverUI = preload("res://client/ui/game_over_ui.gd")
+const EvidenceDossierUI = preload("res://client/ui/evidence_dossier_ui.gd")
+const MeltdownConfig = preload("res://shared/meltdown_config.gd")
 
 @onready var facility_map: MapManager = $FacilityMap
 @onready var spawn_manager: SpawnManager = $SpawnManager
@@ -22,6 +26,9 @@ const MeetingVotingUI = preload("res://client/ui/meeting_voting_ui.gd")
 @onready var player: PlayerController = $Player
 @onready var state_sync: StateSync = $StateSync
 @onready var meeting_ui: MeetingVotingUI = get_node_or_null("CanvasLayer/MeetingVotingUI")
+@onready var meltdown_hud: MeltdownHUD = get_node_or_null("CanvasLayer/MeltdownHUD")
+@onready var game_over_ui: GameOverUI = get_node_or_null("CanvasLayer/GameOverUI")
+@onready var evidence_dossier_ui: EvidenceDossierUI = get_node_or_null("CanvasLayer/EvidenceDossierUI")
 @onready var status_label: Label = $CanvasLayer/CenterContainer/VBoxContainer/StatusLabel
 @onready var role_label: Label = get_node_or_null("CanvasLayer/RoleContainer/RolePanel/RoleLabel")
 @onready var round_label: Label = get_node_or_null("CanvasLayer/RoundContainer/RoundPanel/RoundLabel")
@@ -58,6 +65,10 @@ func _ready() -> void:
 	if meeting_ui != null and player != null:
 		meeting_ui.register_local_player(player)
 
+	# 7. Initialize Game Over UI listener
+	if game_over_ui != null and player != null:
+		game_over_ui.register_local_player(player)
+
 	_update_round_ui(RoundManager.RoundState.LOBBY)
 	_connect_network_listeners()
 
@@ -70,12 +81,28 @@ func _connect_network_listeners() -> void:
 		var client = net_mgr.client
 		if meeting_ui != null:
 			meeting_ui.bind_client_network_manager(client)
+		if meltdown_hud != null:
+			meltdown_hud.bind_client_network_manager(client)
+		if game_over_ui != null:
+			game_over_ui.bind_client_network_manager(client)
+		if evidence_dossier_ui != null:
+			evidence_dossier_ui.bind_client_network_manager(client)
+		for console_node in get_tree().get_nodes_in_group("emergency_console"):
+			if console_node.has_method("bind_client_network_manager"):
+				console_node.bind_client_network_manager(client)
+
 		if not client.role_assigned.is_connected(_on_network_role_assigned):
 			client.role_assigned.connect(_on_network_role_assigned)
 		if not client.sabotage_state_synced.is_connected(_on_network_sabotage_state_synced):
 			client.sabotage_state_synced.connect(_on_network_sabotage_state_synced)
 		if not client.round_state_synced.is_connected(_on_network_round_state_synced):
 			client.round_state_synced.connect(_on_network_round_state_synced)
+		if not client.meltdown_started.is_connected(_on_network_meltdown_started):
+			client.meltdown_started.connect(_on_network_meltdown_started)
+		if not client.emergency_system_completed.is_connected(_on_network_emergency_system_completed):
+			client.emergency_system_completed.connect(_on_network_emergency_system_completed)
+		if not client.game_state_changed.is_connected(_on_network_game_state_changed):
+			client.game_state_changed.connect(_on_network_game_state_changed)
 
 		if client.assigned_role != NetworkConfig.PlayerRole.NONE:
 			_on_network_role_assigned(client.assigned_role)
@@ -91,6 +118,33 @@ func _on_player_role_changed(_new_role: NetworkConfig.PlayerRole) -> void:
 
 func _on_network_round_state_synced(new_round_state: int) -> void:
 	_update_round_ui(new_round_state)
+
+func _on_network_meltdown_started(_duration: float, _impostor_alive: bool) -> void:
+	if status_label != null:
+		status_label.text = "⚠ EMERGENCY MELTDOWN ACTIVE — Restore all 3 systems to prevent core collapse!"
+		status_label.set("theme_override_colors/font_color", Color(1.0, 0.2, 0.2, 1.0))
+
+func _on_network_emergency_system_completed(system_id: String, completed_systems: Array) -> void:
+	if status_label != null:
+		var sys_name = MeltdownConfig.get_emergency_system_name(system_id)
+		status_label.text = "✓ %s Restored! (%d/3 critical systems online)" % [sys_name, completed_systems.size()]
+		status_label.set("theme_override_colors/font_color", Color(0.3, 0.95, 0.5, 1.0))
+
+func _on_network_game_state_changed(new_state: NetworkConfig.GameState) -> void:
+	if new_state == NetworkConfig.GameState.MELTDOWN:
+		if status_label != null:
+			status_label.text = "⚠ EMERGENCY MELTDOWN ACTIVE — Restore all 3 systems to prevent core collapse!"
+			status_label.set("theme_override_colors/font_color", Color(1.0, 0.2, 0.2, 1.0))
+	elif new_state == NetworkConfig.GameState.POST_BLACKOUT_INVESTIGATION:
+		if status_label != null:
+			status_label.text = "🔍 POST-BLACKOUT INVESTIGATION — Review Evidence Dossier | [E] Call Emergency Meeting"
+			status_label.set("theme_override_colors/font_color", Color(0.4, 0.85, 1.0, 1.0))
+	elif new_state == NetworkConfig.GameState.GAME_OVER:
+		if status_label != null:
+			status_label.text = "★ MATCH CONCLUDED — Authoritative Game Over"
+			status_label.set("theme_override_colors/font_color", Color(0.9, 0.85, 0.3, 1.0))
+	elif new_state != NetworkConfig.GameState.MELTDOWN and meltdown_hud != null and not meltdown_hud.is_active:
+		_update_default_status_text()
 
 func _update_round_ui(state: int) -> void:
 	if round_label == null:
@@ -173,6 +227,7 @@ func _update_sabotage_hud(is_active: bool) -> void:
 
 func _on_blackout_state_changed(is_blackout: bool) -> void:
 	_update_sabotage_hud(is_blackout)
+
 
 
 

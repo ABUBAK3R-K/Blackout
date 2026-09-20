@@ -1,0 +1,72 @@
+[gd_scene load_steps=6 format=3 uid="uid://c7x8y9z0a1b2c"]
+
+[ext_resource type="Script" path="res://client/environment/emergency_console.gd" id="1_console"]
+[ext_resource type="Script" path="res://client/environment/interactable_trigger.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://client/environment/interaction_audio.gd" id="3_audio"]
+
+[sub_resource type="CircleShape2D" id="Circle_Console_Interact"]
+radius = 52.0
+
+[sub_resource type="RectangleShape2D" id="Rect_Console_Obstacle"]
+size = Vector2(36, 28)
+
+[node name="EmergencyConsole" type="Node2D"]
+script = ExtResource("1_console")
+
+[node name="ObstacleCollider" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleCollider"]
+shape = SubResource("Rect_Console_Obstacle")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Base" type="Polygon2D" parent="Visual"]
+color = Color(0.18, 0.12, 0.14, 1)
+polygon = PackedVector2Array(-18, -14, 18, -14, 18, 14, -18, 14)
+
+[node name="Screen" type="Polygon2D" parent="Visual"]
+color = Color(0.28, 0.1, 0.12, 1)
+polygon = PackedVector2Array(-12, -10, 12, -10, 12, 8, -12, 8)
+
+[node name="IndicatorLight" type="Polygon2D" parent="Visual"]
+color = Color(1, 0.25, 0.25, 1)
+polygon = PackedVector2Array(-6, -6, 6, -6, 6, 4, -6, 4)
+
+[node name="InteractableTrigger" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("2_trigger")
+interaction_radius = 52.0
+prompt_text = "Press E to Restore Emergency System"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractableTrigger"]
+shape = SubResource("Circle_Console_Interact")
+
+[node name="StatusLabel" type="Label" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -90.0
+offset_top = 16.0
+offset_right = 90.0
+offset_bottom = 34.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.35, 0.35, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "EMERGENCY CONSOLE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InteractionAudio" type="Node2D" parent="."]
+script = ExtResource("3_audio")
+max_hearing_distance = 650.0
+attenuation_factor = 1.2
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="InteractionAudio"]
+max_distance = 650.0
+attenuation = 1.2
