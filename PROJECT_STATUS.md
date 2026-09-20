@@ -4,9 +4,9 @@
 > **Repository:** `ABUBAK3R-K/Blackout`  
 > **Engine / Framework:** Godot 4.x (GDScript)  
 > **Target Version:** 1.0 (MVP)  
-> **Last Updated:** 2026-09-17  
-> **Active Branch:** `member-7/environment-art`  
-> **Status:** Active Development (Step 10 Complete — Core Authoritative Backend Merged; Member 7 Environment Art Initialized)
+> **Last Updated:** 2026-09-18  
+> **Active Branch:** `member-6/game-design`  
+> **Status:** Active Development (Step 10 Complete — Core Authoritative Backend Merged; Member 7 Environment Art Initialized; Member 6 Game Design Specs & Balance Config Delivered)
 
 ---
 
@@ -31,7 +31,7 @@
 | **Member 3** | **Aaliya** | `member-3/client-engine` | `client/player/` (controller, movement, prediction, state reconciliation), `map_manager`, dynamic vision-cone/lighting shader | 🟡 In Progress |
 | **Member 4** | **Ubaid** | `member-4/mini-games` | `client/interactions/mini_games/` (Crew tasks, prerequisite tasks, Meltdown emergency mini-games), input handling | 🟡 In Progress |
 | **Member 5** | **Shahzan** | `member-5/ui-frontend` | In-game HUD (`task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`), meeting & voting screens, role reveal, game over | 🟡 In Progress |
-| **Member 6** | **Abubaker** | `member-6/game-design` | Balance configs (`shared/*_config.gd`), task specs, evidence rules, 9-room layout flow | 🟡 In Progress |
+| **Member 6** | **Abubaker** | `member-6/game-design` | Balance configs (`shared/*_config.gd`), task specs, evidence rules, 9-room layout flow | 🟢 Design Specs & Balance Config Delivered (Playtest Calibration Pending — Sprint 5) |
 | **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟡 In Progress (Phase 4 Master Map Complete) |
 | **Member 8** | **Sahil** | `member-8/audio-qa` | SFX & tension soundscapes, `tests/` automated test suites, 8-player playtest operations | 🟢 Automated Test Suites Implemented (Tests 1–10) |
 
@@ -77,7 +77,26 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 
 ---
 
-## 5. Sprint Milestones Roadmap
+## 5. Member 6 (Abubaker) — Game Systems & Content Designer Status & Ownership
+
+Member 6 is the primary owner of task/objective mechanical specification, the evidence
+system's design rules, the facility map/station layout, and all server-side balance levers
+(`design.md` §6.4), authored on `member-6/game-design`.
+
+### Subsystem Breakdown:
+
+| Deliverable | Target Path | Scope | Status |
+|---|---|---|---|
+| **Task & Objective Specifications** | `design/specs/task_specifications.md` | Mechanical specs for the 10 Crew tasks, Impostor prerequisite tasks, 5 Impostor Blackout objectives, 4 recovery systems, and 3 Meltdown emergency tasks — mini-game description, room, duration | 🟢 Delivered |
+| **Evidence Matrix** | `design/specs/evidence_matrix.md` | Objective → evidence mapping, recovery evidence, reserved/unused evidence-type hooks, discovery & discussion design rules | 🟢 Delivered |
+| **Map & Station Layout** | `design/specs/map_station_layout.md` | 9-room canonical layout, `location_id` reconciliation against implemented code, connectivity/traversal times, alibi routing notes | 🟢 Delivered |
+| **Balance Configuration** | `config/game_balance_config.json` | Canonical reference for every tunable value (task counts, blackout duration, recovery threshold, objective count, vote/meeting rules, meltdown pacing, visibility) mirroring live `shared/*_config.gd` defaults, with tuning ranges and open-question resolutions | 🟢 Delivered (Reference — not yet engine-loaded) |
+| **Open Question Ownership** (PRD §9, items #2, #3, #6, #7; co-owner of #4, #8) | See `config/game_balance_config.json` → `meeting_voting`, `blackout` | Formalized existing implementation decisions (plurality voting, free-call meeting trigger, 60s blackout, 3-of-4 recovery) as documented design rules; flagged remaining gaps (meeting anti-spam cooldown, blackout chat scoping, sabotage cooldowns) as open follow-ups | 🟡 Partially Resolved — see notes in balance config |
+| **Balance Calibration & Playtelemetry Analysis** | N/A (Sprint 5) | Target 45–55% Crew/Impostor win rate; requires live playtest data | ⚪ Not Started (blocked on Sprint 5 playtests) |
+
+---
+
+## 6. Sprint Milestones Roadmap
 
 ### Sprint 1: Core Foundation & Map Layout
 - [x] Engine selection confirmed: **Godot 4.x**.
@@ -121,7 +140,7 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 
 ---
 
-## 6. Open Questions Resolution Log (`prd.md` §9)
+## 7. Open Questions Resolution Log (`prd.md` §9)
 
 | # | Question | Owner | Status | Decision / Current Implementation |
 |---|---|---|---|---|
@@ -137,7 +156,7 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 
 ---
 
-## 7. Change Log Protocol (Instructions for All Team Members)
+## 8. Change Log Protocol (Instructions for All Team Members)
 
 Whenever ANY change is made to the codebase or documentation, the modifying team member MUST append an entry to this file:
 
@@ -163,7 +182,26 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 
 ---
 
-## 8. Change Log
+## 9. Change Log
+
+### [2026-09-18] — Member 6 (Abubaker) Game Design Specs & Balance Configuration
+- **Author:** Abubaker (Member 6 — Game Systems & Content Designer)
+- **Branch / PR:** `member-6/game-design`
+- **Modules Affected:**
+  - `design/specs/` (`task_specifications.md`, `evidence_matrix.md`, `map_station_layout.md`)
+  - `config/game_balance_config.json`
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Documentation / Design / Balance Config`
+- **Description:**
+  - Authored mechanical specifications for all 10 Crew tasks, the Impostor prerequisite task pool, the 5 Impostor Blackout objectives, the 4 Crew recovery systems, and the 3 Meltdown emergency tasks, cross-referenced against the live `shared/task_config.gd`, `shared/blackout_objective_config.gd`, and `shared/blackout_recovery_config.gd` catalogs.
+  - Documented the Evidence Matrix: exact objective-to-evidence and recovery-to-evidence mappings (matching `shared/evidence_config.gd`), reserved-but-unwired evidence hooks (`unauthorized_restricted_access`, `system_damage_detected`) with recommended future triggers, and the discovery/discussion design rules (facts-only, no attribution, simultaneous reveal).
+  - Produced the canonical 9-room Map & Station Layout, reconciling `design.md`'s original room list against the `location_id` strings actually implemented in code (notably moving Confidential File Theft's canonical location from "Laboratory" to "Office/Executive Office" to match `evidence_config.gd`), plus a connectivity graph and traversal-time table.
+  - Authored `config/game_balance_config.json` as the single canonical reference for every tunable value in the MVP (task counts, blackout duration, recovery threshold, objective count, vote/meeting rules, meltdown pacing, visibility radius), mirroring the live `shared/*_config.gd` defaults and formally recording the resolutions for PRD Open Questions #2 (plurality voting), #3 (free-call meeting trigger), #6 (60s blackout default), and #7 (3-of-4 recovery threshold), while flagging the still-open halves of #4 (blackout chat scoping) and #8 (meeting anti-spam cooldown, sabotage cooldowns) as explicit follow-ups for Member 1/Member 2.
+  - Updated `PROJECT_STATUS.md` module status matrix and added a new §5 Member 6 subsystem breakdown.
+- **Breaking Changes / Contract Impacts:** None. All documented values match already-hardened `shared/*_config.gd` defaults; `game_balance_config.json` is a reference file, not yet read at runtime.
+- **Verification / Testing:** Cross-checked every catalog entry, evidence template, and numeric default directly against the current contents of `shared/task_config.gd`, `shared/blackout_config.gd`, `shared/blackout_recovery_config.gd`, `shared/blackout_objective_config.gd`, `shared/evidence_config.gd`, `shared/meeting_config.gd`, `shared/meltdown_config.gd`, `server/voting_manager.gd`, and `server/meeting_manager.gd`. Validated `game_balance_config.json` parses as well-formed JSON.
+
+---
 
 ### [2026-09-17] — Initialized Member 7 (Fatima) Environment Art Architecture & Asset Pipeline
 - **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
