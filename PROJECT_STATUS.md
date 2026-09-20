@@ -70,7 +70,7 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 | **Technical Art Specification** | `docs/` | `docs/environment_art_spec.md` | 🟢 Complete & Approved |
 | **Dual-State Lighting System** | `assets/sprites/lighting/`, `scenes/environment/` | `facility_lighting_controller.tscn`, `player_flashlight.tscn`, `vignette_overlay.tscn`, `tests/test_facility_lighting_controller.gd` | 🟢 Phase 2 Complete & Tested |
 | **9-Room Facility Tilemaps & Master Map** | `assets/sprites/environment/`, `scenes/environment/` | `facility_map.tscn`, `facility_map.gd`, `tileset_floor_walls.png`, `facility_tileset.tres`, 10 props, `tests/test_facility_map.gd` | 🟢 Phase 4 Complete & Tested |
-| **Station & Evidence Visuals** | `assets/sprites/stations/` | Visual states (Intact, Sabotaged, Repairing, Repaired, Evidence markers) | 🟡 In Progress |
+| **Station & Evidence Visuals** | `assets/sprites/stations/`, `scenes/environment/` | 40 station state textures, 6 evidence marker sprites, `station_prop.tscn`, `evidence_marker.tscn`, `tests/test_station_evidence_visuals.gd` | 🟢 Phase 5 Complete & Tested |
 | **2D Character Sprite Sheets** | `assets/sprites/characters/` | 8-player color variants, 4-directional walk/idle/task/ghost animations | 🟡 In Progress |
 | **Visual Effects (VFX)** | `assets/vfx/` | Particle presets (sparks, steam) & Meltdown heat distortion shader | 🟡 In Progress |
 
@@ -277,4 +277,23 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 
 ---
 
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 5: Station Visual States & Evidence Marker Props
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `assets/sprites/stations/` (40 station state textures across 10 interactive stations + 6 evidence sprites)
+  - `scenes/environment/` (`station_prop.gd`, `station_prop.tscn`, `evidence_marker.gd`, `evidence_marker.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_station_evidence_visuals.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Station Visuals / Evidence System / Integration`
+- **Description:**
+  - Generated pixel-art textures for all 10 interactive facility stations across 4 distinct states (`intact`, `sabotaged`, `repairing`, `restored`), totalling 40 high-definition station textures adhering to exact grid dimensions.
+  - Authored 5 dedicated discoverable physical evidence markers mapped directly to `EvidenceConfig` (`evidence_classified_files.png`, `evidence_orion_data.png`, `evidence_containment_disabled.png`, `evidence_generator_scorch.png`, `evidence_security_static.png`) along with the pulsing investigation clue pin badge (`evidence_marker_pin.png`).
+  - Implemented `StationProp` controller (`station_prop.gd` & `.tscn`) extending `RoomProp` with a 4-state visual state machine, status LED lighting cues (`#00e676` Green, `#ff1744` Red, `#ffd600` Amber), and progress calculation hooks.
+  - Implemented `EvidenceMarker` controller (`evidence_marker.gd` & `.tscn`) with Physics Layer 5 (`Evidence Markers`) collision, player proximity triggers, and investigation discovery signals.
+  - Authored automated test suite (`tests/test_station_evidence_visuals.gd`) and verification runner verifying all 51 asset, dimension, state machine, and physics requirements with a 100% pass rate.
+- **Breaking Changes / Contract Impacts:** None. Fully backwards-compatible and integrates directly with Member 2 Backend and Member 4 Mini-games.
+- **Verification / Testing:** 51 automated checks passed via `scratch/verify_phase5.py` and `tests/test_station_evidence_visuals.gd`.
 
+---
