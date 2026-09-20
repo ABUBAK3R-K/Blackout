@@ -1,0 +1,25 @@
+[gd_scene load_steps=8 format=3 uid="uid://b8y4g2v6f1a8c"]
+
+[ext_resource type="Script" path="res://client/ui/hud/hud.gd" id="1_hud"]
+[ext_resource type="PackedScene" uid="uid://dkn8r00p3h5m2" path="res://client/ui/hud/task_checklist.tscn" id="2_task_ui"]
+[ext_resource type="PackedScene" uid="uid://c6j2y9x5v8l4m" path="res://client/ui/hud/recovery_tracker.tscn" id="3_recovery_ui"]
+[ext_resource type="PackedScene" uid="uid://b7k3p1w4m9n2r" path="res://client/ui/hud/blackout_banner.tscn" id="4_banner_ui"]
+[ext_resource type="PackedScene" uid="uid://df5q1m8v7y3r4" path="res://client/ui/hud/meltdown_hud.tscn" id="5_meltdown_ui"]
+[ext_resource type="PackedScene" uid="uid://cx8m4y2q7p1w5" path="res://client/ui/hud/impostor_hud.tscn" id="6_impostor_ui"]
+[ext_resource type="PackedScene" uid="uid://df7k2m9v3y1w8" path="res://client/ui/meeting/meeting_screen.tscn" id="7_meeting_ui"]
+
+[node name="InGameHUD" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_hud")
+
+[node name="TaskChecklist" parent="." instance=ExtResource("2_task_ui")]
+
+[node name="RecoveryTracker" parent="." instance=ExtResource("3_recovery_ui")]
+
+[node name="BlackoutBanner" parent="." instance=ExtResource("4_banner_ui")]
+
+[node name="MeltdownHUD" parent="." instance=ExtResource("5_meltdown_ui")]
+
+[node name="ImpostorHUD" parent="." instance=ExtResource("6_impostor_ui")]
+
+[node name="MeetingScreen" parent="." instance=ExtResource("7_meeting_ui")]
