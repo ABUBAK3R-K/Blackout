@@ -12,11 +12,12 @@ enum LightingState {
 	MELTDOWN
 }
 
-## Color definitions
-const COLOR_NORMAL_AMBIENT: Color = Color(0.85, 0.89, 0.93, 1.0) # Soft clinical daylight
-const COLOR_BLACKOUT_AMBIENT: Color = Color(0.04, 0.05, 0.08, 1.0) # Deep oppressive dark navy
-const COLOR_MELTDOWN_AMBIENT: Color = Color(0.18, 0.05, 0.05, 1.0) # Tense crimson underglow
-const COLOR_SIREN_RED: Color = Color(1.0, 0.1, 0.18, 1.0) # High-visibility warning red
+## Color definitions per Technical Art Spec (docs/environment_art_spec.md)
+const COLOR_NORMAL_AMBIENT: Color = Color(0.85, 0.89, 0.93, 1.0) # Soft clinical daylight (#d8e2ec)
+const COLOR_BLACKOUT_AMBIENT: Color = Color(0.04, 0.05, 0.08, 1.0) # Deep oppressive dark navy (#080b12)
+const COLOR_MELTDOWN_AMBIENT: Color = Color(0.18, 0.05, 0.05, 1.0) # Tense crimson underglow (#2e0d0d)
+const COLOR_SIREN_RED: Color = Color(1.0, 0.1, 0.18, 1.0) # High-visibility warning red (#ff1a35)
+const COLOR_WARM_WHITE_LIGHT: Color = Color(1.0, 0.97, 0.91, 1.0) # Ceiling fixture tone (#fff8e7)
 
 ## Current active state
 var current_state: LightingState = LightingState.NORMAL
@@ -26,11 +27,14 @@ var current_state: LightingState = LightingState.NORMAL
 @export var normal_lights_parent: Node2D
 @export var emergency_sirens_parent: Node2D
 
+## Dynamic tracked lights (in addition to parent children)
+var dynamic_normal_lights: Array[Light2D] = []
+var dynamic_emergency_sirens: Array[Light2D] = []
+
 ## Animation and transition parameters
 var _siren_pulse_timer: float = 0.0
 var _siren_pulse_speed: float = 6.0 # Radians per second (~1 Hz)
 var _warning_flicker_timer: float = 0.0
-var _is_transitioning: bool = false
 var _target_ambient: Color = COLOR_NORMAL_AMBIENT
 var _ambient_lerp_speed: float = 5.0
 
@@ -45,6 +49,12 @@ func _ready() -> void:
 			canvas_modulate = CanvasModulate.new()
 			canvas_modulate.name = "CanvasModulate"
 			add_child(canvas_modulate)
+	
+	# Locate parent nodes if not explicitly assigned
+	if not normal_lights_parent:
+		normal_lights_parent = get_node_or_null("NormalLights")
+	if not emergency_sirens_parent:
+		emergency_sirens_parent = get_node_or_null("EmergencySirens")
 	
 	# Set initial baseline
 	set_lighting_state(LightingState.NORMAL, true)
@@ -92,6 +102,7 @@ func set_lighting_state(new_state: LightingState, immediate: bool = false) -> vo
 			_set_normal_lights_visible(false)
 			_set_emergency_sirens_visible(true)
 			_siren_pulse_timer = 0.0
+			_siren_pulse_speed = 6.0
 			
 		LightingState.MELTDOWN:
 			_target_ambient = COLOR_MELTDOWN_AMBIENT
@@ -104,49 +115,85 @@ func set_lighting_state(new_state: LightingState, immediate: bool = false) -> vo
 		
 	lighting_state_changed.emit(new_state)
 
+## Dynamic Light Registration (for rooms instantiated at runtime)
+func register_normal_light(light: Light2D) -> void:
+	if light and not dynamic_normal_lights.has(light):
+		dynamic_normal_lights.append(light)
+		light.visible = (current_state == LightingState.NORMAL or current_state == LightingState.BLACKOUT_WARNING)
+
+func register_emergency_siren(siren: Light2D) -> void:
+	if siren and not dynamic_emergency_sirens.has(siren):
+		dynamic_emergency_sirens.append(siren)
+		siren.visible = (current_state == LightingState.BLACKOUT_ACTIVE or current_state == LightingState.MELTDOWN)
+
+func unregister_light(light: Light2D) -> void:
+	dynamic_normal_lights.erase(light)
+	dynamic_emergency_sirens.erase(light)
+
+func get_target_ambient_color() -> Color:
+	return _target_ambient
+
 func _set_normal_lights_visible(is_visible: bool) -> void:
 	if normal_lights_parent:
 		normal_lights_parent.visible = is_visible
+	for light in dynamic_normal_lights:
+		if is_instance_valid(light):
+			light.visible = is_visible
 
 func _set_emergency_sirens_visible(is_visible: bool) -> void:
 	if emergency_sirens_parent:
 		emergency_sirens_parent.visible = is_visible
+	for siren in dynamic_emergency_sirens:
+		if is_instance_valid(siren):
+			siren.visible = is_visible
 
 func _update_normal_lights_energy(energy: float) -> void:
-	if not normal_lights_parent:
-		return
-	for child in normal_lights_parent.get_children():
-		if child is Light2D:
-			child.energy = energy
+	if normal_lights_parent:
+		for child in normal_lights_parent.get_children():
+			if child is Light2D:
+				child.energy = energy
+	for light in dynamic_normal_lights:
+		if is_instance_valid(light):
+			light.energy = energy
 
 func _update_siren_energy(energy: float) -> void:
-	if not emergency_sirens_parent:
-		return
-	for child in emergency_sirens_parent.get_children():
-		if child is Light2D:
-			child.energy = energy
+	if emergency_sirens_parent:
+		for child in emergency_sirens_parent.get_children():
+			if child is Light2D:
+				child.energy = energy
+	for siren in dynamic_emergency_sirens:
+		if is_instance_valid(siren):
+			siren.energy = energy
 
 func _connect_network_signals() -> void:
-	# Check for ClientNetworkManager autoload or child
+	# Check for ClientNetworkManager autoload or in tree
 	var client_net = get_node_or_null("/root/ClientNetworkManager")
+	if not client_net:
+		client_net = get_tree().root.find_child("ClientNetworkManager", true, false) if get_tree() else null
+	
 	if client_net:
+		if client_net.has_signal("blackout_countdown_started"):
+			client_net.connect("blackout_countdown_started", Callable(self, "_on_blackout_countdown_started"))
+		if client_net.has_signal("blackout_countdown_cancelled"):
+			client_net.connect("blackout_countdown_cancelled", Callable(self, "_on_blackout_countdown_cancelled"))
 		if client_net.has_signal("blackout_started"):
 			client_net.connect("blackout_started", Callable(self, "_on_blackout_started"))
 		if client_net.has_signal("blackout_ended"):
 			client_net.connect("blackout_ended", Callable(self, "_on_blackout_ended"))
-		if client_net.has_signal("blackout_countdown_started"):
-			client_net.connect("blackout_countdown_started", Callable(self, "_on_blackout_countdown_started"))
 		if client_net.has_signal("meltdown_started"):
 			client_net.connect("meltdown_started", Callable(self, "_on_meltdown_started"))
 
-func _on_blackout_countdown_started(_duration: float) -> void:
+func _on_blackout_countdown_started(_duration: float = 3.0) -> void:
 	set_lighting_state(LightingState.BLACKOUT_WARNING)
 
-func _on_blackout_started(_duration: float) -> void:
-	set_lighting_state(LightingState.BLACKOUT_ACTIVE)
-
-func _on_blackout_ended(_reason: String) -> void:
+func _on_blackout_countdown_cancelled(_reason: String = "") -> void:
 	set_lighting_state(LightingState.NORMAL)
 
-func _on_meltdown_started(_duration: float) -> void:
+func _on_blackout_started(_duration: float = 90.0) -> void:
+	set_lighting_state(LightingState.BLACKOUT_ACTIVE)
+
+func _on_blackout_ended(_reason: String = "") -> void:
+	set_lighting_state(LightingState.NORMAL)
+
+func _on_meltdown_started(_duration: float = 300.0, _impostor_alive: bool = true) -> void:
 	set_lighting_state(LightingState.MELTDOWN)

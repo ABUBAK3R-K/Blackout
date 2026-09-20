@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://c6xk1m3y9q8rt"]
+
+[ext_resource type="Script" path="res://scenes/environment/vignette_overlay.gd" id="1_vignette"]
+[ext_resource type="Texture2D" path="res://assets/sprites/lighting/vignette_mask.png" id="2_mask"]
+
+[node name="VignetteOverlay" type="CanvasLayer" node_paths=PackedStringArray("texture_rect")]
+layer = 50
+script = ExtResource("1_vignette")
+texture_rect = NodePath("TextureRect")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+modulate = Color(0, 0, 0, 0.15)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_mask")
+expand_mode = 1
+stretch_mode = 0
