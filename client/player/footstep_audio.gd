@@ -91,7 +91,8 @@ func play_footstep(speed: float = 250.0) -> void:
 			audio_player.stream = stream_to_play
 			audio_player.pitch_scale = pitch
 			audio_player.volume_db = final_vol
-			audio_player.play()
+			if audio_player.is_inside_tree():
+				audio_player.play()
 
 	footstep_triggered.emit(total_steps, global_position, pitch, final_vol)
 

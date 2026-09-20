@@ -131,150 +131,230 @@ func complete_emergency_system(system_id: String) -> void:
 # --- Client-to-Server RPC Dispatch Helpers ---
 
 func request_set_ready(ready_status: bool) -> void:
+	if not is_client():
+		return
 	rpc_request_set_ready.rpc_id(1, ready_status)
 
 func request_complete_task(task_id: String) -> void:
+	if not is_client():
+		return
 	rpc_request_complete_task.rpc_id(1, task_id)
 
 func request_activate_blackout() -> void:
+	if not is_client():
+		return
 	rpc_request_activate_blackout.rpc_id(1)
 
 func send_sabotage_request(sabotage_type: int) -> void:
+	if not is_client():
+		return
 	rpc_request_sabotage.rpc_id(1, sabotage_type)
 
 
 func request_recover_system(system_id: String) -> void:
+	if not is_client():
+		return
 	rpc_request_recover_system.rpc_id(1, system_id)
 
 func request_complete_impostor_objective(objective_id: String) -> void:
+	if not is_client():
+		return
 	rpc_request_complete_impostor_objective.rpc_id(1, objective_id)
 
 func request_call_meeting() -> void:
+	if not is_client():
+		return
 	rpc_request_call_meeting.rpc_id(1)
 
 func request_cast_vote(target_peer_id: int) -> void:
+	if not is_client():
+		return
 	rpc_request_cast_vote.rpc_id(1, target_peer_id)
 
 func request_complete_emergency_system(system_id: String) -> void:
+	if not is_client():
+		return
 	rpc_request_complete_emergency_system.rpc_id(1, system_id)
 
 func send_player_position(pos: Vector2, vel: Vector2, facing: Vector2) -> void:
+	if not is_client():
+		return
 	rpc_send_player_position.rpc_id(1, pos, vel, facing)
 
 # --- Server-side RPC Dispatch Helpers ---
 
 func send_player_assignment(peer_id: int, slot: int, total_players: int) -> void:
+	if not is_server():
+		return
 	rpc_receive_player_assignment.rpc_id(peer_id, peer_id, slot, total_players)
 
 func send_connection_rejection(peer_id: int, reason: String) -> void:
+	if not is_server():
+		return
 	rpc_connection_rejected.rpc_id(peer_id, reason)
 
 func send_private_role(peer_id: int, role: int) -> void:
+	if not is_server():
+		return
 	rpc_receive_private_role.rpc_id(peer_id, role)
 
 func send_private_task_list(peer_id: int, tasks_data: Array) -> void:
+	if not is_server():
+		return
 	rpc_receive_task_list.rpc_id(peer_id, tasks_data)
 
 func send_task_update(peer_id: int, task_id: String, is_completed: bool) -> void:
+	if not is_server():
+		return
 	rpc_receive_task_update.rpc_id(peer_id, task_id, is_completed)
 
 func notify_blackout_unlocked(peer_id: int) -> void:
+	if not is_server():
+		return
 	rpc_notify_blackout_unlocked.rpc_id(peer_id)
 
 func broadcast_blackout_countdown(duration: float, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_blackout_countdown.rpc_id(pid, duration)
 
 func broadcast_blackout_countdown_cancelled(reason: String, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_blackout_countdown_cancelled.rpc_id(pid, reason)
 
 func broadcast_blackout_started(duration: float, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_notify_blackout_started.rpc_id(pid, duration)
 
 func broadcast_blackout_ended(recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_notify_blackout_ended.rpc_id(pid)
 
 func broadcast_sabotage_state(sabotage_type: int, state: int, duration: float, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_sabotage_state.rpc_id(pid, sabotage_type, state, duration)
 
 func broadcast_round_state(round_state: int, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_round_state.rpc_id(pid, round_state)
 
 
 
 func broadcast_recovery_initialization(required_count: int, systems_data: Array, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_recovery_initialization.rpc_id(pid, required_count, systems_data)
 
 func broadcast_recovery_update(system_id: String, is_completed: bool, completed_count: int, required_count: int, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_recovery_update.rpc_id(pid, system_id, is_completed, completed_count, required_count)
 
 func send_private_objective_list(peer_id: int, objectives_data: Array) -> void:
+	if not is_server():
+		return
 	rpc_receive_private_objective_list.rpc_id(peer_id, objectives_data)
 
 func send_private_objective_update(peer_id: int, objective_id: String, is_completed: bool) -> void:
+	if not is_server():
+		return
 	rpc_receive_private_objective_update.rpc_id(peer_id, objective_id, is_completed)
 
 func broadcast_lobby_sync(state: int, player_count: int, ready_count: int, players_info: Array, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_lobby_state.rpc_id(pid, state, player_count, ready_count, players_info)
 
 func broadcast_game_state(new_state: int, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_game_state_changed.rpc_id(pid, new_state)
 
 func broadcast_investigation_started(recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_notify_investigation_started.rpc_id(pid)
 
 func broadcast_investigation_evidence(evidence_list: Array, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_investigation_evidence.rpc_id(pid, evidence_list)
 
 func broadcast_meeting_started(caller_peer_id: int, discussion_duration: float, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_meeting_started.rpc_id(pid, caller_peer_id, discussion_duration)
 
 func broadcast_voting_started(voting_duration: float, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_voting_started.rpc_id(pid, voting_duration)
 
 func broadcast_player_voted(voter_peer_id: int, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_player_voted.rpc_id(pid, voter_peer_id)
 
 func broadcast_vote_result(result_data: Dictionary, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_vote_result.rpc_id(pid, result_data)
 
 func broadcast_meltdown_started(duration: float, impostor_alive: bool, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_meltdown_started.rpc_id(pid, duration, impostor_alive)
 
 func broadcast_emergency_system_completed(system_id: String, completed_systems: Array, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_emergency_system_completed.rpc_id(pid, system_id, completed_systems)
 
 func broadcast_game_over(winner_role: int, reason: int, result_data: Dictionary, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_sync_game_over.rpc_id(pid, winner_role, reason, result_data)
 
 func broadcast_player_joined(peer_id: int, slot: int, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		if pid != peer_id:
 			rpc_notify_player_connected.rpc_id(pid, peer_id, slot)
 
 func broadcast_player_left(peer_id: int, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		rpc_notify_player_disconnected.rpc_id(pid, peer_id)
 
 func broadcast_player_position(sender_id: int, pos: Vector2, vel: Vector2, facing: Vector2, recipients: Array) -> void:
+	if not is_server():
+		return
 	for pid in recipients:
 		if pid != sender_id:
 			rpc_receive_remote_player_position.rpc_id(pid, sender_id, pos, vel, facing)

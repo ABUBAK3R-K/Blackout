@@ -85,8 +85,8 @@ func _dispatch_local_player_state() -> void:
 
 ## Receives remote player coordinates and updates the corresponding remote player instance.
 func _on_remote_position_received(peer_id: int, pos: Vector2, vel: Vector2, facing: Vector2) -> void:
-	var spawn_mgr = get_parent().get_node_or_null("SpawnManager") if is_inside_tree() else null
-	if spawn_mgr == null:
+	var spawn_mgr = get_parent().get_node_or_null("SpawnManager") if is_inside_tree() and get_parent() != null else null
+	if spawn_mgr == null and is_inside_tree():
 		spawn_mgr = get_node_or_null("/root/Main/SpawnManager")
 
 	if spawn_mgr != null and "tracked_players" in spawn_mgr:

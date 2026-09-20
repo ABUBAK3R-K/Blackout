@@ -258,7 +258,7 @@ func _on_disconnected_from_server(_reason: String) -> void:
 
 func _on_lobby_synced(_state: int, _player_count: int, _ready_count: int, players_info: Array) -> void:
 	var local_client_peer_id: int = 0
-	var net_mgr = get_node_or_null("/root/NetworkManager")
+	var net_mgr = get_node_or_null("/root/NetworkManager") if is_inside_tree() else null
 	if net_mgr != null and "client" in net_mgr and net_mgr.client != null:
 		local_client_peer_id = net_mgr.client.assigned_peer_id
 

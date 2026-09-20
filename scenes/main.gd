@@ -57,6 +57,8 @@ func _ready() -> void:
 
 ## Connects to NetworkManager autoload to receive authoritative server role, sabotage, and round updates.
 func _connect_network_listeners() -> void:
+	if not is_inside_tree():
+		return
 	var net_mgr = get_node_or_null("/root/NetworkManager")
 	if net_mgr != null and "client" in net_mgr and net_mgr.client != null:
 		var client = net_mgr.client

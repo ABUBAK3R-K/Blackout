@@ -40,7 +40,8 @@ func play_sound(sound_type: String, custom_pitch: float = 1.0, volume_offset_db:
 		audio_player.stream = stream
 		audio_player.pitch_scale = custom_pitch * randf_range(0.97, 1.03)
 		audio_player.volume_db = base_volume_db + volume_offset_db
-		audio_player.play()
+		if audio_player.is_inside_tree():
+			audio_player.play()
 		sound_played.emit(sound_type, global_position, audio_player.pitch_scale, audio_player.volume_db)
 
 ## Specific helper triggers for doors and interactables.
