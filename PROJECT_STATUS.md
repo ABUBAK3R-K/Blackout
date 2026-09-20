@@ -71,7 +71,7 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 | **Dual-State Lighting System** | `assets/sprites/lighting/`, `scenes/environment/` | `facility_lighting_controller.tscn`, `player_flashlight.tscn`, `vignette_overlay.tscn`, `tests/test_facility_lighting_controller.gd` | 🟢 Phase 2 Complete & Tested |
 | **9-Room Facility Tilemaps & Master Map** | `assets/sprites/environment/`, `scenes/environment/` | `facility_map.tscn`, `facility_map.gd`, `tileset_floor_walls.png`, `facility_tileset.tres`, 10 props, `tests/test_facility_map.gd` | 🟢 Phase 4 Complete & Tested |
 | **Station & Evidence Visuals** | `assets/sprites/stations/`, `scenes/environment/` | 40 station state textures, 6 evidence marker sprites, `station_prop.tscn`, `evidence_marker.tscn`, `tests/test_station_evidence_visuals.gd` | 🟢 Phase 5 Complete & Tested |
-| **2D Character Sprite Sheets** | `assets/sprites/characters/` | 8-player color variants, 4-directional walk/idle/task/ghost animations | 🟡 In Progress |
+| **2D Character Sprite Sheets** | `assets/sprites/characters/`, `scenes/characters/` | 8-player suit sheets + ghost sheet (256x288 px), `player_visual.tscn`, `tests/test_character_animations.gd` | 🟢 Phase 6 Complete & Tested |
 | **Visual Effects (VFX)** | `assets/vfx/` | Particle presets (sparks, steam) & Meltdown heat distortion shader | 🟡 In Progress |
 
 ---
@@ -295,5 +295,25 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
   - Authored automated test suite (`tests/test_station_evidence_visuals.gd`) and verification runner verifying all 51 asset, dimension, state machine, and physics requirements with a 100% pass rate.
 - **Breaking Changes / Contract Impacts:** None. Fully backwards-compatible and integrates directly with Member 2 Backend and Member 4 Mini-games.
 - **Verification / Testing:** 51 automated checks passed via `scratch/verify_phase5.py` and `tests/test_station_evidence_visuals.gd`.
+
+---
+
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 6: Player Character Sprite Sheets & Animation Controller
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `assets/sprites/characters/` (8 player suit color sprite sheets + ghost sheet, 256×288 px)
+  - `scenes/characters/` (`player_visual.gd`, `player_visual.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_character_animations.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Character Visuals / Animation Controller / Integration`
+- **Description:**
+  - Generated pixel-perfect 2D character sprite sheets in 32×48 px frame resolution (8 columns × 6 rows = 256×288 px atlas) for all 8 player suit color variants (`char_red.png`, `char_blue.png`, `char_green.png`, `char_yellow.png`, `char_orange.png`, `char_purple.png`, `char_cyan.png`, `char_white.png`) and eliminated ghost variant (`char_ghost.png`).
+  - Implemented 4-directional facings (Down, Up, Right, Left) across 5 core animation states (Idle breathing bob, Walk 4-frame stride, Interact console typing, Sabotage covert tool glint, and Ghost floating hover).
+  - Authored `PlayerVisual` controller component (`scenes/characters/player_visual.gd` & `.tscn`) managing color palette switching, velocity-based motion state resolution, action triggers, ghost mode alpha modulation, and 4-directional flashlight beam alignment.
+  - Authored automated test suite (`tests/test_character_animations.gd`) verifying all 12 asset, dimension, color palette binding, directional frame calculation, and flashlight attachment requirements with 100% pass rate.
+- **Breaking Changes / Contract Impacts:** None. Provides clean public API (`set_color()`, `set_motion()`, `play_interact()`, `play_sabotage()`, `set_ghost_mode()`) designed for seamless integration with Member 3 (Client Engine / Player Controller).
+- **Verification / Testing:** 12 automated test assertions passed via `scratch/verify_phase6.py` and `tests/test_character_animations.gd`.
 
 ---
