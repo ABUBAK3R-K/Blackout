@@ -8,8 +8,7 @@ extends Node2D
 
 const RoomPropClass = preload("res://scenes/environment/room_prop.gd")
 
-## Node References
-@export var lighting_controller: FacilityLightingController
+@export var lighting_controller: Node2D
 @export var spawn_points_parent: Node2D
 @export var props_parent: Node2D
 @export var tilemap_floors: Node2D
@@ -117,7 +116,7 @@ func get_spawn_position(slot_index: int) -> Vector2:
 	return SPAWN_OFFSETS[clamped_slot]
 
 ## Retrieve an interactive RoomProp node by its station ID
-func get_station_prop(station_id: String) -> RoomProp:
+func get_station_prop(station_id: String) -> Node2D:
 	return _station_props.get(station_id, null)
 
 ## Get center coordinate of a given room
@@ -135,5 +134,5 @@ func _cache_station_props() -> void:
 	if not props_parent:
 		return
 	for child in props_parent.get_children():
-		if child is RoomProp and child.station_id != "":
-			_station_props[child.station_id] = child
+		if child.get("station_id") != null and str(child.get("station_id")) != "":
+			_station_props[str(child.get("station_id"))] = child

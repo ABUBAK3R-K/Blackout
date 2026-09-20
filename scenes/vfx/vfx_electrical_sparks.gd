@@ -12,6 +12,7 @@ extends Node2D
 var _timer: float = 0.0
 
 func _ready() -> void:
+	z_index = 5
 	if not particles:
 		particles = get_node_or_null("CPUParticles2D")
 		

@@ -219,5 +219,7 @@ func _update_flashlight_angle() -> void:
 
 func attach_flashlight(flashlight_node: Node2D) -> void:
 	if flashlight_anchor and flashlight_node:
-		flashlight_node.get_parent()?.remove_child(flashlight_node)
+		var current_parent = flashlight_node.get_parent()
+		if current_parent:
+			current_parent.remove_child(flashlight_node)
 		flashlight_anchor.add_child(flashlight_node)

@@ -9,6 +9,7 @@ extends Node2D
 @export var is_emitting: bool = true
 
 func _ready() -> void:
+	z_index = 5
 	if not particles:
 		particles = get_node_or_null("CPUParticles2D")
 		

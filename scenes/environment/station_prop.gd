@@ -44,9 +44,11 @@ const COLOR_GLOW_REPAIRING: Color = Color(1.0, 0.84, 0.0, 0.5)
 signal visual_state_changed(old_state: int, new_state: int)
 signal repair_progress_updated(progress: float)
 
+func _init() -> void:
+	is_interactable = true
+
 func _ready() -> void:
 	super._ready()
-	is_interactable = true
 	_load_default_textures()
 	_update_visual_state(current_state, true)
 

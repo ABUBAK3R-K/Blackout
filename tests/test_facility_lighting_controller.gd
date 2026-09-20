@@ -97,16 +97,14 @@ func _run_suite() -> void:
 	# ---------------------------------------------------------
 	# TEST 4: BLACKOUT_WARNING State Transition & Flicker
 	# ---------------------------------------------------------
-	_log_info("--- TEST 4: BLACKOUT_WARNING State Transition ---")
-	var state_emitted: bool = false
-	var recorded_state: int = -1
+	var sig_data = {"emitted": false, "state": -1}
 	lighting_ctrl.lighting_state_changed.connect(func(new_st):
-		state_emitted = true
-		recorded_state = new_st
+		sig_data["emitted"] = true
+		sig_data["state"] = new_st
 	)
 	
 	lighting_ctrl.set_lighting_state(FacilityLightingControllerClass.LightingState.BLACKOUT_WARNING)
-	if state_emitted and recorded_state == FacilityLightingControllerClass.LightingState.BLACKOUT_WARNING:
+	if sig_data["emitted"] and sig_data["state"] == FacilityLightingControllerClass.LightingState.BLACKOUT_WARNING:
 		_log_pass("State transition to BLACKOUT_WARNING emitted correctly.")
 	else:
 		_log_fail("Failed to transition to BLACKOUT_WARNING or emit signal.")

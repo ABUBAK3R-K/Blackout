@@ -156,28 +156,28 @@ func _run_suite() -> void:
 	_log_info("--- TEST 7, 8, 9: 4-Directional Motion & Frame Mapping ---")
 	# Down
 	player_node.set_motion(Vector2(0, 100))
-	if player_node.current_direction == PlayerVisualClass.Direction.DOWN and player_node.current_animation == "walk":
+	if player_node.current_direction == 0 and player_node.current_animation == "walk":
 		_log_pass("Motion DOWN: Direction.DOWN & walk animation resolved.")
 	else:
 		_log_fail("Motion DOWN resolution failed.")
 		
 	# Up
 	player_node.set_motion(Vector2(0, -100))
-	if player_node.current_direction == PlayerVisualClass.Direction.UP and player_node.current_animation == "walk":
+	if player_node.current_direction == 1 and player_node.current_animation == "walk":
 		_log_pass("Motion UP: Direction.UP & walk animation resolved.")
 	else:
 		_log_fail("Motion UP resolution failed.")
 		
 	# Right
 	player_node.set_motion(Vector2(100, 0))
-	if player_node.current_direction == PlayerVisualClass.Direction.RIGHT and player_node.current_animation == "walk":
+	if player_node.current_direction == 2 and player_node.current_animation == "walk":
 		_log_pass("Motion RIGHT: Direction.RIGHT & walk animation resolved.")
 	else:
 		_log_fail("Motion RIGHT resolution failed.")
 		
 	# Left
 	player_node.set_motion(Vector2(-100, 0))
-	if player_node.current_direction == PlayerVisualClass.Direction.LEFT and player_node.current_animation == "walk":
+	if player_node.current_direction == 3 and player_node.current_animation == "walk":
 		_log_pass("Motion LEFT: Direction.LEFT & walk animation resolved.")
 	else:
 		_log_fail("Motion LEFT resolution failed.")

@@ -294,14 +294,14 @@ func _run_suite() -> void:
 	# TEST 14: EvidenceMarker Discovery & Inspection Signal Hooks
 	# ---------------------------------------------------------
 	_log_info("--- TEST 14: EvidenceMarker Discovery & Inspection ---")
-	var discovered_signal_emitted = false
+	var signal_data = {"emitted": false}
 	ev_node.evidence_discovered_by_player.connect(func(pid, type):
 		if pid == 42 and type == EvidenceConfigClass.TYPE_CLASSIFIED_FILES_MISSING:
-			discovered_signal_emitted = true
+			signal_data["emitted"] = true
 	)
 	
 	ev_node.discover(42)
-	if ev_node.is_discovered and discovered_signal_emitted:
+	if ev_node.is_discovered and signal_data["emitted"]:
 		_log_pass("EvidenceMarker discovery mechanism updates state and emits signal.")
 	else:
 		_log_fail("EvidenceMarker discovery failure.")
