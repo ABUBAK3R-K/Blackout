@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://d7m2v4t8y1p9q"]
+
+[ext_resource type="Script" path="res://scenes/vfx/vfx_alarm_strobe.gd" id="1_strobe"]
+[ext_resource type="Texture2D" uid="uid://flare_tex" path="res://assets/vfx/alarm_flare_particle.png" id="2_tex"]
+[ext_resource type="Texture2D" uid="uid://cookie_tex" path="res://assets/sprites/lighting/radial_light_cookie.png" id="3_cookie"]
+
+[node name="VFXAlarmStrobe" type="Node2D" node_paths=PackedStringArray("particles", "strobe_light")]
+z_index = 5
+script = ExtResource("1_strobe")
+particles = NodePath("CPUParticles2D")
+strobe_light = NodePath("PointLight2D")
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="."]
+amount = 4
+lifetime = 0.8
+texture = ExtResource("2_tex")
+gravity = Vector2(0, 0)
+scale_amount_min = 0.8
+scale_amount_max = 2.0
+color = Color(1, 0.1, 0.25, 0.8)
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+color = Color(1, 0.1, 0.2, 1)
+energy = 1.0
+texture = ExtResource("3_cookie")
+texture_scale = 1.2

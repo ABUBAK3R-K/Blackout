@@ -32,7 +32,7 @@
 | **Member 4** | **Ubaid** | `member-4/mini-games` | `client/interactions/mini_games/` (Crew tasks, prerequisite tasks, Meltdown emergency mini-games), input handling | 🟡 In Progress |
 | **Member 5** | **Shahzan** | `member-5/ui-frontend` | In-game HUD (`task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`), meeting & voting screens, role reveal, game over | 🟡 In Progress |
 | **Member 6** | **Abubaker** | `member-6/game-design` | Balance configs (`shared/*_config.gd`), task specs, evidence rules, 9-room layout flow | 🟡 In Progress |
-| **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟡 In Progress (Phase 4 Master Map Complete) |
+| **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟢 Complete (Phases 1–7 Complete & Tested) |
 | **Member 8** | **Sahil** | `member-8/audio-qa` | SFX & tension soundscapes, `tests/` automated test suites, 8-player playtest operations | 🟢 Automated Test Suites Implemented (Tests 1–10) |
 
 *Status Legend:* ⚪ *Not Started* | 🟡 *In Progress* | 🔵 *Under Review (PR Open)* | 🟢 *Merged to `main`* | 🔴 *Blocked*
@@ -72,7 +72,7 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 | **9-Room Facility Tilemaps & Master Map** | `assets/sprites/environment/`, `scenes/environment/` | `facility_map.tscn`, `facility_map.gd`, `tileset_floor_walls.png`, `facility_tileset.tres`, 10 props, `tests/test_facility_map.gd` | 🟢 Phase 4 Complete & Tested |
 | **Station & Evidence Visuals** | `assets/sprites/stations/`, `scenes/environment/` | 40 station state textures, 6 evidence marker sprites, `station_prop.tscn`, `evidence_marker.tscn`, `tests/test_station_evidence_visuals.gd` | 🟢 Phase 5 Complete & Tested |
 | **2D Character Sprite Sheets** | `assets/sprites/characters/`, `scenes/characters/` | 8-player suit sheets + ghost sheet (256x288 px), `player_visual.tscn`, `tests/test_character_animations.gd` | 🟢 Phase 6 Complete & Tested |
-| **Visual Effects (VFX)** | `assets/vfx/` | Particle presets (sparks, steam) & Meltdown heat distortion shader | 🟡 In Progress |
+| **Visual Effects (VFX)** | `assets/vfx/`, `scenes/vfx/` | 3 particle presets (`sparks`, `steam`, `strobe`), 3 custom shaders, `vfx_meltdown_overlay.tscn`, `tests/test_vfx_shaders.gd` | 🟢 Phase 7 Complete & Tested |
 
 ---
 
@@ -315,5 +315,26 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
   - Authored automated test suite (`tests/test_character_animations.gd`) verifying all 12 asset, dimension, color palette binding, directional frame calculation, and flashlight attachment requirements with 100% pass rate.
 - **Breaking Changes / Contract Impacts:** None. Provides clean public API (`set_color()`, `set_motion()`, `play_interact()`, `play_sabotage()`, `set_ghost_mode()`) designed for seamless integration with Member 3 (Client Engine / Player Controller).
 - **Verification / Testing:** 12 automated test assertions passed via `scratch/verify_phase6.py` and `tests/test_character_animations.gd`.
+
+---
+
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 7: VFX Particle Presets & Meltdown Heat Distortion Custom Shaders
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `assets/vfx/` (`meltdown_distortion.gdshader`, `vision_vignette.gdshader`, `interactable_outline.gdshader`, `spark_particle.png`, `smoke_puff_particle.png`, `alarm_flare_particle.png`)
+  - `scenes/vfx/` (`vfx_electrical_sparks.gd`, `vfx_electrical_sparks.tscn`, `vfx_coolant_steam.gd`, `vfx_coolant_steam.tscn`, `vfx_alarm_strobe.gd`, `vfx_alarm_strobe.tscn`, `vfx_meltdown_overlay.gd`, `vfx_meltdown_overlay.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_vfx_shaders.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / VFX / Custom Shaders / Particle Systems / Milestone Complete`
+- **Description:**
+  - Authored 3 high-performance Godot 4.x canvas-item shaders: `meltdown_distortion.gdshader` (sinusoidal UV ripple, chromatic aberration, thermal haze), `vision_vignette.gdshader` (fullscreen radial darkness with breathing pulse for blackout), and `interactable_outline.gdshader` (1px golden outline for interactive props).
+  - Created 3 custom particle textures (`spark_particle.png`, `smoke_puff_particle.png`, `alarm_flare_particle.png`).
+  - Implemented 4 reusable VFX scenes and controllers: `VFXElectricalSparks` (burst electrical damage), `VFXCoolantSteam` (rising coolant vapor), `VFXAlarmStrobe` (crimson siren strobe flare), and `VFXMeltdownOverlay` (Layer 10 full-screen distortion controller scaling with Meltdown timer).
+  - Completed 100% of Member 7 (Fatima) 2D Environment & Technical Art roadmap (Phases 1 through 7).
+  - Authored automated test suite (`tests/test_vfx_shaders.gd`) and verification runner verifying all 15 shader, particle, and controller assertions with 100% pass rate.
+- **Breaking Changes / Contract Impacts:** None. All shaders and particle systems follow standard render layer sorting (Z=5 for Particles, Layer 10 for CanvasLayer, Layer 1/3 for props).
+- **Verification / Testing:** 15 automated checks passed via `scratch/verify_phase7.py` and `tests/test_vfx_shaders.gd`.
 
 ---

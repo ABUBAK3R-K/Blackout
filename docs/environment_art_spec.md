@@ -204,4 +204,4 @@ Players are assigned one of 8 distinct suit colors:
 - [x] Phase 4: Full 9-room master facility map scene (`scenes/environment/facility_map.tscn`, `facility_map.gd`) with 8-player spawns, station linkage, and test suite (`tests/test_facility_map.gd`).
 - [x] Phase 5: Station visual states (40 textures across 10 stations) & evidence marker props (`assets/sprites/stations/`, `station_prop.tscn`, `evidence_marker.tscn`, `tests/test_station_evidence_visuals.gd`).
 - [x] Phase 6: Player character sprite sheets (8 suit colors + ghost, 4 directions, 5 animations) & `PlayerVisual` controller (`scenes/characters/player_visual.tscn`, `tests/test_character_animations.gd`).
-- [ ] Phase 7: VFX particle presets & Meltdown heat distortion shader (`assets/vfx/`).
+- [x] Phase 7: VFX particle presets (`vfx_electrical_sparks`, `vfx_coolant_steam`, `vfx_alarm_strobe`), 3 custom shaders (`meltdown_distortion`, `vision_vignette`, `interactable_outline`), Meltdown distortion overlay (`vfx_meltdown_overlay.tscn`), and test suite (`tests/test_vfx_shaders.gd`).
