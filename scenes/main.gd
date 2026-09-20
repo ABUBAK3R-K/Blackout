@@ -14,12 +14,14 @@ const SpawnManager = preload("res://client/player/spawn_manager.gd")
 const BlackoutLightingManager = preload("res://client/environment/blackout_lighting_manager.gd")
 const PlayerController = preload("res://client/player/player_controller.gd")
 const StateSync = preload("res://client/player/state_sync.gd")
+const MeetingVotingUI = preload("res://client/ui/meeting_voting_ui.gd")
 
 @onready var facility_map: MapManager = $FacilityMap
 @onready var spawn_manager: SpawnManager = $SpawnManager
 @onready var blackout_lighting: BlackoutLightingManager = $BlackoutLighting
 @onready var player: PlayerController = $Player
 @onready var state_sync: StateSync = $StateSync
+@onready var meeting_ui: MeetingVotingUI = get_node_or_null("CanvasLayer/MeetingVotingUI")
 @onready var status_label: Label = $CanvasLayer/CenterContainer/VBoxContainer/StatusLabel
 @onready var role_label: Label = get_node_or_null("CanvasLayer/RoleContainer/RolePanel/RoleLabel")
 @onready var round_label: Label = get_node_or_null("CanvasLayer/RoundContainer/RoundPanel/RoundLabel")
@@ -52,6 +54,10 @@ func _ready() -> void:
 			player.role_changed.connect(_on_player_role_changed)
 		_update_role_ui()
 
+	# 6. Initialize Meeting & Voting UI listener
+	if meeting_ui != null and player != null:
+		meeting_ui.register_local_player(player)
+
 	_update_round_ui(RoundManager.RoundState.LOBBY)
 	_connect_network_listeners()
 
@@ -62,6 +68,8 @@ func _connect_network_listeners() -> void:
 	var net_mgr = get_node_or_null("/root/NetworkManager")
 	if net_mgr != null and "client" in net_mgr and net_mgr.client != null:
 		var client = net_mgr.client
+		if meeting_ui != null:
+			meeting_ui.bind_client_network_manager(client)
 		if not client.role_assigned.is_connected(_on_network_role_assigned):
 			client.role_assigned.connect(_on_network_role_assigned)
 		if not client.sabotage_state_synced.is_connected(_on_network_sabotage_state_synced):
