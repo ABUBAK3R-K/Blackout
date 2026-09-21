@@ -99,6 +99,27 @@ const TEST_SUITES: Array[Dictionary] = [
 		"script": "res://tests/server_authority_tests/test_anti_cheat_meltdown.gd",
 		"category": "QA Server Authority",
 		"target_tests": 6
+	},
+	{
+		"id": "qa_anti_cheat_roles",
+		"name": "Anti-Cheat: Role Assignment & Identity Authority",
+		"script": "res://tests/server_authority_tests/test_anti_cheat_roles.gd",
+		"category": "QA Server Authority",
+		"target_tests": 7
+	},
+	{
+		"id": "qa_anti_cheat_timers",
+		"name": "Anti-Cheat: Timers, Disconnects & Input Validation",
+		"script": "res://tests/server_authority_tests/test_anti_cheat_timers.gd",
+		"category": "QA Server Authority",
+		"target_tests": 8
+	},
+	{
+		"id": "qa_audio_integration",
+		"name": "Audio Manager & Gameplay Audio Bridge Integration",
+		"script": "res://tests/test_audio_manager.gd",
+		"category": "Audio & Presentation",
+		"target_tests": 11
 	}
 ]
 

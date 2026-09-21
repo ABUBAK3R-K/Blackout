@@ -17,6 +17,9 @@ const ALL_EMERGENCY_SYSTEMS: Array[String] = [
 	SYSTEM_STABILIZE_ORION
 ]
 
+## Total mandatory emergency systems required for Crew victory
+const MANDATORY_EMERGENCY_SYSTEMS_COUNT: int = 3
+
 enum GameOverReason {
 	NONE,
 	CREW_EMERGENCY_SYSTEMS_COMPLETE,
