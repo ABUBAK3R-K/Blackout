@@ -49,6 +49,11 @@ signal sabotage_state_synced(sabotage_type: int, state: int, duration: float)
 signal sabotage_requested()
 signal round_state_synced(round_state: int)
 signal return_to_lobby_requested()
+signal player_eliminated_synced(peer_id: int, death_pos: Vector2)
+signal corpse_spawned(corpse_id: int, victim_peer_id: int, victim_name: String, pos: Vector2)
+signal corpse_reported(corpse_id: int, reporter_peer_id: int)
+signal kill_requested(target_peer_id: int)
+signal body_report_requested(corpse_id: int)
 
 var peer: ENetMultiplayerPeer = null
 
@@ -59,6 +64,10 @@ var assigned_slot: int = 0
 var assigned_peer_id: int = 0
 var assigned_role: NetworkConfig.PlayerRole = NetworkConfig.PlayerRole.NONE
 var assigned_tasks: Array = []
+
+var active_corpses: Dictionary = {}
+var eliminated_player_ids: Array = []
+var last_kill_time: float = -999.0
 
 var is_blackout_unlocked: bool = false
 var is_blackout_active: bool = false
@@ -358,6 +367,43 @@ func request_complete_emergency_system(system_id: String) -> void:
 	if net_mgr != null and net_mgr.has_method("request_complete_emergency_system"):
 		net_mgr.request_complete_emergency_system(system_id)
 
+func request_kill(target_peer_id: int) -> void:
+	if not is_connected_to_server():
+		push_warning("[CLIENT] Cannot request kill: not connected to server.")
+		return
+	if assigned_role != NetworkConfig.PlayerRole.IMPOSTOR:
+		push_warning("[CLIENT] Cannot request kill: local player is not Impostor.")
+		return
+	if is_eliminated:
+		push_warning("[CLIENT] Cannot request kill: local player is eliminated.")
+		return
+	if is_meeting_active or is_game_over:
+		push_warning("[CLIENT] Cannot request kill: meeting or game over active.")
+		return
+
+	print("[CLIENT] Impostor requesting kill on target Peer %d..." % target_peer_id)
+	kill_requested.emit(target_peer_id)
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("send_kill_request"):
+		net_mgr.send_kill_request(target_peer_id)
+
+func request_report_body(corpse_id: int) -> void:
+	if not is_connected_to_server():
+		push_warning("[CLIENT] Cannot request body report: not connected to server.")
+		return
+	if is_eliminated:
+		push_warning("[CLIENT] Cannot request body report: local player is eliminated.")
+		return
+	if is_meeting_active or is_game_over:
+		push_warning("[CLIENT] Cannot request body report: meeting or game over active.")
+		return
+
+	print("[CLIENT] Player requesting body report for Corpse #%d..." % corpse_id)
+	body_report_requested.emit(corpse_id)
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("send_report_body_request"):
+		net_mgr.send_report_body_request(corpse_id)
+
 func request_return_to_lobby() -> void:
 	if not is_connected_to_server():
 		push_warning("[CLIENT] Cannot return to lobby: not connected to server.")
@@ -396,6 +442,9 @@ func reset_match_state() -> void:
 	has_voted_this_round = false
 	last_vote_result.clear()
 	is_eliminated = false
+	active_corpses.clear()
+	eliminated_player_ids.clear()
+	last_kill_time = -999.0
 	is_meltdown_active = false
 	meltdown_remaining_duration = 0.0
 	is_impostor_alive_at_meltdown = true
@@ -449,6 +498,9 @@ func _cleanup_connection() -> void:
 	has_voted_this_round = false
 	last_vote_result.clear()
 	is_eliminated = false
+	active_corpses.clear()
+	eliminated_player_ids.clear()
+	last_kill_time = -999.0
 	is_meltdown_active = false
 	meltdown_remaining_duration = 0.0
 	is_impostor_alive_at_meltdown = true
@@ -700,6 +752,32 @@ func handle_round_state_sync(p_round_state: int) -> void:
 	current_round_state = p_round_state
 	print("[CLIENT] Authoritative round state received: %s." % RoundManager.get_state_name(p_round_state as RoundManager.RoundState))
 	round_state_synced.emit(p_round_state)
+
+func handle_player_eliminated(target_peer_id: int, death_pos: Vector2) -> void:
+	if target_peer_id == assigned_peer_id:
+		is_eliminated = true
+		print("[CLIENT] You have been ELIMINATED at %s!" % str(death_pos))
+	if not eliminated_player_ids.has(target_peer_id):
+		eliminated_player_ids.append(target_peer_id)
+	print("[CLIENT] Player %d eliminated at %s." % [target_peer_id, str(death_pos)])
+	player_eliminated_synced.emit(target_peer_id, death_pos)
+
+func handle_corpse_spawn(corpse_id: int, victim_peer_id: int, victim_name: String, pos: Vector2) -> void:
+	active_corpses[corpse_id] = {
+		"corpse_id": corpse_id,
+		"victim_peer_id": victim_peer_id,
+		"victim_name": victim_name,
+		"position": pos,
+		"is_reported": false
+	}
+	print("[CLIENT] Corpse #%d spawned at %s (Victim: %s)." % [corpse_id, str(pos), victim_name])
+	corpse_spawned.emit(corpse_id, victim_peer_id, victim_name, pos)
+
+func handle_corpse_reported(corpse_id: int, reporter_peer_id: int) -> void:
+	if active_corpses.has(corpse_id):
+		active_corpses[corpse_id]["is_reported"] = true
+	print("[CLIENT] Corpse #%d marked reported by Player %d." % [corpse_id, reporter_peer_id])
+	corpse_reported.emit(corpse_id, reporter_peer_id)
 
 
 

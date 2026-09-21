@@ -20,6 +20,11 @@ const RoleManager = preload("res://shared/role_manager.gd")
 const SabotageManager = preload("res://shared/sabotage_manager.gd")
 const RoundManager = preload("res://shared/round_manager.gd")
 
+## Authoritative Kill and Body Report Configuration Constants
+const KILL_RANGE: float = 90.0
+const KILL_COOLDOWN: float = 25.0
+const REPORT_RANGE: float = 90.0
+
 signal server_started(port: int)
 
 
@@ -44,6 +49,9 @@ signal voting_phase_initiated(voting_duration: float)
 signal vote_registered(voter_peer_id: int)
 signal meeting_resolved(result: Dictionary)
 signal player_eliminated_on_server(peer_id: int, was_impostor: bool)
+signal player_killed_on_server(killer_peer_id: int, victim_peer_id: int, position: Vector2)
+signal corpse_spawned_on_server(corpse_id: int, victim_peer_id: int, position: Vector2)
+signal corpse_reported_on_server(corpse_id: int, reporter_peer_id: int)
 signal meltdown_phase_started(duration: float, impostor_alive: bool)
 signal emergency_system_completed_on_server(peer_id: int, system_id: String, completed_systems: Array)
 signal match_concluded(winner_role: NetworkConfig.PlayerRole, reason: MeltdownConfig.GameOverReason, result_data: Dictionary)
@@ -72,7 +80,11 @@ var round_manager: RoundManager = null
 
 var is_impostor_eliminated: bool = false
 
-
+## Server-authoritative tracking for player positions, kill cooldowns, and active corpses
+var player_positions: Dictionary = {} # { peer_id (int) -> Vector2 }
+var impostor_last_kill_time: Dictionary = {} # { peer_id (int) -> float }
+var active_corpses: Dictionary = {} # { corpse_id (int) -> Dictionary }
+var next_corpse_id: int = 1
 
 ## Server-authoritative collection of connected players: { peer_id (int) -> PlayerConnectionData }
 var connected_players: Dictionary = {}
@@ -595,6 +607,10 @@ func process_return_to_lobby_request(peer_id: int) -> bool:
 	if sabotage_manager != null:
 		sabotage_manager.clear()
 	is_impostor_eliminated = false
+	active_corpses.clear()
+	impostor_last_kill_time.clear()
+	player_positions.clear()
+	next_corpse_id = 1
 
 	# 2. Reset connected player match data while preserving network connections and slots
 	for p: PlayerConnectionData in connected_players.values():
@@ -735,6 +751,207 @@ func process_emergency_system_completion_request(peer_id: int, system_id: String
 		return {"success": false, "error": "MeltdownManager not initialized"}
 
 	return meltdown_manager.complete_emergency_system(peer_id, system_id, current_game_state, connected_players)
+
+## Updates tracked authoritative position for a connected peer.
+func update_player_position(peer_id: int, pos: Vector2, _vel: Vector2, _facing: Vector2) -> void:
+	player_positions[peer_id] = pos
+
+## Returns the server-authoritative position of a connected player.
+func get_player_authoritative_position(peer_id: int) -> Vector2:
+	return player_positions.get(peer_id, Vector2.ZERO)
+
+## Directly sets the authoritative position for a player (testing & spawning helper).
+func set_player_position(peer_id: int, pos: Vector2) -> void:
+	player_positions[peer_id] = pos
+
+## Server-authoritative validation and execution of an Impostor proximity kill request.
+func process_kill_request(killer_peer_id: int, target_peer_id: int) -> Dictionary:
+	if not is_running:
+		return {"success": false, "error": "Server not running"}
+
+	# 1. Requesting peer is connected
+	if not connected_players.has(killer_peer_id):
+		return {"success": false, "error": "Killer is not a connected player"}
+
+	var killer: PlayerConnectionData = connected_players[killer_peer_id]
+
+	# 2. Requesting player is the Impostor
+	var is_killer_imp = (killer.role == NetworkConfig.PlayerRole.IMPOSTOR) or (blackout_manager != null and killer_peer_id == blackout_manager.impostor_peer_id)
+	if not is_killer_imp:
+		return {"success": false, "error": "Only Impostors can initiate kill requests"}
+
+	# 3. Requesting player is alive
+	if not killer.is_alive or killer.is_eliminated:
+		return {"success": false, "error": "Eliminated players cannot kill"}
+
+	# 4. Target peer exists
+	if not connected_players.has(target_peer_id):
+		return {"success": false, "error": "Target player not found"}
+
+	# 5. Target is not the requesting player (no self-kill)
+	if target_peer_id == killer_peer_id:
+		return {"success": false, "error": "Cannot kill self"}
+
+	var target: PlayerConnectionData = connected_players[target_peer_id]
+
+	# 6. Target is alive and not already eliminated
+	if not target.is_alive or target.is_eliminated:
+		return {"success": false, "error": "Target is already eliminated"}
+
+	# 7. Target is a Crew player (no Impostor killing Impostor)
+	var is_target_imp = (target.role == NetworkConfig.PlayerRole.IMPOSTOR) or (blackout_manager != null and target_peer_id == blackout_manager.impostor_peer_id)
+	if is_target_imp:
+		return {"success": false, "error": "Impostor cannot kill another Impostor"}
+
+	# 8. Allowed game states for killing
+	var allowed_states = [
+		NetworkConfig.GameState.INITIAL_TASK_PHASE,
+		NetworkConfig.GameState.BLACKOUT_AVAILABLE,
+		NetworkConfig.GameState.BLACKOUT_ACTIVE,
+		NetworkConfig.GameState.POST_BLACKOUT_INVESTIGATION,
+		NetworkConfig.GameState.MELTDOWN
+	]
+	if not allowed_states.has(current_game_state):
+		return {"success": false, "error": "Kill not permitted in match state %s" % NetworkConfig.get_game_state_name(current_game_state)}
+
+	# 9. Not during an active meeting / voting
+	if meeting_manager != null and meeting_manager.is_meeting_active:
+		return {"success": false, "error": "Kill not permitted during active meeting"}
+
+	# 10. Kill cooldown check
+	var now = Time.get_ticks_msec() / 1000.0
+	if impostor_last_kill_time.has(killer_peer_id):
+		var elapsed = now - impostor_last_kill_time[killer_peer_id]
+		if elapsed < KILL_COOLDOWN:
+			return {"success": false, "error": "Kill ability on cooldown (%.1fs remaining)" % (KILL_COOLDOWN - elapsed)}
+
+	# 11. Authoritative distance check
+	var killer_pos = get_player_authoritative_position(killer_peer_id)
+	var target_pos = get_player_authoritative_position(target_peer_id)
+	if killer_pos != Vector2.ZERO and target_pos != Vector2.ZERO:
+		var dist = killer_pos.distance_to(target_pos)
+		if dist > KILL_RANGE:
+			return {"success": false, "error": "Target out of kill range (%.1fpx > %.1fpx)" % [dist, KILL_RANGE]}
+
+	# Execute authoritative kill
+	impostor_last_kill_time[killer_peer_id] = now
+	target.is_alive = false
+	target.is_eliminated = true
+
+	var c_id = next_corpse_id
+	next_corpse_id += 1
+	var victim_name = "Player %d" % target.player_slot
+	var death_pos = target_pos if target_pos != Vector2.ZERO else killer_pos
+
+	active_corpses[c_id] = {
+		"corpse_id": c_id,
+		"victim_peer_id": target_peer_id,
+		"victim_name": victim_name,
+		"position": death_pos,
+		"is_reported": false
+	}
+
+	print("[SERVER] Impostor %d ELIMINATED Player %d (Slot %d) at %s! Corpse #%d spawned." % [
+		killer_peer_id, target_peer_id, target.player_slot, str(death_pos), c_id
+	])
+
+	player_eliminated_on_server.emit(target_peer_id, false)
+	player_killed_on_server.emit(killer_peer_id, target_peer_id, death_pos)
+	corpse_spawned_on_server.emit(c_id, target_peer_id, death_pos)
+
+	var net_mgr = get_parent()
+	if net_mgr != null:
+		if net_mgr.has_method("broadcast_player_eliminated"):
+			net_mgr.broadcast_player_eliminated(target_peer_id, death_pos, connected_players.keys())
+		if net_mgr.has_method("broadcast_corpse_spawn"):
+			net_mgr.broadcast_corpse_spawn(c_id, target_peer_id, victim_name, death_pos, connected_players.keys())
+
+	_check_crew_elimination_win_condition()
+
+	return {"success": true, "corpse_id": c_id, "victim_peer_id": target_peer_id, "death_pos": death_pos}
+
+## Server-authoritative validation and execution of a body report request.
+func process_report_body_request(reporter_peer_id: int, corpse_id: int) -> Dictionary:
+	if not is_running:
+		return {"success": false, "error": "Server not running"}
+
+	# 1. Reporting peer is connected
+	if not connected_players.has(reporter_peer_id):
+		return {"success": false, "error": "Reporter is not a connected player"}
+
+	var reporter: PlayerConnectionData = connected_players[reporter_peer_id]
+
+	# 2. Reporting player is alive
+	if not reporter.is_alive or reporter.is_eliminated:
+		return {"success": false, "error": "Eliminated players cannot report bodies"}
+
+	# 3. Allowed match states for reporting bodies
+	var allowed_states = [
+		NetworkConfig.GameState.INITIAL_TASK_PHASE,
+		NetworkConfig.GameState.BLACKOUT_AVAILABLE,
+		NetworkConfig.GameState.BLACKOUT_ACTIVE,
+		NetworkConfig.GameState.POST_BLACKOUT_INVESTIGATION,
+		NetworkConfig.GameState.MELTDOWN
+	]
+	if not allowed_states.has(current_game_state):
+		return {"success": false, "error": "Body reporting not permitted in match state %s" % NetworkConfig.get_game_state_name(current_game_state)}
+
+	# 4. Not during an active meeting
+	if meeting_manager != null and meeting_manager.is_meeting_active:
+		return {"success": false, "error": "Meeting already in progress"}
+
+	# 5. Corpse exists on server
+	if not active_corpses.has(corpse_id):
+		return {"success": false, "error": "Corpse #%d does not exist" % corpse_id}
+
+	var corpse_data: Dictionary = active_corpses[corpse_id]
+
+	# 6. Corpse has not already been reported
+	if bool(corpse_data.get("is_reported", false)):
+		return {"success": false, "error": "Corpse #%d has already been reported" % corpse_id}
+
+	# 7. Reporting player is within authoritative report range
+	var reporter_pos = get_player_authoritative_position(reporter_peer_id)
+	var corpse_pos: Vector2 = corpse_data.get("position", Vector2.ZERO)
+	if reporter_pos != Vector2.ZERO and corpse_pos != Vector2.ZERO:
+		var dist = reporter_pos.distance_to(corpse_pos)
+		if dist > REPORT_RANGE:
+			return {"success": false, "error": "Reporter out of range (%.1fpx > %.1fpx)" % [dist, REPORT_RANGE]}
+
+	# Execute authoritative report
+	corpse_data["is_reported"] = true
+
+	print("[SERVER] Player %d (Slot %d) REPORTED body #%d (Victim: %s)!" % [
+		reporter_peer_id, reporter.player_slot, corpse_id, str(corpse_data.get("victim_name", ""))
+	])
+
+	corpse_reported_on_server.emit(corpse_id, reporter_peer_id)
+
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("broadcast_corpse_reported"):
+		net_mgr.broadcast_corpse_reported(corpse_id, reporter_peer_id, connected_players.keys())
+
+	# Initiate emergency meeting via existing MeetingManager
+	if meeting_manager != null:
+		meeting_manager.request_call_meeting(reporter_peer_id, current_game_state, connected_players, true)
+
+	return {"success": true, "corpse_id": corpse_id, "reporter_peer_id": reporter_peer_id}
+
+func _check_crew_elimination_win_condition() -> void:
+	var alive_crew: int = 0
+	var alive_impostor: int = 0
+	for p: PlayerConnectionData in connected_players.values():
+		if p.is_alive and not p.is_eliminated:
+			if p.role == NetworkConfig.PlayerRole.IMPOSTOR or (blackout_manager != null and p.peer_id == blackout_manager.impostor_peer_id):
+				alive_impostor += 1
+			else:
+				alive_crew += 1
+
+	if alive_crew == 0 and alive_impostor > 0 and connected_players.size() > 1:
+		print("[SERVER] All Crew members eliminated! Impostor victory!")
+		if meltdown_manager != null:
+			meltdown_manager._trigger_game_over(NetworkConfig.PlayerRole.IMPOSTOR, MeltdownConfig.GameOverReason.CREW_ELIMINATED)
+
 
 func _on_meeting_started(caller_peer_id: int, discussion_duration: float) -> void:
 	_transition_game_state(NetworkConfig.GameState.MEETING)

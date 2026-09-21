@@ -1,0 +1,57 @@
+[gd_scene load_steps=4 format=3 uid="uid://b7c8d9e0f1a2b"]
+
+[ext_resource type="Script" path="res://client/environment/player_corpse.gd" id="1_corpse"]
+[ext_resource type="Script" path="res://client/environment/interactable_trigger.gd" id="2_trigger"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_corpse"]
+radius = 80.0
+
+[node name="PlayerCorpse" type="Node2D"]
+script = ExtResource("1_corpse")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="ShadowPolygon" type="Polygon2D" parent="Visual"]
+color = Color(0, 0, 0, 0.4)
+polygon = PackedVector2Array(-24, -10, 24, -10, 28, 12, -28, 12)
+
+[node name="BodyPolygon" type="Polygon2D" parent="Visual"]
+color = Color(0.7, 0.2, 0.22, 0.95)
+polygon = PackedVector2Array(-20, -12, 14, -14, 22, 2, 12, 14, -18, 12, -24, -2)
+
+[node name="VisorPolygon" type="Polygon2D" parent="Visual"]
+color = Color(0.15, 0.35, 0.5, 0.85)
+polygon = PackedVector2Array(6, -10, 18, -10, 20, 0, 10, 0)
+
+[node name="MarkerPolygon" type="Polygon2D" parent="Visual"]
+color = Color(1, 0.85, 0.2, 0.8)
+polygon = PackedVector2Array(-4, -22, 4, -22, 0, -14)
+
+[node name="NameLabel" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -42.0
+offset_right = 60.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 0.95)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 11
+text = "Fallen Crew"
+horizontal_alignment = 1
+
+[node name="InteractableTrigger" type="Area2D" parent="."]
+collision_layer = 0
+script = ExtResource("2_trigger")
+interactable_id = "player_corpse"
+prompt_text = "REPORT BODY [E]"
+interaction_radius = 80.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractableTrigger"]
+shape = SubResource("CircleShape2D_corpse")

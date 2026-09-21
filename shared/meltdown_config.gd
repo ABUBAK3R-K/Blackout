@@ -20,7 +20,8 @@ const ALL_EMERGENCY_SYSTEMS: Array[String] = [
 enum GameOverReason {
 	NONE,
 	CREW_EMERGENCY_SYSTEMS_COMPLETE,
-	IMPOSTOR_MELTDOWN_TIMER_EXPIRED
+	IMPOSTOR_MELTDOWN_TIMER_EXPIRED,
+	CREW_ELIMINATED
 }
 
 static func get_game_over_reason_name(reason: GameOverReason) -> String:
@@ -29,6 +30,8 @@ static func get_game_over_reason_name(reason: GameOverReason) -> String:
 			return "CREW_EMERGENCY_SYSTEMS_COMPLETE"
 		GameOverReason.IMPOSTOR_MELTDOWN_TIMER_EXPIRED:
 			return "IMPOSTOR_MELTDOWN_TIMER_EXPIRED"
+		GameOverReason.CREW_ELIMINATED:
+			return "CREW_ELIMINATED"
 		_:
 			return "NONE"
 

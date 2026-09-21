@@ -18,6 +18,7 @@ const MeetingVotingUI = preload("res://client/ui/meeting_voting_ui.gd")
 const MeltdownHUD = preload("res://client/ui/meltdown_hud.gd")
 const GameOverUI = preload("res://client/ui/game_over_ui.gd")
 const EvidenceDossierUI = preload("res://client/ui/evidence_dossier_ui.gd")
+const PlayerCorpseScene = preload("res://scenes/objects/player_corpse.tscn")
 const MeltdownConfig = preload("res://shared/meltdown_config.gd")
 
 @onready var facility_map: MapManager = $FacilityMap
@@ -103,6 +104,12 @@ func _connect_network_listeners() -> void:
 			client.emergency_system_completed.connect(_on_network_emergency_system_completed)
 		if not client.game_state_changed.is_connected(_on_network_game_state_changed):
 			client.game_state_changed.connect(_on_network_game_state_changed)
+		if not client.corpse_spawned.is_connected(_on_network_corpse_spawned):
+			client.corpse_spawned.connect(_on_network_corpse_spawned)
+		if not client.corpse_reported.is_connected(_on_network_corpse_reported):
+			client.corpse_reported.connect(_on_network_corpse_reported)
+		if not client.player_eliminated_synced.is_connected(_on_network_player_eliminated):
+			client.player_eliminated_synced.connect(_on_network_player_eliminated)
 
 		if client.assigned_role != NetworkConfig.PlayerRole.NONE:
 			_on_network_role_assigned(client.assigned_role)
@@ -131,7 +138,11 @@ func _on_network_emergency_system_completed(system_id: String, completed_systems
 		status_label.set("theme_override_colors/font_color", Color(0.3, 0.95, 0.5, 1.0))
 
 func _on_network_game_state_changed(new_state: NetworkConfig.GameState) -> void:
-	if new_state == NetworkConfig.GameState.MELTDOWN:
+	if new_state == NetworkConfig.GameState.LOBBY:
+		_cleanup_corpses()
+		if player != null and player.is_eliminated:
+			player.set_eliminated(false)
+	elif new_state == NetworkConfig.GameState.MELTDOWN:
 		if status_label != null:
 			status_label.text = "⚠ EMERGENCY MELTDOWN ACTIVE — Restore all 3 systems to prevent core collapse!"
 			status_label.set("theme_override_colors/font_color", Color(1.0, 0.2, 0.2, 1.0))
@@ -145,6 +156,48 @@ func _on_network_game_state_changed(new_state: NetworkConfig.GameState) -> void:
 			status_label.set("theme_override_colors/font_color", Color(0.9, 0.85, 0.3, 1.0))
 	elif new_state != NetworkConfig.GameState.MELTDOWN and meltdown_hud != null and not meltdown_hud.is_active:
 		_update_default_status_text()
+
+func _cleanup_corpses() -> void:
+	for corpse_node in get_tree().get_nodes_in_group("player_corpses"):
+		corpse_node.queue_free()
+
+func _on_network_corpse_spawned(corpse_id: int, victim_peer_id: int, victim_name: String, pos: Vector2) -> void:
+	# Avoid duplicate corpse instantiation if already present
+	for c in get_tree().get_nodes_in_group("player_corpses"):
+		if c.get("corpse_id") == corpse_id:
+			return
+
+	var corpse_inst = PlayerCorpseScene.instantiate()
+	corpse_inst.name = "Corpse_%d" % corpse_id
+	var parent_node = facility_map if facility_map != null else self
+	parent_node.add_child(corpse_inst)
+	if corpse_inst.has_method("setup_corpse"):
+		corpse_inst.setup_corpse(corpse_id, victim_peer_id, victim_name, pos)
+	print("[BLACKOUT] Corpse #%d spawned in world at %s for %s." % [corpse_id, str(pos), victim_name])
+
+func _on_network_corpse_reported(corpse_id: int, _reporter_peer_id: int) -> void:
+	for c in get_tree().get_nodes_in_group("player_corpses"):
+		if c.get("corpse_id") == corpse_id:
+			if c.has_method("mark_reported"):
+				c.mark_reported()
+
+func _on_network_player_eliminated(target_peer_id: int, _death_pos: Vector2) -> void:
+	var net_mgr = get_node_or_null("/root/NetworkManager")
+	var local_assigned_id = 0
+	if net_mgr != null and "client" in net_mgr and net_mgr.client != null:
+		local_assigned_id = net_mgr.client.assigned_peer_id
+
+	if player != null:
+		if target_peer_id == player.slot_id or target_peer_id == local_assigned_id:
+			player.set_eliminated(true)
+
+	# Update remote player entities if present in scene
+	for p in get_tree().get_nodes_in_group("players"):
+		if p != player and p.has_method("set_eliminated"):
+			var p_slot = p.get("slot_id")
+			var p_peer = p.get("assigned_peer_id")
+			if p_slot == target_peer_id or p_peer == target_peer_id:
+				p.set_eliminated(true)
 
 func _update_round_ui(state: int) -> void:
 	if round_label == null:
@@ -194,7 +247,7 @@ func _update_default_status_text() -> void:
 
 	var is_imp: bool = player != null and player.is_impostor()
 	if is_imp:
-		status_label.text = "Asterion Facility — WASD Move | E Interact | [Q] Sabotage Power | [F] Flashlight"
+		status_label.text = "Asterion Facility — WASD Move | E Interact | [K] Kill | [Q] Sabotage Power | [F] Flashlight"
 	else:
 		status_label.text = "Asterion Facility — WASD Move | E Interact | [B] Toggle Power | [F] Flashlight"
 	status_label.set("theme_override_colors/font_color", Color(1.0, 1.0, 1.0, 1.0))
@@ -217,7 +270,7 @@ func _update_sabotage_hud(is_active: bool) -> void:
 	if is_active:
 		var is_imp: bool = player != null and player.is_impostor()
 		if is_imp:
-			status_label.text = "⚠ POWER SABOTAGE ACTIVE — Radial Vision + Flashlight Active | [F] Flashlight"
+			status_label.text = "⚠ POWER SABOTAGE ACTIVE — Radial Vision + Flashlight Active | [K] Kill | [F] Flashlight"
 			status_label.set("theme_override_colors/font_color", Color(1.0, 0.25, 0.25, 1.0))
 		else:
 			status_label.text = "⚠ POWER FAILURE — Emergency Power Engaged | [F] Flashlight | [E] Interact"
@@ -227,7 +280,3 @@ func _update_sabotage_hud(is_active: bool) -> void:
 
 func _on_blackout_state_changed(is_blackout: bool) -> void:
 	_update_sabotage_hud(is_blackout)
-
-
-
-

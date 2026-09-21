@@ -37,6 +37,18 @@ const InteractableTrigger = preload("res://client/environment/interactable_trigg
 
 signal role_changed(new_role: NetworkConfig.PlayerRole)
 signal sabotage_triggered(sabotage_type: int)
+signal kill_executed(target_peer_id: int)
+signal player_eliminated()
+
+@export_group("Kill / Elimination Settings")
+## Proximity range for Impostor kill action in pixels.
+@export var kill_range: float = 90.0
+## Cooldown duration for the kill action in seconds.
+@export var kill_cooldown_max: float = 25.0
+## Remaining cooldown duration in seconds.
+var kill_cooldown_remaining: float = 0.0
+## Current target player within kill range.
+var nearby_kill_target: Node2D = null
 
 @export_group("Flashlight / Vision Settings")
 
@@ -76,11 +88,19 @@ var nearby_interactables: Array = []
 var current_interactable: InteractableTrigger = null
 
 func _ready() -> void:
+	add_to_group("players")
 	target_position = global_position
 	_init_flashlight_texture()
 	update_display_label()
 	_update_camera_and_light_state()
 	_update_facing_visual()
+
+func _process(delta: float) -> void:
+	if kill_cooldown_remaining > 0.0:
+		kill_cooldown_remaining = max(0.0, kill_cooldown_remaining - delta)
+
+	if is_local_player and is_impostor() and not is_eliminated and can_move:
+		_update_nearby_kill_target()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_local_player:
@@ -91,7 +111,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.keycode == KEY_F:
 			toggle_flashlight()
 
-	if not can_move:
+	if not can_move or is_eliminated:
 		return
 
 	# Handle 'E' key interaction
@@ -106,6 +126,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.keycode == KEY_Q:
 			if is_impostor():
 				try_trigger_sabotage(SabotageManager.SabotageType.POWER_BLACKOUT)
+
+	# Handle 'K' key Impostor Kill action
+	if event is InputEventKey and event.pressed and not event.is_echo():
+		if event.keycode == KEY_K:
+			if is_impostor():
+				try_kill_nearest_target()
 
 
 func _physics_process(delta: float) -> void:
@@ -394,4 +420,99 @@ func try_trigger_sabotage(sabotage_type: int = SabotageManager.SabotageType.POWE
 	if net_mgr != null and net_mgr.has_method("request_sabotage"):
 		net_mgr.request_sabotage(sabotage_type)
 	return true
+
+## Scans for the closest living Crew player within kill range.
+func _update_nearby_kill_target() -> void:
+	nearby_kill_target = find_nearest_killable_target()
+
+## Finds the nearest alive, non-eliminated player within kill_range.
+func find_nearest_killable_target() -> Node2D:
+	if not is_inside_tree():
+		return null
+
+	var closest_target: Node2D = null
+	var min_dist: float = kill_range
+
+	var players = get_tree().get_nodes_in_group("players")
+	for p in players:
+		if p == self:
+			continue
+		if not (p is CharacterBody2D or p is Node2D):
+			continue
+		if p.get("is_eliminated") == true:
+			continue
+
+		var p_role = p.get("role")
+		if p_role == NetworkConfig.PlayerRole.IMPOSTOR:
+			continue
+
+		var dist = global_position.distance_to(p.global_position)
+		if dist <= min_dist:
+			min_dist = dist
+			closest_target = p
+
+	return closest_target
+
+## Returns true if the local Impostor can currently perform a kill.
+func can_kill() -> bool:
+	return is_local_player and is_impostor() and not is_eliminated and can_move and kill_cooldown_remaining <= 0.0
+
+## Attempts to eliminate the closest valid Crew member in proximity.
+func try_kill_nearest_target() -> bool:
+	if not can_kill():
+		return false
+
+	var target = find_nearest_killable_target()
+	if target == null:
+		return false
+
+	return try_kill_target(target)
+
+## Executes an authoritative kill request against the specified target player node.
+func try_kill_target(target: Node2D) -> bool:
+	if not can_kill() or target == null:
+		return false
+
+	var target_peer_id: int = 0
+	if "assigned_peer_id" in target and target.assigned_peer_id > 0:
+		target_peer_id = target.assigned_peer_id
+	elif "slot_id" in target:
+		target_peer_id = target.slot_id
+	elif target.name.is_valid_int():
+		target_peer_id = int(str(target.name))
+
+	if target_peer_id <= 0:
+		target_peer_id = target.get_instance_id()
+
+	kill_cooldown_remaining = kill_cooldown_max
+	print("[PlayerController] Local Impostor executing kill request on target Peer %d (%s)..." % [
+		target_peer_id, target.name
+	])
+
+	kill_executed.emit(target_peer_id)
+
+	var net_mgr = null
+	if is_inside_tree():
+		net_mgr = get_node_or_null("/root/NetworkManager")
+	if net_mgr != null and net_mgr.has_method("request_kill"):
+		net_mgr.request_kill(target_peer_id)
+
+	return true
+
+## Updates the eliminated / spectator state of this player.
+func set_eliminated(p_eliminated: bool) -> void:
+	is_eliminated = p_eliminated
+
+	if is_eliminated:
+		if visual != null:
+			visual.modulate = Color(1.0, 1.0, 1.0, 0.45) # Spectator semi-transparent visual
+		if name_label != null:
+			name_label.text = "%s (ELIMINATED)" % player_name
+			name_label.set("theme_override_colors/font_color", Color(0.85, 0.35, 0.35, 0.8))
+		player_eliminated.emit()
+		print("[PlayerController] Player %d (%s) marked as ELIMINATED." % [slot_id, player_name])
+	else:
+		if visual != null:
+			visual.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		update_display_label()
 

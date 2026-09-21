@@ -133,10 +133,15 @@ func bind_client_network_manager(client_mgr: Node) -> void:
 	if client_mgr.has_signal("game_state_changed") and not client_mgr.game_state_changed.is_connected(_on_network_game_state_changed):
 		client_mgr.game_state_changed.connect(_on_network_game_state_changed)
 
+	if client_mgr.has_signal("player_eliminated_synced") and not client_mgr.player_eliminated_synced.is_connected(_on_network_player_eliminated):
+		client_mgr.player_eliminated_synced.connect(_on_network_player_eliminated)
+
 	if "assigned_peer_id" in client_mgr:
 		local_peer_id = client_mgr.assigned_peer_id
 	if "assigned_slot" in client_mgr and client_mgr.assigned_slot > 0:
 		local_slot_id = client_mgr.assigned_slot
+	if "is_eliminated" in client_mgr and client_mgr.is_eliminated:
+		is_local_eliminated = true
 
 # --- Public API & Lifecycle Methods ---
 
@@ -618,6 +623,13 @@ func _on_network_player_voted(voter_peer_id: int) -> void:
 
 func _on_network_vote_result_received(result_data: Dictionary) -> void:
 	show_results(result_data)
+
+func _on_network_player_eliminated(target_peer_id: int, _death_pos: Vector2) -> void:
+	eliminated_peer_ids[target_peer_id] = true
+	if target_peer_id == local_peer_id:
+		is_local_eliminated = true
+	if visible:
+		_rebuild_roster_ui()
 
 func _on_network_game_state_changed(new_state: NetworkConfig.GameState) -> void:
 	# If match transitions to MELTDOWN, GAME_OVER, or LOBBY and results are done, close meeting

@@ -128,6 +128,18 @@ func complete_emergency_system(system_id: String) -> void:
 	elif is_server():
 		push_warning("[NetworkManager] Dedicated server instance cannot complete emergency systems directly as a client.")
 
+func request_kill(target_peer_id: int) -> void:
+	if is_client():
+		client.request_kill(target_peer_id)
+	elif is_server():
+		push_warning("[NetworkManager] Dedicated server instance cannot initiate kills directly without client request.")
+
+func request_report_body(corpse_id: int) -> void:
+	if is_client():
+		client.request_report_body(corpse_id)
+	elif is_server():
+		push_warning("[NetworkManager] Dedicated server instance cannot report bodies directly without client request.")
+
 # --- Client-to-Server RPC Dispatch Helpers ---
 
 func request_set_ready(ready_status: bool) -> void:
@@ -180,6 +192,16 @@ func send_player_position(pos: Vector2, vel: Vector2, facing: Vector2) -> void:
 	if not is_client():
 		return
 	rpc_send_player_position.rpc_id(1, pos, vel, facing)
+
+func send_kill_request(target_peer_id: int) -> void:
+	if not is_client():
+		return
+	rpc_request_kill.rpc_id(1, target_peer_id)
+
+func send_report_body_request(corpse_id: int) -> void:
+	if not is_client():
+		return
+	rpc_request_report_body.rpc_id(1, corpse_id)
 
 func send_return_to_lobby_request() -> void:
 	if not is_client():
@@ -363,6 +385,24 @@ func broadcast_player_left(peer_id: int, recipients: Array) -> void:
 	for pid in recipients:
 		rpc_notify_player_disconnected.rpc_id(pid, peer_id)
 
+func broadcast_player_eliminated(target_peer_id: int, death_pos: Vector2, recipients: Array) -> void:
+	if not is_server():
+		return
+	for pid in recipients:
+		rpc_sync_player_eliminated.rpc_id(pid, target_peer_id, death_pos)
+
+func broadcast_corpse_spawn(corpse_id: int, victim_peer_id: int, victim_name: String, pos: Vector2, recipients: Array) -> void:
+	if not is_server():
+		return
+	for pid in recipients:
+		rpc_sync_corpse_spawn.rpc_id(pid, corpse_id, victim_peer_id, victim_name, pos)
+
+func broadcast_corpse_reported(corpse_id: int, reporter_peer_id: int, recipients: Array) -> void:
+	if not is_server():
+		return
+	for pid in recipients:
+		rpc_sync_corpse_reported.rpc_id(pid, corpse_id, reporter_peer_id)
+
 func broadcast_player_position(sender_id: int, pos: Vector2, vel: Vector2, facing: Vector2, recipients: Array) -> void:
 	if not is_server():
 		return
@@ -445,10 +485,27 @@ func rpc_request_complete_emergency_system(system_id: String) -> void:
 	else:
 		push_warning("[NetworkManager] Received emergency system completion request on non-server node from peer %d." % sender_id)
 
+@rpc("any_peer", "call_remote", "reliable")
+func rpc_request_kill(target_peer_id: int) -> void:
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if is_server():
+		server.process_kill_request(sender_id, target_peer_id)
+	else:
+		push_warning("[NetworkManager] Received kill request on non-server node from peer %d." % sender_id)
+
+@rpc("any_peer", "call_remote", "reliable")
+func rpc_request_report_body(corpse_id: int) -> void:
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if is_server():
+		server.process_report_body_request(sender_id, corpse_id)
+	else:
+		push_warning("[NetworkManager] Received body report request on non-server node from peer %d." % sender_id)
+
 @rpc("any_peer", "call_remote", "unreliable")
 func rpc_send_player_position(pos: Vector2, vel: Vector2, facing: Vector2) -> void:
 	var sender_id: int = multiplayer.get_remote_sender_id()
 	if is_server():
+		server.update_player_position(sender_id, pos, vel, facing)
 		broadcast_player_position(sender_id, pos, vel, facing, server.connected_players.keys())
 	else:
 		push_warning("[NetworkManager] Received position update on non-server node from peer %d." % sender_id)
@@ -613,5 +670,20 @@ func rpc_sync_sabotage_state(sabotage_type: int, state: int, duration: float) ->
 func rpc_sync_round_state(round_state: int) -> void:
 	if client != null:
 		client.handle_round_state_sync(round_state)
+
+@rpc("authority", "call_remote", "reliable")
+func rpc_sync_player_eliminated(target_peer_id: int, death_pos: Vector2) -> void:
+	if client != null:
+		client.handle_player_eliminated(target_peer_id, death_pos)
+
+@rpc("authority", "call_remote", "reliable")
+func rpc_sync_corpse_spawn(corpse_id: int, victim_peer_id: int, victim_name: String, pos: Vector2) -> void:
+	if client != null:
+		client.handle_corpse_spawn(corpse_id, victim_peer_id, victim_name, pos)
+
+@rpc("authority", "call_remote", "reliable")
+func rpc_sync_corpse_reported(corpse_id: int, reporter_peer_id: int) -> void:
+	if client != null:
+		client.handle_corpse_reported(corpse_id, reporter_peer_id)
 
 

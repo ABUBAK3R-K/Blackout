@@ -18,6 +18,7 @@ signal meeting_completed(result: Dictionary)
 var is_meeting_active: bool = false
 var caller_peer_id: int = 0
 var current_phase: MeetingConfig.MeetingPhase = MeetingConfig.MeetingPhase.NONE
+var current_trigger: MeetingConfig.MeetingTrigger = MeetingConfig.MeetingTrigger.EMERGENCY_BUTTON
 
 var discussion_duration: float = MeetingConfig.DEFAULT_DISCUSSION_DURATION_SEC
 var voting_duration: float = MeetingConfig.DEFAULT_VOTING_DURATION_SEC
@@ -29,6 +30,7 @@ func clear() -> void:
 	is_meeting_active = false
 	caller_peer_id = 0
 	current_phase = MeetingConfig.MeetingPhase.NONE
+	current_trigger = MeetingConfig.MeetingTrigger.EMERGENCY_BUTTON
 	discussion_remaining = 0.0
 	voting_remaining = 0.0
 	discussion_duration = MeetingConfig.DEFAULT_DISCUSSION_DURATION_SEC
@@ -45,11 +47,24 @@ func setup(
 func can_call_meeting(
 	peer_id: int,
 	current_state: NetworkConfig.GameState,
-	active_players: Dictionary
+	active_players: Dictionary,
+	is_body_report: bool = false
 ) -> Dictionary:
-	if current_state != NetworkConfig.GameState.POST_BLACKOUT_INVESTIGATION:
-		var msg = "Meeting call rejected: current match state is %s (Expected: POST_BLACKOUT_INVESTIGATION)." % NetworkConfig.get_game_state_name(current_state)
-		return {"allowed": false, "reason": msg}
+	if is_body_report:
+		var allowed_states = [
+			NetworkConfig.GameState.INITIAL_TASK_PHASE,
+			NetworkConfig.GameState.BLACKOUT_AVAILABLE,
+			NetworkConfig.GameState.BLACKOUT_ACTIVE,
+			NetworkConfig.GameState.POST_BLACKOUT_INVESTIGATION,
+			NetworkConfig.GameState.MELTDOWN
+		]
+		if not allowed_states.has(current_state):
+			var msg = "Body report meeting rejected: current match state is %s (Not an active gameplay state)." % NetworkConfig.get_game_state_name(current_state)
+			return {"allowed": false, "reason": msg}
+	else:
+		if current_state != NetworkConfig.GameState.POST_BLACKOUT_INVESTIGATION:
+			var msg = "Meeting call rejected: current match state is %s (Expected: POST_BLACKOUT_INVESTIGATION)." % NetworkConfig.get_game_state_name(current_state)
+			return {"allowed": false, "reason": msg}
 
 	if is_meeting_active:
 		var msg = "Meeting call rejected: a meeting is already in progress."
@@ -69,9 +84,10 @@ func can_call_meeting(
 func request_call_meeting(
 	peer_id: int,
 	current_state: NetworkConfig.GameState,
-	active_players: Dictionary
+	active_players: Dictionary,
+	is_body_report: bool = false
 ) -> Dictionary:
-	var check = can_call_meeting(peer_id, current_state, active_players)
+	var check = can_call_meeting(peer_id, current_state, active_players, is_body_report)
 	if not check.allowed:
 		push_warning("[MeetingManager] %s" % check.reason)
 		return {"success": false, "error": check.reason}
@@ -79,14 +95,16 @@ func request_call_meeting(
 	is_meeting_active = true
 	caller_peer_id = peer_id
 	current_phase = MeetingConfig.MeetingPhase.DISCUSSION
+	current_trigger = MeetingConfig.MeetingTrigger.BODY_REPORT if is_body_report else MeetingConfig.MeetingTrigger.EMERGENCY_BUTTON
 	discussion_remaining = discussion_duration
 
-	print("[MeetingManager] Meeting called by Player %d. Starting discussion phase (%.1fs)..." % [
-		peer_id, discussion_duration
+	var trigger_name = "BODY REPORT" if is_body_report else "EMERGENCY BUTTON"
+	print("[MeetingManager] Meeting called by Player %d (%s). Starting discussion phase (%.1fs)..." % [
+		peer_id, trigger_name, discussion_duration
 	])
 
 	meeting_started.emit(peer_id, discussion_duration)
-	return {"success": true, "caller_peer_id": peer_id, "discussion_duration": discussion_duration}
+	return {"success": true, "caller_peer_id": peer_id, "discussion_duration": discussion_duration, "is_body_report": is_body_report}
 
 ## Authoritative timer tick processing for discussion and voting.
 func tick(
