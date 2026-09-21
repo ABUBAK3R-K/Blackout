@@ -57,8 +57,7 @@ func _run_verification() -> void:
 	client_imp.handle_private_role_assignment(NetworkConfig.PlayerRole.IMPOSTOR)
 
 	# 3. Simulate Blackout phase on Server
-	server.sabotage_manager.request_sabotage(SabotageManager.SabotageType.POWER_BLACKOUT)
-	server.sabotage_manager.activate_sabotage(SabotageManager.SabotageType.POWER_BLACKOUT, 60.0)
+	server.sabotage_manager.start_sabotage(SabotageManager.SabotageType.POWER_BLACKOUT, 60.0, 102)
 
 	# 4. Generate real server-side evidence from Impostor objective and Crew recovery
 	server.evidence_manager.create_evidence_from_objective("steal_confidential_files", 102, 1789916890.0)
