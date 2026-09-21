@@ -1,0 +1,380 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://client/ui/screens/lobby_room.gd" id="1_lobby"]
+[ext_resource type="Texture2D" path="res://client/ui/screens/main_menu_bg.png" id="2_bg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.04, 0.07, 0.11, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.12, 0.22, 0.32, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_code_box"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.02, 0.04, 0.07, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0, 0.85, 1.0, 0.7)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pill"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.02, 0.12, 0.18, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0, 0.85, 1.0, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_secondary"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.06, 0.09, 0.14, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.38, 0.52, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_danger"]
+content_margin_left = 22.0
+content_margin_top = 10.0
+content_margin_right = 22.0
+content_margin_bottom = 10.0
+bg_color = Color(0.16, 0.04, 0.06, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.85, 0.22, 0.26, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_ready"]
+content_margin_left = 28.0
+content_margin_top = 10.0
+content_margin_right = 28.0
+content_margin_bottom = 10.0
+bg_color = Color(0.04, 0.18, 0.22, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0, 0.90, 1.0, 1.0)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_start"]
+content_margin_left = 32.0
+content_margin_top = 10.0
+content_margin_right = 32.0
+content_margin_bottom = 10.0
+bg_color = Color(0.18, 0.14, 0.03, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.78, 0.20, 1.0)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_status_bar"]
+content_margin_left = 16.0
+content_margin_top = 6.0
+content_margin_right = 16.0
+content_margin_bottom = 6.0
+bg_color = Color(0.02, 0.04, 0.07, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.12, 0.20, 0.30, 0.75)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="LobbyRoom" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lobby")
+
+[node name="BackgroundTexture" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="BackgroundTint" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.04, 0.07, 0.82)
+
+[node name="MainLayout" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 28
+
+[node name="VBox" type="VBoxContainer" parent="MainLayout"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HeaderCard" type="PanelContainer" parent="MainLayout/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="HeaderMargin" type="MarginContainer" parent="MainLayout/VBox/HeaderCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
+
+[node name="HeaderHBox" type="HBoxContainer" parent="MainLayout/VBox/HeaderCard/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="BrandingVBox" type="VBoxContainer" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="FacilitySubtitle" type="Label" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/BrandingVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.40, 0.52, 0.65, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "ASTERION RESEARCH FACILITY // SUB-LEVEL 4 REACTOR COMPLEX"
+
+[node name="TitleHBox" type="HBoxContainer" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/BrandingVBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="BrandTitle" type="Label" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/BrandingVBox/TitleHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0, 0.90, 1.0, 1.0)
+theme_override_font_sizes/font_size = 22
+text = "BLACKOUT"
+
+[node name="RoomBadge" type="PanelContainer" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/BrandingVBox/TitleHBox"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
+
+[node name="RoomBadgeLabel" type="Label" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/BrandingVBox/TitleHBox/RoomBadge"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0, 0.90, 1.0, 1.0)
+theme_override_font_sizes/font_size = 11
+text = "LOBBY / WAITING ROOM"
+
+[node name="HeaderRightHBox" type="HBoxContainer" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="LobbyCodeCard" type="PanelContainer" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/HeaderRightHBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_code_box")
+
+[node name="CodeHBox" type="HBoxContainer" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/HeaderRightHBox/LobbyCodeCard"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CodeTitle" type="Label" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/HeaderRightHBox/LobbyCodeCard/CodeHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.50, 0.62, 0.75, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "LOBBY CODE:"
+
+[node name="LobbyCodeLabel" type="Label" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/HeaderRightHBox/LobbyCodeCard/CodeHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0, 0.90, 1.0, 1.0)
+theme_override_font_sizes/font_size = 15
+text = "A7K2X"
+
+[node name="CopyCodeButton" type="Button" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/HeaderRightHBox/LobbyCodeCard/CodeHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1.0, 1.0)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_secondary")
+text = "COPY CODE"
+
+[node name="PlayerCountPill" type="PanelContainer" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/HeaderRightHBox"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
+
+[node name="CountHBox" type="HBoxContainer" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/HeaderRightHBox/PlayerCountPill"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PersonnelTitle" type="Label" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/HeaderRightHBox/PlayerCountPill/CountHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.50, 0.62, 0.75, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "PERSONNEL:"
+
+[node name="PlayerCountLabel" type="Label" parent="MainLayout/VBox/HeaderCard/HeaderMargin/HeaderHBox/HeaderRightHBox/PlayerCountPill/CountHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0, 0.90, 1.0, 1.0)
+theme_override_font_sizes/font_size = 12
+text = "4 / 8"
+
+[node name="RosterCard" type="PanelContainer" parent="MainLayout/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="RosterMargin" type="MarginContainer" parent="MainLayout/VBox/RosterCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
+
+[node name="RosterVBox" type="VBoxContainer" parent="MainLayout/VBox/RosterCard/RosterMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="RosterHeadingHBox" type="HBoxContainer" parent="MainLayout/VBox/RosterCard/RosterMargin/RosterVBox"]
+layout_mode = 2
+
+[node name="RosterTitle" type="Label" parent="MainLayout/VBox/RosterCard/RosterMargin/RosterVBox/RosterHeadingHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.90, 0.96, 0.95)
+theme_override_font_sizes/font_size = 13
+text = "FACILITY PERSONNEL ROSTER (MAX 8 PLAYERS)"
+
+[node name="RosterSub" type="Label" parent="MainLayout/VBox/RosterCard/RosterMargin/RosterVBox/RosterHeadingHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.40, 0.50, 0.62, 0.85)
+theme_override_font_sizes/font_size = 11
+text = "ALL PERSONNEL MUST ENGAGE READY PROTOCOL TO COMMENCE"
+
+[node name="HSeparator" type="HSeparator" parent="MainLayout/VBox/RosterCard/RosterMargin/RosterVBox"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainLayout/VBox/RosterCard/RosterMargin/RosterVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RosterGrid" type="GridContainer" parent="MainLayout/VBox/RosterCard/RosterMargin/RosterVBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="BottomCard" type="PanelContainer" parent="MainLayout/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="BottomMargin" type="MarginContainer" parent="MainLayout/VBox/BottomCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 12
+
+[node name="BottomHBox" type="HBoxContainer" parent="MainLayout/VBox/BottomCard/BottomMargin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LeaveButton" type="Button" parent="MainLayout/VBox/BottomCard/BottomMargin/BottomHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.35, 0.38, 1.0)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_danger")
+text = "LEAVE LOBBY"
+
+[node name="StatusContainer" type="PanelContainer" parent="MainLayout/VBox/BottomCard/BottomMargin/BottomHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_status_bar")
+
+[node name="StatusHBox" type="HBoxContainer" parent="MainLayout/VBox/BottomCard/BottomMargin/BottomHBox/StatusContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="StatusPulseDot" type="ColorRect" parent="MainLayout/VBox/BottomCard/BottomMargin/BottomHBox/StatusContainer/StatusHBox"]
+custom_minimum_size = Vector2(8, 8)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.0, 0.90, 1.0, 1.0)
+
+[node name="StatusMessageLabel" type="Label" parent="MainLayout/VBox/BottomCard/BottomMargin/BottomHBox/StatusContainer/StatusHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.80, 0.88, 0.95, 0.95)
+theme_override_font_sizes/font_size = 12
+text = "WAITING FOR PLAYERS (4 / 8) • 3 READY"
+
+[node name="ReadyButton" type="Button" parent="MainLayout/VBox/BottomCard/BottomMargin/BottomHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0, 0.90, 1.0, 1.0)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_ready")
+text = "READY"
+
+[node name="StartGameButton" type="Button" parent="MainLayout/VBox/BottomCard/BottomMargin/BottomHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.78, 0.20, 1.0)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
+text = "START GAME"

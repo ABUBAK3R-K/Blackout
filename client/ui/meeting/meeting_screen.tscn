@@ -1,0 +1,540 @@
+[gd_scene load_steps=15 format=3 uid="uid://df7k2m9v3y1w8"]
+
+[ext_resource type="Script" path="res://client/ui/meeting/meeting_screen.gd" id="1_meeting_ui"]
+[ext_resource type="PackedScene" uid="uid://b5m7y3q8p2w1r" path="res://client/ui/meeting/emergency_meeting_alert.tscn" id="2_alert_ui"]
+[ext_resource type="PackedScene" uid="uid://c3m7x9q2y1w8v" path="res://client/ui/meeting/vote_tally.tscn" id="3_vote_tally"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
+content_margin_left = 20.0
+content_margin_top = 12.0
+content_margin_right = 20.0
+content_margin_bottom = 12.0
+bg_color = Color(0.08, 0.085, 0.1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.24, 0.28, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_column_panel"]
+content_margin_left = 16.0
+content_margin_top = 14.0
+content_margin_right = 16.0
+content_margin_bottom = 14.0
+bg_color = Color(0.075, 0.08, 0.095, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.22, 0.26, 0.5)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pill_red"]
+bg_color = Color(1, 0.25, 0.28, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skip_normal"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.09, 0.095, 0.11, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.33, 0.4, 0.55)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skip_hover"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.14, 0.15, 0.18, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.5, 0.6, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_confirm_normal"]
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+bg_color = Color(0.85, 0.22, 0.22, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.35, 0.35, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_confirm_hover"]
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+bg_color = Color(0.95, 0.28, 0.28, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.55, 0.55, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_confirm_disabled"]
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+bg_color = Color(0.12, 0.13, 0.15, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.24, 0.28, 0.4)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_voted_badge"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 6.0
+bg_color = Color(0.08, 0.22, 0.12, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.85, 0.4, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chat_input"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.05, 0.055, 0.065, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.25, 0.3, 0.6)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_send_btn"]
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
+bg_color = Color(0.85, 0.22, 0.22, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.35, 0.35, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_footer"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.075, 0.08, 0.095, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.22, 0.26, 0.5)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="MeetingScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_meeting_ui")
+
+[node name="BackgroundOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.045, 0.055, 0.96)
+
+[node name="DiscussionContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="HeaderPanel" type="PanelContainer" parent="DiscussionContainer"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 32.0
+offset_top = 16.0
+offset_right = -32.0
+offset_bottom = 96.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_header")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="DiscussionContainer/HeaderPanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="WarningIconBox" type="Control" parent="DiscussionContainer/HeaderPanel/HBoxContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="WarningIconLabel" type="Label" parent="DiscussionContainer/HeaderPanel/HBoxContainer/WarningIconBox"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.28, 0.3, 1)
+theme_override_font_sizes/font_size = 32
+text = "⚠"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LeftInfo" type="VBoxContainer" parent="DiscussionContainer/HeaderPanel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="FacilitySubLabel" type="Label" parent="DiscussionContainer/HeaderPanel/HBoxContainer/LeftInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.35, 0.95)
+theme_override_font_sizes/font_size = 11
+text = "ASTERION RESEARCH FACILITY"
+
+[node name="MainTitleLabel" type="Label" parent="DiscussionContainer/HeaderPanel/HBoxContainer/LeftInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "EMERGENCY ASSEMBLY"
+
+[node name="CallerInfoLabel" type="Label" parent="DiscussionContainer/HeaderPanel/HBoxContainer/LeftInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.68, 0.75, 0.85)
+theme_override_font_sizes/font_size = 12
+text = "Initiator: Player 2 (Emergency Button)"
+
+[node name="VSeparator" type="VSeparator" parent="DiscussionContainer/HeaderPanel/HBoxContainer"]
+layout_mode = 2
+
+[node name="RightTimer" type="VBoxContainer" parent="DiscussionContainer/HeaderPanel/HBoxContainer"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="PhaseLabel" type="Label" parent="DiscussionContainer/HeaderPanel/HBoxContainer/RightTimer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.68, 0.75, 0.85)
+theme_override_font_sizes/font_size = 11
+text = "DISCUSSION PHASE"
+horizontal_alignment = 2
+
+[node name="TimerRow" type="HBoxContainer" parent="DiscussionContainer/HeaderPanel/HBoxContainer/RightTimer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="ClockIcon" type="Label" parent="DiscussionContainer/HeaderPanel/HBoxContainer/RightTimer/TimerRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.32, 0.32, 1)
+theme_override_font_sizes/font_size = 18
+text = "🕒"
+
+[node name="TimerLabel" type="Label" parent="DiscussionContainer/HeaderPanel/HBoxContainer/RightTimer/TimerRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.32, 0.32, 1)
+theme_override_font_sizes/font_size = 24
+text = "02:14"
+
+[node name="MainSplit" type="HBoxContainer" parent="DiscussionContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 106.0
+offset_right = -32.0
+offset_bottom = -54.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="LeftSection" type="PanelContainer" parent="DiscussionContainer/MainSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.05
+theme_override_styles/panel = SubResource("StyleBoxFlat_column_panel")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DiscussionContainer/MainSplit/LeftSection"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderRow" type="HBoxContainer" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Pill" type="Panel" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer/HeaderRow"]
+custom_minimum_size = Vector2(3, 14)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill_red")
+
+[node name="TitleLabel" type="Label" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 12
+text = "FACILITY PERSONNEL"
+
+[node name="CountLabel" type="Label" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer/HeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "3 / 4 ACTIVE"
+horizontal_alignment = 2
+
+[node name="HSeparator" type="HSeparator" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer"]
+layout_mode = 2
+
+[node name="PlayersScroll" type="ScrollContainer" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PlayersGrid" type="VBoxContainer" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer/PlayersScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="VotingControls" type="VBoxContainer" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SkipVoteButton" type="Button" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer/VotingControls"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.94, 0.96, 0.95)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_skip_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_skip_hover")
+text = "⏭  SKIP VOTE"
+
+[node name="VoteActionBar" type="HBoxContainer" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer/VotingControls"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SelectedLabel" type="Label" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer/VotingControls/VoteActionBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "TARGET: NONE"
+vertical_alignment = 1
+
+[node name="ConfirmVoteButton" type="Button" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer/VotingControls/VoteActionBar"]
+custom_minimum_size = Vector2(130, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_disabled_color = Color(0.45, 0.48, 0.55, 0.6)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxFlat_confirm_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_confirm_hover")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_confirm_disabled")
+disabled = true
+text = "CONFIRM VOTE"
+
+[node name="VotedBadge" type="PanelContainer" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer/VotingControls/VoteActionBar"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_voted_badge")
+
+[node name="BadgeLabel" type="Label" parent="DiscussionContainer/MainSplit/LeftSection/VBoxContainer/VotingControls/VoteActionBar/VotedBadge"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 11
+text = "✓ VOTE SUBMITTED"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightSection" type="PanelContainer" parent="DiscussionContainer/MainSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.25
+theme_override_styles/panel = SubResource("StyleBoxFlat_column_panel")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DiscussionContainer/MainSplit/RightSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderRow" type="HBoxContainer" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Pill" type="Panel" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer/HeaderRow"]
+custom_minimum_size = Vector2(3, 14)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill_red")
+
+[node name="TitleLabel" type="Label" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 12
+text = "FACILITY COMMS // DISCUSSION CHAT"
+
+[node name="HSeparator" type="HSeparator" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer"]
+layout_mode = 2
+
+[node name="ChatScroll" type="ScrollContainer" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="MessagesContainer" type="VBoxContainer" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer/ChatScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="InputRow" type="HBoxContainer" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="InputContainer" type="HBoxContainer" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer/InputRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ChatInput" type="LineEdit" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer/InputRow/InputContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 0.95)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_chat_input")
+placeholder_text = "Type a message..."
+max_length = 200
+
+[node name="CharCountLabel" type="Label" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer/InputRow/InputContainer"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.54, 0.6, 0.7)
+theme_override_font_sizes/font_size = 11
+text = "0/200"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="SendButton" type="Button" parent="DiscussionContainer/MainSplit/RightSection/VBoxContainer/InputRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_send_btn")
+text = "✈ SEND"
+
+[node name="StatusPanel" type="PanelContainer" parent="DiscussionContainer"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -46.0
+offset_right = -32.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_footer")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="DiscussionContainer/StatusPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="InfoIcon" type="Label" parent="DiscussionContainer/StatusPanel/HBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.32, 0.32, 1)
+theme_override_font_sizes/font_size = 14
+text = "ⓘ"
+
+[node name="StatusHeader" type="Label" parent="DiscussionContainer/StatusPanel/HBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "DISCUSSION IN PROGRESS"
+
+[node name="VSeparator" type="VSeparator" parent="DiscussionContainer/StatusPanel/HBoxContainer"]
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="DiscussionContainer/StatusPanel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.65, 0.68, 0.75, 0.85)
+theme_override_font_sizes/font_size = 11
+text = "Exchange intelligence with active crew members. Voting phase will commence shortly."
+
+[node name="VoteTally" parent="." instance=ExtResource("3_vote_tally")]
+visible = false
+layout_mode = 1
+
+[node name="EmergencyMeetingAlert" parent="." instance=ExtResource("2_alert_ui")]
+layout_mode = 1
