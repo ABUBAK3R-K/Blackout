@@ -1,0 +1,58 @@
+[gd_scene load_steps=6 format=3 uid="uid://d4e5f6a7b8c9d"]
+
+[ext_resource type="Script" path="res://client/environment/door_controller.gd" id="1_door"]
+[ext_resource type="Script" path="res://client/environment/interactable_trigger.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://client/environment/interaction_audio.gd" id="3_audio"]
+
+[sub_resource type="RectangleShape2D" id="Rect_Door_Obstacle"]
+size = Vector2(16, 96)
+
+[sub_resource type="CircleShape2D" id="Circle_Door_Trigger"]
+radius = 64.0
+
+[node name="Door" type="Node2D"]
+script = ExtResource("1_door")
+
+[node name="ObstacleCollider" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleCollider"]
+shape = SubResource("Rect_Door_Obstacle")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Frame" type="Polygon2D" parent="Visual"]
+color = Color(0.18, 0.22, 0.28, 1)
+polygon = PackedVector2Array(-10, -50, 10, -50, 10, 50, -10, 50)
+
+[node name="PanelA" type="Polygon2D" parent="Visual"]
+color = Color(0.32, 0.38, 0.48, 1)
+polygon = PackedVector2Array(-7, -46, 7, -46, 7, -2, -7, -2)
+
+[node name="PanelB" type="Polygon2D" parent="Visual"]
+color = Color(0.32, 0.38, 0.48, 1)
+polygon = PackedVector2Array(-7, 2, 7, 2, 7, 46, -7, 46)
+
+[node name="StatusLight" type="Polygon2D" parent="Visual"]
+color = Color(0.9, 0.2, 0.2, 1)
+polygon = PackedVector2Array(-3, -3, 3, -3, 3, 3, -3, 3)
+
+[node name="InteractableTrigger" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("2_trigger")
+interaction_radius = 64.0
+prompt_text = "Press E to Open Door"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractableTrigger"]
+shape = SubResource("Circle_Door_Trigger")
+
+[node name="InteractionAudio" type="Node2D" parent="."]
+script = ExtResource("3_audio")
+max_hearing_distance = 650.0
+attenuation_factor = 1.2
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="InteractionAudio"]
+max_distance = 650.0
+attenuation = 1.2

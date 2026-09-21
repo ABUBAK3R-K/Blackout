@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://e5f6a7b8c9d0e"]
+
+[ext_resource type="Script" path="res://client/environment/blackout_lighting_manager.gd" id="1_lighting"]
+
+[node name="BlackoutLighting" type="Node2D"]
+script = ExtResource("1_lighting")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(1, 1, 1, 1)

@@ -1,0 +1,113 @@
+[gd_scene load_steps=10 format=3 uid="uid://c8o9l0a1n2t3s"]
+
+[ext_resource type="Script" path="res://client/objectives/objective_interactable.gd" id="1_obj"]
+[ext_resource type="Script" path="res://client/objectives/task_step.gd" id="2_step"]
+[ext_resource type="Script" path="res://client/environment/interactable_trigger.gd" id="3_trigger"]
+[ext_resource type="Script" path="res://client/environment/interaction_audio.gd" id="4_audio"]
+
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Purge_Line"]
+script = ExtResource("2_step")
+step_id = "step_purge_line"
+step_name = "Purge Coolant Line"
+step_description = "Open purge valves to clear vapor pockets from coolant conduit."
+step_index = 0
+is_completed = false
+action_prompt = "Press E to Purge Line"
+
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Adjust_Valves"]
+script = ExtResource("2_step")
+step_id = "step_adjust_valves"
+step_name = "Adjust Cryo Valves"
+step_description = "Balance cryogenic flow regulators to target operating pressure."
+step_index = 1
+is_completed = false
+action_prompt = "Press E to Adjust Valves"
+
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Pressurize_Loop"]
+script = ExtResource("2_step")
+step_id = "step_pressurize_loop"
+step_name = "Pressurize Coolant Loop"
+step_description = "Engage main coolant pump and confirm steady circulation."
+step_index = 2
+is_completed = false
+action_prompt = "Press E to Pressurize Loop"
+
+[sub_resource type="RectangleShape2D" id="Rect_Cool_Obstacle"]
+size = Vector2(32, 28)
+
+[sub_resource type="CircleShape2D" id="Circle_Interact_Cool"]
+radius = 54.0
+
+[node name="CoolantSystemStation" type="Node2D"]
+script = ExtResource("1_obj")
+objective_id = "coolant_system_01"
+task_type_id = "coolant_system"
+objective_name = "Coolant System"
+objective_description = "Purge coolant lines, calibrate cryogenic valves, and pressurize the loop."
+category = "engineering"
+room_location = "Laboratory"
+task_steps = [SubResource("Step_Purge_Line"), SubResource("Step_Adjust_Valves"), SubResource("Step_Pressurize_Loop")]
+
+[node name="ObstacleCollider" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleCollider"]
+shape = SubResource("Rect_Cool_Obstacle")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Base" type="Polygon2D" parent="Visual"]
+color = Color(0.12, 0.16, 0.2, 1)
+polygon = PackedVector2Array(-16, -14, 16, -14, 16, 14, -16, 14)
+
+[node name="InnerPanel" type="Polygon2D" parent="Visual"]
+color = Color(0.16, 0.25, 0.32, 1)
+polygon = PackedVector2Array(-13, -11, 13, -11, 13, 11, -13, 11)
+
+[node name="CryoFlakes" type="Polygon2D" parent="Visual"]
+color = Color(0.3, 0.8, 0.95, 1)
+polygon = PackedVector2Array(-8, -8, 8, -8, 8, -5, -8, -5)
+
+[node name="IndicatorLight" type="Polygon2D" parent="Visual"]
+color = Color(0.95, 0.7, 0.15, 1)
+polygon = PackedVector2Array(-5, 0, 5, 0, 5, 7, -5, 7)
+
+[node name="InteractableTrigger" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("3_trigger")
+interactable_id = "coolant_system_01"
+prompt_text = "Step 1/3: Purge Coolant Line [Press E]"
+interaction_radius = 54.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractableTrigger"]
+shape = SubResource("Circle_Interact_Cool")
+
+[node name="StatusLabel" type="Label" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = 18.0
+offset_right = 110.0
+offset_bottom = 48.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.95, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "OBJECTIVE: Coolant System
+STATUS: AVAILABLE (Step 1/3)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InteractionAudio" type="Node2D" parent="."]
+script = ExtResource("4_audio")
+max_hearing_distance = 650.0
+attenuation_factor = 1.2
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="InteractionAudio"]
+max_distance = 650.0
+attenuation = 1.2

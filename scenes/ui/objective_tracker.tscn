@@ -1,0 +1,64 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1c2d3e4f5a6b"]
+
+[ext_resource type="Script" path="res://client/objectives/objective_tracker.gd" id="1_tracker"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_TrackerPanel"]
+bg_color = Color(0.07, 0.09, 0.13, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.24, 0.34, 0.44, 0.75)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="ObjectiveTracker" type="PanelContainer"]
+offset_right = 230.0
+offset_bottom = 120.0
+theme_override_styles/panel = SubResource("StyleBox_TrackerPanel")
+script = ExtResource("1_tracker")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "TASKS"
+
+[node name="HSeparatorTop" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="TaskListContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="EmptyLabel" type="Label" parent="MarginContainer/VBoxContainer/TaskListContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.7, 0.7)
+theme_override_font_sizes/font_size = 11
+text = "No active objectives."
+
+[node name="HSeparatorBottom" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="FooterContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ProgressLabel" type="Label" parent="MarginContainer/VBoxContainer/FooterContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 0.85)
+theme_override_font_sizes/font_size = 12
+text = "Completed: 0/0"

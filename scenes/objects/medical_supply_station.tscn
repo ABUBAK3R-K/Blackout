@@ -1,0 +1,113 @@
+[gd_scene load_steps=10 format=3 uid="uid://m5e6d7b8a9y0s"]
+
+[ext_resource type="Script" path="res://client/objectives/objective_interactable.gd" id="1_obj"]
+[ext_resource type="Script" path="res://client/objectives/task_step.gd" id="2_step"]
+[ext_resource type="Script" path="res://client/environment/interactable_trigger.gd" id="3_trigger"]
+[ext_resource type="Script" path="res://client/environment/interaction_audio.gd" id="4_audio"]
+
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Open_Cabinet"]
+script = ExtResource("2_step")
+step_id = "step_open_cabinet"
+step_name = "Open Medical Cabinet"
+step_description = "Unlock and open the emergency medical supplies cabinet."
+step_index = 0
+is_completed = false
+action_prompt = "Press E to Open Medical Cabinet"
+
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Inventory_Supplies"]
+script = ExtResource("2_step")
+step_id = "step_inventory_supplies"
+step_name = "Inventory Medpacks & Syringes"
+step_description = "Inspect and count medpacks, trauma bandages, and injectors."
+step_index = 1
+is_completed = false
+action_prompt = "Press E to Check Medpacks & Supplies"
+
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Log_Audit"]
+script = ExtResource("2_step")
+step_id = "step_log_audit"
+step_name = "Log Supply Audit"
+step_description = "Sign and submit the medical inventory audit checklist."
+step_index = 2
+is_completed = false
+action_prompt = "Press E to Log Medical Audit"
+
+[sub_resource type="RectangleShape2D" id="Rect_Med_Obstacle"]
+size = Vector2(32, 28)
+
+[sub_resource type="CircleShape2D" id="Circle_Interact_Med"]
+radius = 54.0
+
+[node name="MedicalSupplyStation" type="Node2D"]
+script = ExtResource("1_obj")
+objective_id = "medical_supply_check_01"
+task_type_id = "medical_supply_check"
+objective_name = "Medical Supply Check"
+objective_description = "Audit emergency medical inventory, restock medpacks, and log records."
+category = "medbay"
+room_location = "Medical Bay"
+task_steps = [SubResource("Step_Open_Cabinet"), SubResource("Step_Inventory_Supplies"), SubResource("Step_Log_Audit")]
+
+[node name="ObstacleCollider" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleCollider"]
+shape = SubResource("Rect_Med_Obstacle")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Base" type="Polygon2D" parent="Visual"]
+color = Color(0.12, 0.18, 0.18, 1)
+polygon = PackedVector2Array(-16, -14, 16, -14, 16, 14, -16, 14)
+
+[node name="InnerPanel" type="Polygon2D" parent="Visual"]
+color = Color(0.18, 0.28, 0.28, 1)
+polygon = PackedVector2Array(-13, -11, 13, -11, 13, 11, -13, 11)
+
+[node name="MedCross" type="Polygon2D" parent="Visual"]
+color = Color(0.3, 0.88, 0.7, 1)
+polygon = PackedVector2Array(-3, -8, 3, -8, 3, -3, 8, -3, 8, 3, 3, 3, 3, 8, -3, 8, -3, 3, -8, 3, -8, -3, -3, -3)
+
+[node name="IndicatorLight" type="Polygon2D" parent="Visual"]
+color = Color(0.95, 0.7, 0.15, 1)
+polygon = PackedVector2Array(-5, 9, 5, 9, 5, 12, -5, 12)
+
+[node name="InteractableTrigger" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("3_trigger")
+interactable_id = "medical_supply_check_01"
+prompt_text = "Step 1/3: Open Medical Cabinet [Press E]"
+interaction_radius = 54.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractableTrigger"]
+shape = SubResource("Circle_Interact_Med")
+
+[node name="StatusLabel" type="Label" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = 18.0
+offset_right = 110.0
+offset_bottom = 48.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.95, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "OBJECTIVE: Medical Supply Check
+STATUS: AVAILABLE (Step 1/3)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InteractionAudio" type="Node2D" parent="."]
+script = ExtResource("4_audio")
+max_hearing_distance = 650.0
+attenuation_factor = 1.2
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="InteractionAudio"]
+max_distance = 650.0
+attenuation = 1.2

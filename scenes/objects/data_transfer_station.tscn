@@ -1,0 +1,113 @@
+[gd_scene load_steps=10 format=3 uid="uid://d6t7a8n9s0f1e"]
+
+[ext_resource type="Script" path="res://client/objectives/objective_interactable.gd" id="1_obj"]
+[ext_resource type="Script" path="res://client/objectives/task_step.gd" id="2_step"]
+[ext_resource type="Script" path="res://client/environment/interactable_trigger.gd" id="3_trigger"]
+[ext_resource type="Script" path="res://client/environment/interaction_audio.gd" id="4_audio"]
+
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Connect_Uplink"]
+script = ExtResource("2_step")
+step_id = "step_connect_uplink"
+step_name = "Connect Data Uplink"
+step_description = "Establish secure uplink connection to central data repository."
+step_index = 0
+is_completed = false
+action_prompt = "Press E to Connect Data Uplink"
+
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Transfer_Packets"]
+script = ExtResource("2_step")
+step_id = "step_transfer_packets"
+step_name = "Transfer Data Packets"
+step_description = "Stream research logs and encrypted packet telemetry."
+step_index = 1
+is_completed = false
+action_prompt = "Press E to Transfer Data Packets"
+
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Verify_Checksum"]
+script = ExtResource("2_step")
+step_id = "step_verify_checksum"
+step_name = "Verify Checksum"
+step_description = "Verify packet integrity checksum and close transfer socket."
+step_index = 2
+is_completed = false
+action_prompt = "Press E to Verify Checksum"
+
+[sub_resource type="RectangleShape2D" id="Rect_Data_Obstacle"]
+size = Vector2(32, 28)
+
+[sub_resource type="CircleShape2D" id="Circle_Interact_Data"]
+radius = 54.0
+
+[node name="DataTransferStation" type="Node2D"]
+script = ExtResource("1_obj")
+objective_id = "data_transfer_01"
+task_type_id = "data_transfer"
+objective_name = "Data Transfer"
+objective_description = "Connect data uplink, stream facility logs, and verify packet checksum."
+category = "comms"
+room_location = "Server Room"
+task_steps = [SubResource("Step_Connect_Uplink"), SubResource("Step_Transfer_Packets"), SubResource("Step_Verify_Checksum")]
+
+[node name="ObstacleCollider" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleCollider"]
+shape = SubResource("Rect_Data_Obstacle")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Base" type="Polygon2D" parent="Visual"]
+color = Color(0.12, 0.16, 0.22, 1)
+polygon = PackedVector2Array(-16, -14, 16, -14, 16, 14, -16, 14)
+
+[node name="InnerPanel" type="Polygon2D" parent="Visual"]
+color = Color(0.18, 0.26, 0.38, 1)
+polygon = PackedVector2Array(-13, -11, 13, -11, 13, 11, -13, 11)
+
+[node name="CommsWaves" type="Polygon2D" parent="Visual"]
+color = Color(0.35, 0.75, 0.95, 1)
+polygon = PackedVector2Array(-10, -5, -4, -5, -4, -2, -10, -2, -10, 2, -2, 2, -2, 5, -10, 5)
+
+[node name="IndicatorLight" type="Polygon2D" parent="Visual"]
+color = Color(0.95, 0.7, 0.15, 1)
+polygon = PackedVector2Array(4, -5, 10, -5, 10, 5, 4, 5)
+
+[node name="InteractableTrigger" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("3_trigger")
+interactable_id = "data_transfer_01"
+prompt_text = "Step 1/3: Connect Data Uplink [Press E]"
+interaction_radius = 54.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractableTrigger"]
+shape = SubResource("Circle_Interact_Data")
+
+[node name="StatusLabel" type="Label" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = 18.0
+offset_right = 110.0
+offset_bottom = 48.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.95, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 11
+text = "OBJECTIVE: Data Transfer
+STATUS: AVAILABLE (Step 1/3)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InteractionAudio" type="Node2D" parent="."]
+script = ExtResource("4_audio")
+max_hearing_distance = 650.0
+attenuation_factor = 1.2
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="InteractionAudio"]
+max_distance = 650.0
+attenuation = 1.2

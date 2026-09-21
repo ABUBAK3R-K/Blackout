@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://b3v4c5x6z7a8b"]
+
+[ext_resource type="Script" path="res://client/ui/meltdown_hud.gd" id="1_meltdown_hud"]
+
+[node name="MeltdownHUD" type="Control"]
+layout_mode = 3
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 280.0
+offset_top = 16.0
+offset_right = -280.0
+offset_bottom = 145.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("1_meltdown_hud")

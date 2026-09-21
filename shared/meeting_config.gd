@@ -19,6 +19,11 @@ enum MeetingPhase {
 	RESULTS
 }
 
+enum MeetingTrigger {
+	EMERGENCY_BUTTON,
+	BODY_REPORT
+}
+
 static func get_meeting_phase_name(phase: MeetingPhase) -> String:
 	match phase:
 		MeetingPhase.DISCUSSION:

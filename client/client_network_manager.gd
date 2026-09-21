@@ -8,8 +8,12 @@ extends Node
 const NetworkConfig = preload("res://shared/network_config.gd")
 const MeetingConfig = preload("res://shared/meeting_config.gd")
 const MeltdownConfig = preload("res://shared/meltdown_config.gd")
+const SabotageManager = preload("res://shared/sabotage_manager.gd")
+const RoundManager = preload("res://shared/round_manager.gd")
 
 signal connection_succeeded()
+
+
 signal connection_failed(reason: String)
 signal disconnected_from_server(reason: String)
 signal player_assigned(peer_id: int, slot: int, total_players: int)
@@ -40,8 +44,20 @@ signal vote_result_received(result: Dictionary)
 signal meltdown_started(duration: float, impostor_alive: bool)
 signal emergency_system_completed(system_id: String, completed_systems: Array)
 signal game_over_received(winner_role: NetworkConfig.PlayerRole, reason: int, result_data: Dictionary)
+signal remote_player_position_updated(peer_id: int, pos: Vector2, vel: Vector2, facing: Vector2)
+signal sabotage_state_synced(sabotage_type: int, state: int, duration: float)
+signal sabotage_requested()
+signal round_state_synced(round_state: int)
+signal return_to_lobby_requested()
+signal player_eliminated_synced(peer_id: int, death_pos: Vector2)
+signal corpse_spawned(corpse_id: int, victim_peer_id: int, victim_name: String, pos: Vector2)
+signal corpse_reported(corpse_id: int, reporter_peer_id: int)
+signal kill_requested(target_peer_id: int)
+signal body_report_requested(corpse_id: int)
 
 var peer: ENetMultiplayerPeer = null
+
+
 var connection_status: NetworkConfig.ConnectionStatus = NetworkConfig.ConnectionStatus.DISCONNECTED
 
 var assigned_slot: int = 0
@@ -49,12 +65,23 @@ var assigned_peer_id: int = 0
 var assigned_role: NetworkConfig.PlayerRole = NetworkConfig.PlayerRole.NONE
 var assigned_tasks: Array = []
 
+var active_corpses: Dictionary = {}
+var eliminated_player_ids: Array = []
+var last_kill_time: float = -999.0
+
 var is_blackout_unlocked: bool = false
 var is_blackout_active: bool = false
 var blackout_countdown_remaining: float = 0.0
 var blackout_remaining_duration: float = 0.0
 
+var current_sabotage_type: int = 0
+var current_sabotage_state: int = 0
+var is_sabotage_active: bool = false
+var current_round_state: int = 0
+
 var active_recovery_systems: Array = []
+
+
 var required_recovery_count: int = 0
 var completed_recovery_count: int = 0
 var assigned_blackout_objectives: Array = []
@@ -129,7 +156,13 @@ func connect_to_server(host: String = NetworkConfig.DEFAULT_HOST, port: int = Ne
 	is_blackout_active = false
 	blackout_countdown_remaining = 0.0
 	blackout_remaining_duration = 0.0
+	current_sabotage_type = 0
+	current_sabotage_state = 0
+	is_sabotage_active = false
+	current_round_state = 0
 	active_recovery_systems.clear()
+
+
 	required_recovery_count = 0
 	completed_recovery_count = 0
 	assigned_blackout_objectives.clear()
@@ -193,6 +226,10 @@ func request_complete_task(task_id: String) -> void:
 		push_warning("[CLIENT] Cannot complete task: match is not in INITIAL_TASK_PHASE.")
 		return
 
+	if is_eliminated:
+		push_warning("[CLIENT] Cannot complete task: player is eliminated.")
+		return
+
 	print("[CLIENT] Requesting task completion for: %s" % task_id)
 	var net_mgr = get_parent()
 	if net_mgr != null and net_mgr.has_method("request_complete_task"):
@@ -211,6 +248,21 @@ func request_activate_blackout() -> void:
 	var net_mgr = get_parent()
 	if net_mgr != null and net_mgr.has_method("request_activate_blackout"):
 		net_mgr.request_activate_blackout()
+
+func request_sabotage(sabotage_type: int = 1) -> void:
+	if not is_connected_to_server():
+		push_warning("[CLIENT] Cannot request sabotage: not connected to server.")
+		return
+
+	if assigned_role != NetworkConfig.PlayerRole.IMPOSTOR:
+		push_warning("[CLIENT] Cannot request sabotage: player is not the Impostor.")
+		return
+
+	print("[CLIENT] Local Impostor requesting sabotage (Type %d)..." % sabotage_type)
+	sabotage_requested.emit()
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("send_sabotage_request"):
+		net_mgr.send_sabotage_request(sabotage_type)
 
 func request_recover_system(system_id: String) -> void:
 	if not is_connected_to_server():
@@ -315,6 +367,94 @@ func request_complete_emergency_system(system_id: String) -> void:
 	if net_mgr != null and net_mgr.has_method("request_complete_emergency_system"):
 		net_mgr.request_complete_emergency_system(system_id)
 
+func request_kill(target_peer_id: int) -> void:
+	if not is_connected_to_server():
+		push_warning("[CLIENT] Cannot request kill: not connected to server.")
+		return
+	if assigned_role != NetworkConfig.PlayerRole.IMPOSTOR:
+		push_warning("[CLIENT] Cannot request kill: local player is not Impostor.")
+		return
+	if is_eliminated:
+		push_warning("[CLIENT] Cannot request kill: local player is eliminated.")
+		return
+	if is_meeting_active or is_game_over:
+		push_warning("[CLIENT] Cannot request kill: meeting or game over active.")
+		return
+
+	print("[CLIENT] Impostor requesting kill on target Peer %d..." % target_peer_id)
+	kill_requested.emit(target_peer_id)
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("send_kill_request"):
+		net_mgr.send_kill_request(target_peer_id)
+
+func request_report_body(corpse_id: int) -> void:
+	if not is_connected_to_server():
+		push_warning("[CLIENT] Cannot request body report: not connected to server.")
+		return
+	if is_eliminated:
+		push_warning("[CLIENT] Cannot request body report: local player is eliminated.")
+		return
+	if is_meeting_active or is_game_over:
+		push_warning("[CLIENT] Cannot request body report: meeting or game over active.")
+		return
+
+	print("[CLIENT] Player requesting body report for Corpse #%d..." % corpse_id)
+	body_report_requested.emit(corpse_id)
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("send_report_body_request"):
+		net_mgr.send_report_body_request(corpse_id)
+
+func request_return_to_lobby() -> void:
+	if not is_connected_to_server():
+		push_warning("[CLIENT] Cannot return to lobby: not connected to server.")
+		return
+
+	print("[CLIENT] Requesting server to return match to LOBBY / Rematch...")
+	return_to_lobby_requested.emit()
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("send_return_to_lobby_request"):
+		net_mgr.send_return_to_lobby_request()
+	elif net_mgr != null and net_mgr.has_method("request_return_to_lobby"):
+		net_mgr.request_return_to_lobby()
+
+func reset_match_state() -> void:
+	assigned_role = NetworkConfig.PlayerRole.NONE
+	assigned_tasks.clear()
+	is_blackout_unlocked = false
+	is_blackout_active = false
+	blackout_countdown_remaining = 0.0
+	blackout_remaining_duration = 0.0
+	current_sabotage_type = 0
+	current_sabotage_state = 0
+	is_sabotage_active = false
+	current_round_state = RoundManager.RoundState.LOBBY
+	active_recovery_systems.clear()
+	required_recovery_count = 0
+	completed_recovery_count = 0
+	assigned_blackout_objectives.clear()
+	investigation_evidence.clear()
+	is_investigation_active = false
+	is_meeting_active = false
+	meeting_caller_id = 0
+	current_meeting_phase = MeetingConfig.MeetingPhase.NONE
+	discussion_remaining_duration = 0.0
+	voting_remaining_duration = 0.0
+	has_voted_this_round = false
+	last_vote_result.clear()
+	is_eliminated = false
+	active_corpses.clear()
+	eliminated_player_ids.clear()
+	last_kill_time = -999.0
+	is_meltdown_active = false
+	meltdown_remaining_duration = 0.0
+	is_impostor_alive_at_meltdown = true
+	completed_emergency_systems.clear()
+	is_game_over = false
+	game_winner = NetworkConfig.PlayerRole.NONE
+	game_over_reason = 0
+	game_over_result.clear()
+	is_ready = false
+
 func _cleanup_connection() -> void:
 	var mp = _get_mp()
 	if mp != null:
@@ -339,7 +479,12 @@ func _cleanup_connection() -> void:
 	is_blackout_active = false
 	blackout_countdown_remaining = 0.0
 	blackout_remaining_duration = 0.0
+	current_sabotage_type = 0
+	current_sabotage_state = 0
+	is_sabotage_active = false
+	current_round_state = 0
 	active_recovery_systems.clear()
+
 	required_recovery_count = 0
 	completed_recovery_count = 0
 	assigned_blackout_objectives.clear()
@@ -353,6 +498,9 @@ func _cleanup_connection() -> void:
 	has_voted_this_round = false
 	last_vote_result.clear()
 	is_eliminated = false
+	active_corpses.clear()
+	eliminated_player_ids.clear()
+	last_kill_time = -999.0
 	is_meltdown_active = false
 	meltdown_remaining_duration = 0.0
 	is_impostor_alive_at_meltdown = true
@@ -492,6 +640,8 @@ func handle_investigation_evidence(evidence_list: Array) -> void:
 
 func handle_lobby_sync(state: int, player_count: int, ready_count: int, players_info: Array) -> void:
 	current_game_state = state as NetworkConfig.GameState
+	if current_game_state == NetworkConfig.GameState.LOBBY and (is_game_over or assigned_role != NetworkConfig.PlayerRole.NONE):
+		reset_match_state()
 	server_player_count = player_count
 	ready_player_count = ready_count
 	lobby_players_data = players_info
@@ -511,6 +661,8 @@ func handle_lobby_sync(state: int, player_count: int, ready_count: int, players_
 
 func handle_game_state_changed(new_state: int) -> void:
 	current_game_state = new_state as NetworkConfig.GameState
+	if current_game_state == NetworkConfig.GameState.LOBBY:
+		reset_match_state()
 	print("[CLIENT] Authoritative game state changed: %s" % NetworkConfig.get_game_state_name(current_game_state))
 	game_state_changed.emit(current_game_state)
 
@@ -581,5 +733,52 @@ func handle_game_over(p_winner_role: int, p_reason: int, result_data: Dictionary
 		MeltdownConfig.get_game_over_reason_name(p_reason as MeltdownConfig.GameOverReason)
 	])
 	game_over_received.emit(game_winner, p_reason, result_data)
+
+func handle_remote_player_position(peer_id: int, pos: Vector2, vel: Vector2, facing: Vector2) -> void:
+	remote_player_position_updated.emit(peer_id, pos, vel, facing)
+
+func handle_sabotage_state_sync(p_sabotage_type: int, p_state: int, duration: float) -> void:
+	current_sabotage_type = p_sabotage_type
+	current_sabotage_state = p_state
+	is_sabotage_active = (p_state == SabotageManager.SabotageState.ACTIVE)
+	print("[CLIENT] Authoritative sabotage state received: %s -> %s (Duration: %.1fs)." % [
+		SabotageManager.get_sabotage_display_name(p_sabotage_type as SabotageManager.SabotageType),
+		SabotageManager.get_state_name(p_state as SabotageManager.SabotageState),
+		duration
+	])
+	sabotage_state_synced.emit(p_sabotage_type, p_state, duration)
+
+func handle_round_state_sync(p_round_state: int) -> void:
+	current_round_state = p_round_state
+	print("[CLIENT] Authoritative round state received: %s." % RoundManager.get_state_name(p_round_state as RoundManager.RoundState))
+	round_state_synced.emit(p_round_state)
+
+func handle_player_eliminated(target_peer_id: int, death_pos: Vector2) -> void:
+	if target_peer_id == assigned_peer_id:
+		is_eliminated = true
+		print("[CLIENT] You have been ELIMINATED at %s!" % str(death_pos))
+	if not eliminated_player_ids.has(target_peer_id):
+		eliminated_player_ids.append(target_peer_id)
+	print("[CLIENT] Player %d eliminated at %s." % [target_peer_id, str(death_pos)])
+	player_eliminated_synced.emit(target_peer_id, death_pos)
+
+func handle_corpse_spawn(corpse_id: int, victim_peer_id: int, victim_name: String, pos: Vector2) -> void:
+	active_corpses[corpse_id] = {
+		"corpse_id": corpse_id,
+		"victim_peer_id": victim_peer_id,
+		"victim_name": victim_name,
+		"position": pos,
+		"is_reported": false
+	}
+	print("[CLIENT] Corpse #%d spawned at %s (Victim: %s)." % [corpse_id, str(pos), victim_name])
+	corpse_spawned.emit(corpse_id, victim_peer_id, victim_name, pos)
+
+func handle_corpse_reported(corpse_id: int, reporter_peer_id: int) -> void:
+	if active_corpses.has(corpse_id):
+		active_corpses[corpse_id]["is_reported"] = true
+	print("[CLIENT] Corpse #%d marked reported by Player %d." % [corpse_id, reporter_peer_id])
+	corpse_reported.emit(corpse_id, reporter_peer_id)
+
+
 
 

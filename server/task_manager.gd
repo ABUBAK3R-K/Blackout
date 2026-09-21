@@ -24,15 +24,13 @@ func clear() -> void:
 	impostor_peer_id = 0
 	impostor_prerequisite_task_ids.clear()
 
-## Authoritatively assigns tasks to all 8 connected players.
-## 7 Crew receive crew_task_count tasks; 1 Impostor receives impostor_prerequisite_count tasks.
+## Authoritatively assigns tasks to all connected players.
+## Crew members receive crew_task_count tasks; Impostor(s) receive impostor_prerequisite_count tasks.
 func assign_tasks(connected_players: Dictionary) -> bool:
 	clear()
 
-	if connected_players.size() != NetworkConfig.MAX_PLAYERS:
-		push_error("[TaskManager] Cannot assign tasks: expected %d players, got %d." % [
-			NetworkConfig.MAX_PLAYERS, connected_players.size()
-		])
+	if connected_players.is_empty():
+		push_warning("[TaskManager] Cannot assign tasks: no connected players.")
 		return false
 
 	var crew_peers: Array = []
@@ -44,14 +42,6 @@ func assign_tasks(connected_players: Dictionary) -> bool:
 			impostor_peers.append(pid)
 		else:
 			crew_peers.append(pid)
-
-	if impostor_peers.size() != NetworkConfig.IMPOSTOR_COUNT or crew_peers.size() != NetworkConfig.CREW_COUNT:
-		push_error("[TaskManager] Invalid role distribution for task assignment: %d Crew, %d Impostor." % [
-			crew_peers.size(), impostor_peers.size()
-		])
-		return false
-
-	impostor_peer_id = impostor_peers[0]
 
 	var all_task_types = TaskConfig.get_all_task_types()
 
@@ -78,31 +68,33 @@ func assign_tasks(connected_players: Dictionary) -> bool:
 			tasks_by_id[task_id] = task
 			tasks_by_peer[pid].append(task)
 
-	# Assign prerequisite tasks to the Impostor
-	tasks_by_peer[impostor_peer_id] = []
-	var impostor_types = all_task_types.duplicate()
-	impostor_types.shuffle()
+	# Assign prerequisite tasks to Impostor(s)
+	for imp_pid in impostor_peers:
+		impostor_peer_id = imp_pid
+		tasks_by_peer[imp_pid] = []
+		var impostor_types = all_task_types.duplicate()
+		impostor_types.shuffle()
 
-	for i in range(impostor_prerequisite_count):
-		var type_id = impostor_types[i % impostor_types.size()]
-		var info = TaskConfig.get_task_info(type_id)
-		var task_id = "task_%s_p%d_%d" % [type_id, impostor_peer_id, i]
+		for i in range(impostor_prerequisite_count):
+			var type_id = impostor_types[i % impostor_types.size()]
+			var info = TaskConfig.get_task_info(type_id)
+			var task_id = "task_%s_p%d_%d" % [type_id, imp_pid, i]
 
-		var task = TaskDefinition.new(
-			task_id,
-			type_id,
-			str(info.get("display_name", type_id)),
-			str(info.get("category", "general")),
-			impostor_peer_id,
-			true
-		)
+			var task = TaskDefinition.new(
+				task_id,
+				type_id,
+				str(info.get("display_name", type_id)),
+				str(info.get("category", "general")),
+				imp_pid,
+				true
+			)
 
-		tasks_by_id[task_id] = task
-		tasks_by_peer[impostor_peer_id].append(task)
-		impostor_prerequisite_task_ids.append(task_id)
+			tasks_by_id[task_id] = task
+			tasks_by_peer[imp_pid].append(task)
+			impostor_prerequisite_task_ids.append(task_id)
 
-	print("[TaskManager] Task assignment complete: %d Crew (%d tasks each), 1 Impostor (%d prerequisite tasks). Total task instances: %d." % [
-		crew_peers.size(), crew_task_count, impostor_prerequisite_count, tasks_by_id.size()
+	print("[TaskManager] Task assignment complete: %d Crew (%d tasks each), %d Impostor (%d prerequisite tasks). Total task instances: %d." % [
+		crew_peers.size(), crew_task_count, impostor_peers.size(), impostor_prerequisite_count, tasks_by_id.size()
 	])
 	return true
 
