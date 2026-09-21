@@ -181,6 +181,17 @@ func send_player_position(pos: Vector2, vel: Vector2, facing: Vector2) -> void:
 		return
 	rpc_send_player_position.rpc_id(1, pos, vel, facing)
 
+func send_return_to_lobby_request() -> void:
+	if not is_client():
+		return
+	rpc_request_return_to_lobby.rpc_id(1)
+
+func request_return_to_lobby() -> void:
+	if is_client():
+		send_return_to_lobby_request()
+	elif is_server():
+		server.process_return_to_lobby_request(1)
+
 # --- Server-side RPC Dispatch Helpers ---
 
 func send_player_assignment(peer_id: int, slot: int, total_players: int) -> void:
@@ -441,6 +452,14 @@ func rpc_send_player_position(pos: Vector2, vel: Vector2, facing: Vector2) -> vo
 		broadcast_player_position(sender_id, pos, vel, facing, server.connected_players.keys())
 	else:
 		push_warning("[NetworkManager] Received position update on non-server node from peer %d." % sender_id)
+
+@rpc("any_peer", "call_remote", "reliable")
+func rpc_request_return_to_lobby() -> void:
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if is_server():
+		server.process_return_to_lobby_request(sender_id)
+	else:
+		push_warning("[NetworkManager] Received return to lobby request on non-server node from peer %d." % sender_id)
 
 # --- Server-Authoritative RPC Definitions ---
 # Only the authority (Server, peer ID 1) can call these remote methods.

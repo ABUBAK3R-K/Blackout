@@ -173,7 +173,19 @@ func _on_network_emergency_system_completed(completed_sys_id: String, _completed
 func _on_network_meltdown_started(_duration: float, _impostor_alive: bool) -> void:
 	_update_visuals()
 
-func _on_network_game_state_changed(_new_state: NetworkConfig.GameState) -> void:
+func _on_network_game_state_changed(new_state: NetworkConfig.GameState) -> void:
+	if new_state == NetworkConfig.GameState.LOBBY:
+		is_completed = false
+		if trigger != null:
+			trigger.set_prompt("Emergency Console: %s (Standby)" % system_name)
+			trigger.set_interactive(false)
+	_update_visuals()
+
+func reset() -> void:
+	is_completed = false
+	if trigger != null:
+		trigger.set_prompt("Emergency Console: %s (Standby)" % system_name)
+		trigger.set_interactive(false)
 	_update_visuals()
 
 func _is_meltdown_active() -> bool:

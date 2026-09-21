@@ -48,6 +48,7 @@ signal remote_player_position_updated(peer_id: int, pos: Vector2, vel: Vector2, 
 signal sabotage_state_synced(sabotage_type: int, state: int, duration: float)
 signal sabotage_requested()
 signal round_state_synced(round_state: int)
+signal return_to_lobby_requested()
 
 var peer: ENetMultiplayerPeer = null
 
@@ -354,6 +355,54 @@ func request_complete_emergency_system(system_id: String) -> void:
 	if net_mgr != null and net_mgr.has_method("request_complete_emergency_system"):
 		net_mgr.request_complete_emergency_system(system_id)
 
+func request_return_to_lobby() -> void:
+	if not is_connected_to_server():
+		push_warning("[CLIENT] Cannot return to lobby: not connected to server.")
+		return
+
+	print("[CLIENT] Requesting server to return match to LOBBY / Rematch...")
+	return_to_lobby_requested.emit()
+	var net_mgr = get_parent()
+	if net_mgr != null and net_mgr.has_method("send_return_to_lobby_request"):
+		net_mgr.send_return_to_lobby_request()
+	elif net_mgr != null and net_mgr.has_method("request_return_to_lobby"):
+		net_mgr.request_return_to_lobby()
+
+func reset_match_state() -> void:
+	assigned_role = NetworkConfig.PlayerRole.NONE
+	assigned_tasks.clear()
+	is_blackout_unlocked = false
+	is_blackout_active = false
+	blackout_countdown_remaining = 0.0
+	blackout_remaining_duration = 0.0
+	current_sabotage_type = 0
+	current_sabotage_state = 0
+	is_sabotage_active = false
+	current_round_state = RoundManager.RoundState.LOBBY
+	active_recovery_systems.clear()
+	required_recovery_count = 0
+	completed_recovery_count = 0
+	assigned_blackout_objectives.clear()
+	investigation_evidence.clear()
+	is_investigation_active = false
+	is_meeting_active = false
+	meeting_caller_id = 0
+	current_meeting_phase = MeetingConfig.MeetingPhase.NONE
+	discussion_remaining_duration = 0.0
+	voting_remaining_duration = 0.0
+	has_voted_this_round = false
+	last_vote_result.clear()
+	is_eliminated = false
+	is_meltdown_active = false
+	meltdown_remaining_duration = 0.0
+	is_impostor_alive_at_meltdown = true
+	completed_emergency_systems.clear()
+	is_game_over = false
+	game_winner = NetworkConfig.PlayerRole.NONE
+	game_over_reason = 0
+	game_over_result.clear()
+	is_ready = false
+
 func _cleanup_connection() -> void:
 	var mp = _get_mp()
 	if mp != null:
@@ -536,6 +585,8 @@ func handle_investigation_evidence(evidence_list: Array) -> void:
 
 func handle_lobby_sync(state: int, player_count: int, ready_count: int, players_info: Array) -> void:
 	current_game_state = state as NetworkConfig.GameState
+	if current_game_state == NetworkConfig.GameState.LOBBY and (is_game_over or assigned_role != NetworkConfig.PlayerRole.NONE):
+		reset_match_state()
 	server_player_count = player_count
 	ready_player_count = ready_count
 	lobby_players_data = players_info
@@ -555,6 +606,8 @@ func handle_lobby_sync(state: int, player_count: int, ready_count: int, players_
 
 func handle_game_state_changed(new_state: int) -> void:
 	current_game_state = new_state as NetworkConfig.GameState
+	if current_game_state == NetworkConfig.GameState.LOBBY:
+		reset_match_state()
 	print("[CLIENT] Authoritative game state changed: %s" % NetworkConfig.get_game_state_name(current_game_state))
 	game_state_changed.emit(current_game_state)
 

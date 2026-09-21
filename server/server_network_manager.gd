@@ -50,6 +50,7 @@ signal match_concluded(winner_role: NetworkConfig.PlayerRole, reason: MeltdownCo
 signal sabotage_activated_on_server(sabotage_type: int, initiator_peer_id: int)
 signal sabotage_resolved_on_server(sabotage_type: int, reason: String)
 signal round_state_updated(previous_state: RoundManager.RoundState, new_state: RoundManager.RoundState)
+signal returned_to_lobby()
 
 var peer: ENetMultiplayerPeer = null
 
@@ -556,6 +557,67 @@ func reset_round() -> bool:
 		return false
 	return round_manager.reset_round()
 
+## Authoritatively processes a Return to Lobby / Rematch request from a connected player.
+## Cleans up all match subsystem data, resets player match state, and transitions back to LOBBY.
+func process_return_to_lobby_request(peer_id: int) -> bool:
+	if not is_running:
+		return false
+
+	if not connected_players.has(peer_id) and peer_id != 1:
+		push_warning("[SERVER] Return to lobby request rejected: unknown peer %d." % peer_id)
+		return false
+
+	if current_game_state != NetworkConfig.GameState.GAME_OVER:
+		push_warning("[SERVER] Return to lobby request rejected: match is in %s state (Expected: GAME_OVER)." % [
+			NetworkConfig.get_game_state_name(current_game_state)
+		])
+		return false
+
+	print("[SERVER] Processing Return to Lobby / Rematch request from Peer %d." % peer_id)
+
+	# 1. Authoritative cleanup of all round/subsystem states
+	if task_manager != null:
+		task_manager.clear()
+	if blackout_manager != null:
+		blackout_manager.clear()
+	if recovery_manager != null:
+		recovery_manager.clear()
+	if impostor_objective_manager != null:
+		impostor_objective_manager.clear()
+	if evidence_manager != null:
+		evidence_manager.clear()
+	if meeting_manager != null:
+		meeting_manager.clear()
+	if voting_manager != null:
+		voting_manager.clear()
+	if meltdown_manager != null:
+		meltdown_manager.clear()
+	if sabotage_manager != null:
+		sabotage_manager.clear()
+	is_impostor_eliminated = false
+
+	# 2. Reset connected player match data while preserving network connections and slots
+	for p: PlayerConnectionData in connected_players.values():
+		p.is_ready = false
+		p.role = NetworkConfig.PlayerRole.NONE
+		p.is_alive = true
+		p.is_eliminated = false
+
+	# 3. Reset round manager
+	if round_manager != null:
+		round_manager.reset_round()
+
+	# 4. Authoritative state transition to LOBBY
+	_transition_game_state(NetworkConfig.GameState.LOBBY)
+	_broadcast_lobby_sync()
+
+	returned_to_lobby.emit()
+	print("[SERVER] Match reset to LOBBY complete. %d players ready for rematch." % connected_players.size())
+	return true
+
+func return_to_lobby() -> bool:
+	return process_return_to_lobby_request(1)
+
 
 
 func _on_blackout_countdown_started(duration: float) -> void:
@@ -730,6 +792,8 @@ func _on_emergency_system_completed(system_id: String, completed_systems: Array)
 		net_mgr.broadcast_emergency_system_completed(system_id, completed_systems, connected_players.keys())
 
 func _on_game_over_triggered(winner_role: NetworkConfig.PlayerRole, reason: MeltdownConfig.GameOverReason, result_data: Dictionary) -> void:
+	if round_manager != null and (round_manager.is_playing() or round_manager.is_ending()):
+		round_manager.transition_to(RoundManager.RoundState.RESULTS)
 	_transition_game_state(NetworkConfig.GameState.GAME_OVER)
 	match_concluded.emit(winner_role, reason, result_data)
 	var net_mgr = get_parent()

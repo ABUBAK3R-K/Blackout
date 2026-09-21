@@ -62,7 +62,7 @@ func can_transition_to(target_state: RoundState) -> bool:
 		RoundState.ROLE_ASSIGNMENT:
 			return target_state == RoundState.PLAYING or target_state == RoundState.LOBBY
 		RoundState.PLAYING:
-			return target_state == RoundState.ENDING
+			return target_state == RoundState.ENDING or target_state == RoundState.RESULTS or target_state == RoundState.LOBBY
 		RoundState.ENDING:
 			return target_state == RoundState.RESULTS or target_state == RoundState.LOBBY
 		RoundState.RESULTS:

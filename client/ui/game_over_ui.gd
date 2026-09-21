@@ -13,6 +13,7 @@ const PlayerController = preload("res://client/player/player_controller.gd")
 
 signal game_over_shown(winner_role: NetworkConfig.PlayerRole, reason: int, is_victory: bool)
 signal game_over_dismissed()
+signal return_to_lobby_requested()
 
 ## State flags
 var is_active: bool = false
@@ -39,6 +40,9 @@ var reason_value_label: Label = null
 var systems_value_label: Label = null
 var state_value_label: Label = null
 var notice_label: Label = null
+var return_to_lobby_button: Button = null
+
+var bound_client_mgr: Node = null
 
 func _ready() -> void:
 	visible = false
@@ -76,6 +80,8 @@ func _auto_connect_network_signals() -> void:
 func bind_client_network_manager(client_mgr: Node) -> void:
 	if client_mgr == null:
 		return
+
+	bound_client_mgr = client_mgr
 
 	if client_mgr.has_signal("game_over_received") and not client_mgr.game_over_received.is_connected(_on_network_game_over_received):
 		client_mgr.game_over_received.connect(_on_network_game_over_received)
@@ -484,6 +490,58 @@ func _ensure_ui_structure() -> void:
 	notice_label.add_theme_font_size_override("font_size", 11)
 	notice_label.set("theme_override_colors/font_color", Color(0.6, 0.65, 0.75, 0.8))
 	main_vbox.add_child(notice_label)
+
+	# --- RETURN TO LOBBY / PLAY AGAIN BUTTON ---
+	return_to_lobby_button = Button.new()
+	return_to_lobby_button.name = "ReturnToLobbyButton"
+	return_to_lobby_button.text = "RETURN TO LOBBY"
+	return_to_lobby_button.custom_minimum_size = Vector2(240, 42)
+	return_to_lobby_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	return_to_lobby_button.focus_mode = Control.FOCUS_ALL
+	return_to_lobby_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	return_to_lobby_button.add_theme_font_size_override("font_size", 14)
+
+	var btn_normal = StyleBoxFlat.new()
+	btn_normal.bg_color = Color(0.08, 0.16, 0.24, 0.9)
+	btn_normal.border_color = Color(0.25, 0.75, 0.85, 0.8)
+	btn_normal.set_border_width_all(2)
+	btn_normal.set_corner_radius_all(6)
+	return_to_lobby_button.add_theme_stylebox_override("normal", btn_normal)
+
+	var btn_hover = StyleBoxFlat.new()
+	btn_hover.bg_color = Color(0.12, 0.24, 0.36, 0.95)
+	btn_hover.border_color = Color(0.35, 0.95, 1.0, 1.0)
+	btn_hover.set_border_width_all(2)
+	btn_hover.set_corner_radius_all(6)
+	btn_hover.shadow_color = Color(0.2, 0.8, 1.0, 0.3)
+	btn_hover.shadow_size = 6
+	return_to_lobby_button.add_theme_stylebox_override("hover", btn_hover)
+
+	var btn_pressed = StyleBoxFlat.new()
+	btn_pressed.bg_color = Color(0.05, 0.12, 0.18, 1.0)
+	btn_pressed.border_color = Color(0.2, 0.65, 0.75, 0.9)
+	btn_pressed.set_border_width_all(2)
+	btn_pressed.set_corner_radius_all(6)
+	return_to_lobby_button.add_theme_stylebox_override("pressed", btn_pressed)
+
+	return_to_lobby_button.set("theme_override_colors/font_color", Color(0.9, 0.96, 1.0, 1.0))
+	return_to_lobby_button.set("theme_override_colors/font_hover_color", Color(1.0, 1.0, 1.0, 1.0))
+
+	return_to_lobby_button.pressed.connect(_on_return_to_lobby_pressed)
+	main_vbox.add_child(return_to_lobby_button)
+
+func _on_return_to_lobby_pressed() -> void:
+	print("[GameOverUI] Return to Lobby button pressed.")
+	return_to_lobby_requested.emit()
+	if bound_client_mgr != null and bound_client_mgr.has_method("request_return_to_lobby"):
+		bound_client_mgr.request_return_to_lobby()
+	else:
+		var net_mgr = get_node_or_null("/root/NetworkManager") if is_inside_tree() else null
+		if net_mgr != null and net_mgr.has_method("request_return_to_lobby"):
+			net_mgr.request_return_to_lobby()
+
+func request_return_to_lobby() -> void:
+	_on_return_to_lobby_pressed()
 
 func _create_detail_title(p_text: String) -> Label:
 	var lbl = Label.new()
