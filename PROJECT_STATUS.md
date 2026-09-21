@@ -85,7 +85,7 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 - [x] Server-authoritative role assignment (1 Impostor, 7 Crew) with private client reveal (`tests/test_role_assignment.gd`).
 - [x] Initial task assignment and anti-cheat validation (`server/task_manager.gd`, `tests/test_task_system.gd`).
 - [ ] Client movement, 2D player controller, collision layers, camera system (M3).
-- [ ] 9-room tilemap layout and base character animations (M7).
+- [x] 9-room tilemap layout and base character animations (M7 — Phases 3, 4, 6 complete).
 
 ### Sprint 2: Normal Phase & Blackout System
 - [x] Blackout prerequisite gating: unlocked strictly by Impostor prerequisite tasks (`tests/test_blackout_system.gd`).
@@ -101,14 +101,14 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 - [x] Emergency meeting trigger validation and discussion timer (`server/meeting_manager.gd`).
 - [x] Plurality/majority voting resolution, tie handling, and ejection announcement (`server/voting_manager.gd`, `tests/test_meeting_voting_system.gd`).
 - [ ] Meeting UI, discussion chat box, and interactive voting grid (M5).
-- [ ] Sabotaged station visuals, evidence inspection markers, and icons (M7).
+- [x] Sabotaged station visuals, evidence inspection markers, and icons (M7 — Phase 5 complete).
 
 ### Sprint 4: Meltdown Protocol & Endgame
 - [x] 5-minute fixed Meltdown countdown timer (`server/meltdown_manager.gd`, `tests/test_meltdown_system.gd`).
 - [x] 3 mandatory emergency systems: *Restore Power*, *Restore Cooling*, *Stabilize ORION*.
 - [x] Active Impostor interference handling vs. Crew-only repair branching.
 - [x] Crew victory and Impostor victory evaluation with Game Over lockdown guards.
-- [ ] Meltdown emergency sirens, screen shake, Core distortion VFX (M3, M7).
+- [x] Meltdown emergency sirens and Core distortion VFX (M7 — Phases 2 & 7 complete); screen shake (M3).
 - [ ] Meltdown mini-games (Power, Cooling, ORION stabilization) client UI (M4).
 - [ ] Victory/Defeat recap screen (M5).
 
