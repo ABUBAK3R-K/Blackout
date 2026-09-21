@@ -1,0 +1,188 @@
+[gd_scene load_steps=7 format=3 uid="uid://c7m5e3v0result"]
+
+[ext_resource type="Script" path="res://client/ui/screens/result_screen.gd" id="1_result"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.04, 0.05, 0.07, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.14, 0.18, 0.24, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.8)
+shadow_size = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+content_margin_left = 28.0
+content_margin_top = 10.0
+content_margin_right = 28.0
+content_margin_bottom = 10.0
+bg_color = Color(0.06, 0.09, 0.13, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.52, 0.70, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+content_margin_left = 28.0
+content_margin_top = 10.0
+content_margin_right = 28.0
+content_margin_bottom = 10.0
+bg_color = Color(0.10, 0.16, 0.24, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.9, 1, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+content_margin_left = 28.0
+content_margin_top = 10.0
+content_margin_right = 28.0
+content_margin_bottom = 10.0
+bg_color = Color(0.04, 0.07, 0.11, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.9, 1, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="ResultScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_result")
+
+[node name="BackgroundDarkness" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.04, 0.94)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainCard" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(980, 520)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/MainCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/MainCard/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ContentHBox" type="HBoxContainer" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 28
+
+[node name="RosterSection" type="VBoxContainer" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.55
+theme_override_constants/separation = 12
+
+[node name="RosterHeaderHBox" type="HBoxContainer" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/RosterSection"]
+layout_mode = 2
+
+[node name="RosterTitleLabel" type="Label" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/RosterSection/RosterHeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.88, 0.94, 0.95)
+theme_override_font_sizes/font_size = 13
+text = "FINAL ROSTER"
+
+[node name="RosterCountLabel" type="Label" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/RosterSection/RosterHeaderHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.60, 0.70, 0.85)
+theme_override_font_sizes/font_size = 12
+text = "8 / 8"
+
+[node name="RosterHeaderSep" type="HSeparator" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/RosterSection"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/RosterSection"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PlayersGrid" type="GridContainer" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/RosterSection/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="VSeparator" type="VSeparator" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox"]
+layout_mode = 2
+
+[node name="StatsSection" type="VBoxContainer" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.95
+theme_override_constants/separation = 12
+
+[node name="StatsTitleLabel" type="Label" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/StatsSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.88, 0.94, 0.95)
+theme_override_font_sizes/font_size = 13
+text = "MISSION SUMMARY"
+
+[node name="StatsHeaderSep" type="HSeparator" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/StatsSection"]
+layout_mode = 2
+
+[node name="StatsContainer" type="VBoxContainer" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/StatsSection"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Spacer" type="Control" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/StatsSection"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ReturnButton" type="Button" parent="CenterContainer/MainCard/MarginContainer/VBoxContainer/ContentHBox/StatsSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.95, 0.98, 1)
+theme_override_colors/font_hover_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+text = "RETURN TO LOBBY   →"
