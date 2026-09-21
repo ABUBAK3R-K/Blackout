@@ -39,6 +39,9 @@ func start_server(port: int = NetworkConfig.DEFAULT_PORT, max_players: int = Net
 		current_mode = NetworkMode.SERVER
 	return err
 
+func start_host(port: int = NetworkConfig.DEFAULT_PORT, max_players: int = NetworkConfig.MAX_PLAYERS) -> Error:
+	return start_server(port, max_players)
+
 func connect_client(host: String = NetworkConfig.DEFAULT_HOST, port: int = NetworkConfig.DEFAULT_PORT) -> Error:
 	if current_mode != NetworkMode.OFFLINE:
 		stop_network()
@@ -47,6 +50,9 @@ func connect_client(host: String = NetworkConfig.DEFAULT_HOST, port: int = Netwo
 	if err == OK:
 		current_mode = NetworkMode.CLIENT
 	return err
+
+func start_client(host: String = NetworkConfig.DEFAULT_HOST, port: int = NetworkConfig.DEFAULT_PORT) -> Error:
+	return connect_client(host, port)
 
 func stop_network() -> void:
 	if current_mode == NetworkMode.SERVER:

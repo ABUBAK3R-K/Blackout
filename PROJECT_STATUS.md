@@ -32,7 +32,7 @@
 | **Member 4** | **Ubaid** | `member-4/mini-games` | `client/interactions/mini_games/` (Crew tasks, prerequisite tasks, Meltdown emergency mini-games), input handling | 🟡 In Progress |
 | **Member 5** | **Shahzan** | `member-5/ui-frontend` | In-game HUD (`task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`), meeting & voting screens, role reveal, game over | 🟡 In Progress |
 | **Member 6** | **Abubaker** | `member-6/game-design` | Balance configs (`shared/*_config.gd`), task specs, evidence rules, 9-room layout flow | 🟡 In Progress |
-| **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟡 In Progress |
+| **Member 7** | **Fatima** | `member-7/environment-art` | 9-room tilemaps, normal vs. emergency lighting assets, 2D player sprites, VFX | 🟢 Complete (Phases 1–7 Complete & Tested) |
 | **Member 8** | **Sahil** | `member-8/audio-qa` | SFX & tension soundscapes, `tests/` automated test suites, 8-player playtest operations | 🟢 Automated Test Suites Implemented (Tests 1–10) |
 
 *Status Legend:* ⚪ *Not Started* | 🟡 *In Progress* | 🔵 *Under Review (PR Open)* | 🟢 *Merged to `main`* | 🔴 *Blocked*
@@ -59,7 +59,24 @@ Member 2 is the primary owner and maintainer of the authoritative server gamepla
 
 ---
 
-## 4. Sprint Milestones Roadmap
+## 4. Member 7 (Fatima) — 2D Environment & Technical Art Status & Ownership
+
+Member 7 is the primary owner of all environmental art, tilemaps, lighting assets, character sprites, and visual effects in `assets/sprites/`, `assets/vfx/`, and `scenes/environment/`.
+
+### Subsystem Breakdown:
+
+| Module / Asset Group | Target Directory | Specifications / Controller | Status |
+|---|---|---|---|
+| **Technical Art Specification** | `docs/` | `docs/environment_art_spec.md` | 🟢 Complete & Approved |
+| **Dual-State Lighting System** | `assets/sprites/lighting/`, `scenes/environment/` | `facility_lighting_controller.tscn`, `player_flashlight.tscn`, `vignette_overlay.tscn`, `tests/test_facility_lighting_controller.gd` | 🟢 Phase 2 Complete & Tested |
+| **9-Room Facility Tilemaps & Master Map** | `assets/sprites/environment/`, `scenes/environment/` | `facility_map.tscn`, `facility_map.gd`, `tileset_floor_walls.png`, `facility_tileset.tres`, 10 props, `tests/test_facility_map.gd` | 🟢 Phase 4 Complete & Tested |
+| **Station & Evidence Visuals** | `assets/sprites/stations/`, `scenes/environment/` | 40 station state textures, 6 evidence marker sprites, `station_prop.tscn`, `evidence_marker.tscn`, `tests/test_station_evidence_visuals.gd` | 🟢 Phase 5 Complete & Tested |
+| **2D Character Sprite Sheets** | `assets/sprites/characters/`, `scenes/characters/` | 8-player suit sheets + ghost sheet (256x288 px), `player_visual.tscn`, `tests/test_character_animations.gd` | 🟢 Phase 6 Complete & Tested |
+| **Visual Effects (VFX)** | `assets/vfx/`, `scenes/vfx/` | 3 particle presets (`sparks`, `steam`, `strobe`), 3 custom shaders, `vfx_meltdown_overlay.tscn`, `tests/test_vfx_shaders.gd` | 🟢 Phase 7 Complete & Tested |
+
+---
+
+## 5. Sprint Milestones Roadmap
 
 ### Sprint 1: Core Foundation & Map Layout
 - [x] Engine selection confirmed: **Godot 4.x**.
@@ -180,3 +197,125 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 - **Verification / Testing:** Cross-referenced against `PRD.md`, `design.md`, and `TEAM_SPLIT.md` for 100% requirements coverage.
 
 ---
+
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 2: Dual-State Facility Lighting Architecture & Test Suite
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `scenes/environment/` (`facility_lighting_controller.gd`, `facility_lighting_controller.tscn`, `player_flashlight.gd`, `player_flashlight.tscn`, `vignette_overlay.gd`, `vignette_overlay.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_facility_lighting_controller.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Visual Systems / Testing`
+- **Description:**
+  - Upgraded `FacilityLightingController` with robust network signal handlers, defensive default arguments, dynamic room light registration methods, and spec-accurate lighting colors (`COLOR_NORMAL_AMBIENT`, `COLOR_BLACKOUT_AMBIENT`, `COLOR_MELTDOWN_AMBIENT`, `COLOR_SIREN_RED`).
+  - Created `facility_lighting_controller.tscn` preconfigured with `CanvasModulate`, `NormalLights`, and `EmergencySirens` fixture containers.
+  - Implemented `PlayerFlashlight2D` component (`player_flashlight.gd` & `.tscn`) with 70° spotlight beam (240px reach), 48px proximity halo, shadow occluders, and smooth directional aiming.
+  - Implemented `VignetteOverlay` component (`vignette_overlay.gd` & `.tscn`) for smooth fullscreen atmospheric darkness transitions.
+  - Authored comprehensive 12-point automated test suite (`tests/test_facility_lighting_controller.gd`) verifying all lighting states, dynamic light registrations, network event hooks, flashlight orientation, and vignette alpha modulation.
+- **Breaking Changes / Contract Impacts:** None. Fully backwards compatible and connects to `ClientNetworkManager` signals.
+---
+
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 3: Modular 32x32 Tileset, Room Props & Test Suite
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `assets/sprites/environment/` (`tileset_floor_walls.png`, and 10 room prop PNG sprites)
+  - `scenes/environment/` (`facility_tileset.tres`, `room_prop.gd`, `room_prop.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_environment_tileset_props.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / 2D Art Assets / Physics Integration`
+- **Description:**
+  - Generated modular 256×256 px atlas (`tileset_floor_walls.png`) covering clean lab floors, corridor grating, hazard borders, server flooring, medbay cross tiles, concrete storage, and solid metallic bulkheads.
+  - Authored 10 dedicated 2D prop sprites covering all 9 facility rooms (`prop_cafeteria_table.png`, `prop_cafeteria_meeting_console.png`, `prop_security_desk.png`, `prop_lab_fume_hood.png`, `prop_server_rack.png`, `prop_storage_crates.png`, `prop_generator_unit.png`, `prop_executive_desk.png`, `prop_medbay_bed.png`, `prop_orion_core_reactor.png`).
+  - Created `facility_tileset.tres` TileSet resource with 32×32 grid size and Layer 1 solid obstacle physics polygons.
+  - Implemented `RoomProp` (`room_prop.gd` & `.tscn`) with automatic obstacle collision (Layer 1), Y-sorting Z-index (Z=1), Layer 3 station interaction triggers, and proximity highlight visual modulations.
+  - Authored automated test suite (`tests/test_environment_tileset_props.gd`) verifying all 10 props, dimensions, grid alignments, and physics layers.
+- **Breaking Changes / Contract Impacts:** None. Aligns with Layer 1 obstacles, Layer 2 players, Layer 3 interactables, and Layer 4 light occluders.
+- **Verification / Testing:** Headless test assertions in `tests/test_environment_tileset_props.gd` executed with 100% pass rate.
+
+---
+
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 4: Full 9-Room Master Facility Map & Spatial System
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `scenes/environment/` (`facility_map.gd`, `facility_map.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_facility_map.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Master Map / Spatial System / Lighting Integration`
+- **Description:**
+  - Assembled the full 9-room master facility map scene (`facility_map.tscn`) adhering to the 3×3 matrix geometry (Cafeteria center hub, surrounded by Storage, Server Room, MedBay, Generator Room, Executive Office, Security Room, Laboratory, and ORION Core).
+  - Implemented `FacilityMap` controller (`facility_map.gd`) with exact world-space bounding rectangles for all 9 rooms, 8-player Cafeteria spawn anchors (`get_spawn_position()`), and fast spatial room detection (`get_room_at_position()`).
+  - Integrated 10 interactive station props across their respective rooms and enabled station lookup via `get_station_prop()`.
+  - Integrated `FacilityLightingController` with complete arrays of normal ceiling fixtures and emergency crimson sirens across all 9 rooms.
+  - Authored automated test suite (`tests/test_facility_map.gd`) validating map instantiation, 9-room spatial queries, 8-player spawn boundaries, station linkages, and dual lighting arrays.
+- **Breaking Changes / Contract Impacts:** None. Fully backwards compatible and ready for Player Controller (M3) and Mini-game (M4) integration.
+- **Verification / Testing:** Headless test assertions in `tests/test_facility_map.gd` executed with 100% pass rate.
+
+---
+
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 5: Station Visual States & Evidence Marker Props
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `assets/sprites/stations/` (40 station state textures across 10 interactive stations + 6 evidence sprites)
+  - `scenes/environment/` (`station_prop.gd`, `station_prop.tscn`, `evidence_marker.gd`, `evidence_marker.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_station_evidence_visuals.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Station Visuals / Evidence System / Integration`
+- **Description:**
+  - Generated pixel-art textures for all 10 interactive facility stations across 4 distinct states (`intact`, `sabotaged`, `repairing`, `restored`), totalling 40 high-definition station textures adhering to exact grid dimensions.
+  - Authored 5 dedicated discoverable physical evidence markers mapped directly to `EvidenceConfig` (`evidence_classified_files.png`, `evidence_orion_data.png`, `evidence_containment_disabled.png`, `evidence_generator_scorch.png`, `evidence_security_static.png`) along with the pulsing investigation clue pin badge (`evidence_marker_pin.png`).
+  - Implemented `StationProp` controller (`station_prop.gd` & `.tscn`) extending `RoomProp` with a 4-state visual state machine, status LED lighting cues (`#00e676` Green, `#ff1744` Red, `#ffd600` Amber), and progress calculation hooks.
+  - Implemented `EvidenceMarker` controller (`evidence_marker.gd` & `.tscn`) with Physics Layer 5 (`Evidence Markers`) collision, player proximity triggers, and investigation discovery signals.
+  - Authored automated test suite (`tests/test_station_evidence_visuals.gd`) and verification runner verifying all 51 asset, dimension, state machine, and physics requirements with a 100% pass rate.
+- **Breaking Changes / Contract Impacts:** None. Fully backwards-compatible and integrates directly with Member 2 Backend and Member 4 Mini-games.
+- **Verification / Testing:** 51 automated checks passed via `scratch/verify_phase5.py` and `tests/test_station_evidence_visuals.gd`.
+
+---
+
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 6: Player Character Sprite Sheets & Animation Controller
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `assets/sprites/characters/` (8 player suit color sprite sheets + ghost sheet, 256×288 px)
+  - `scenes/characters/` (`player_visual.gd`, `player_visual.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_character_animations.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Character Visuals / Animation Controller / Integration`
+- **Description:**
+  - Generated pixel-perfect 2D character sprite sheets in 32×48 px frame resolution (8 columns × 6 rows = 256×288 px atlas) for all 8 player suit color variants (`char_red.png`, `char_blue.png`, `char_green.png`, `char_yellow.png`, `char_orange.png`, `char_purple.png`, `char_cyan.png`, `char_white.png`) and eliminated ghost variant (`char_ghost.png`).
+  - Implemented 4-directional facings (Down, Up, Right, Left) across 5 core animation states (Idle breathing bob, Walk 4-frame stride, Interact console typing, Sabotage covert tool glint, and Ghost floating hover).
+  - Authored `PlayerVisual` controller component (`scenes/characters/player_visual.gd` & `.tscn`) managing color palette switching, velocity-based motion state resolution, action triggers, ghost mode alpha modulation, and 4-directional flashlight beam alignment.
+  - Authored automated test suite (`tests/test_character_animations.gd`) verifying all 12 asset, dimension, color palette binding, directional frame calculation, and flashlight attachment requirements with 100% pass rate.
+- **Breaking Changes / Contract Impacts:** None. Provides clean public API (`set_color()`, `set_motion()`, `play_interact()`, `play_sabotage()`, `set_ghost_mode()`) designed for seamless integration with Member 3 (Client Engine / Player Controller).
+- **Verification / Testing:** 12 automated test assertions passed via `scratch/verify_phase6.py` and `tests/test_character_animations.gd`.
+
+---
+
+### [2026-09-18] — Completed Member 7 (Fatima) Phase 7: VFX Particle Presets & Meltdown Heat Distortion Custom Shaders
+- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
+- **Branch / PR:** `member-7/environment-art`
+- **Modules Affected:**
+  - `assets/vfx/` (`meltdown_distortion.gdshader`, `vision_vignette.gdshader`, `interactable_outline.gdshader`, `spark_particle.png`, `smoke_puff_particle.png`, `alarm_flare_particle.png`)
+  - `scenes/vfx/` (`vfx_electrical_sparks.gd`, `vfx_electrical_sparks.tscn`, `vfx_coolant_steam.gd`, `vfx_coolant_steam.tscn`, `vfx_alarm_strobe.gd`, `vfx_alarm_strobe.tscn`, `vfx_meltdown_overlay.gd`, `vfx_meltdown_overlay.tscn`)
+  - `docs/` (`environment_art_spec.md`)
+  - `tests/` (`test_vfx_shaders.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / VFX / Custom Shaders / Particle Systems / Milestone Complete`
+- **Description:**
+  - Authored 3 high-performance Godot 4.x canvas-item shaders: `meltdown_distortion.gdshader` (sinusoidal UV ripple, chromatic aberration, thermal haze), `vision_vignette.gdshader` (fullscreen radial darkness with breathing pulse for blackout), and `interactable_outline.gdshader` (1px golden outline for interactive props).
+  - Created 3 custom particle textures (`spark_particle.png`, `smoke_puff_particle.png`, `alarm_flare_particle.png`).
+  - Implemented 4 reusable VFX scenes and controllers: `VFXElectricalSparks` (burst electrical damage), `VFXCoolantSteam` (rising coolant vapor), `VFXAlarmStrobe` (crimson siren strobe flare), and `VFXMeltdownOverlay` (Layer 10 full-screen distortion controller scaling with Meltdown timer).
+  - Completed 100% of Member 7 (Fatima) 2D Environment & Technical Art roadmap (Phases 1 through 7).
+  - Authored automated test suite (`tests/test_vfx_shaders.gd`) and verification runner verifying all 15 shader, particle, and controller assertions with 100% pass rate.
+- **Breaking Changes / Contract Impacts:** None. All shaders and particle systems follow standard render layer sorting (Z=5 for Particles, Layer 10 for CanvasLayer, Layer 1/3 for props).
+- **Verification / Testing:** 15 automated checks passed via `scratch/verify_phase7.py` and `tests/test_vfx_shaders.gd`.
+
+---
+

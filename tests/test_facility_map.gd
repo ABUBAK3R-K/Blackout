@@ -1,16 +1,9 @@
 extends SceneTree
 
-## Unit Test Suite for BLACKOUT Facility Map Layout & Wall Collision (Member 3).
-## Verifies:
-##   1. MapManager class instantiates with 9 room definitions and valid boundaries.
-##   2. facility_map.tscn loads and instantiates all Node2D hierarchy layers.
-##   3. Boundaries StaticBody2D contains active perimeter collision shapes.
-##   4. Walls StaticBody2D contains interior room divider collision shapes.
-##   5. All 9 required Asterion facility rooms are properly defined.
-##   6. Camera boundary limits are mathematically consistent (left < right, top < bottom).
-##   7. All 8 player spawn points are located strictly inside the playable facility area.
-##   8. All 8 player spawn points are inside Central Hub (Cafeteria) and separated safely.
-##   9. PlayerController placement inside Central Hub spawns without stuck collisions.
+## Unified Test Suite for BLACKOUT Facility Map (Member 3 & Member 7).
+## Covers:
+##   Part 1 (Member 3): MapManager, Wall/Perimeter Collisions, Spawn Points, Camera Limits.
+##   Part 2 (Member 7): Master Map Scene, Spatial Queries, Station Props, Lighting Controller.
 
 const MapManager = preload("res://client/environment/map_manager.gd")
 const FacilityMapScene = preload("res://scenes/map/facility_map.tscn")
@@ -18,12 +11,33 @@ const SpawnManager = preload("res://client/player/spawn_manager.gd")
 const PlayerScene = preload("res://scenes/player/player.tscn")
 const PlayerController = preload("res://client/player/player_controller.gd")
 
+const FacilityMapClass = preload("res://scenes/environment/facility_map.gd")
+
+const EXPECTED_ROOMS: Array[String] = [
+	"cafeteria", "storage", "server_room", "medbay",
+	"generator_room", "executive_office", "security_room",
+	"laboratory", "orion_core"
+]
+
+const EXPECTED_STATIONS: Array[String] = [
+	"emergency_meeting_console",
+	"repair_power",
+	"stabilize_orion",
+	"server_calibration",
+	"data_transfer",
+	"security_repair",
+	"medical_supply_check",
+	"backup_power",
+	"classified_files",
+	"laboratory_org"
+]
+
 var test_passed: bool = true
 var test_log: Array[String] = []
 
 func _init() -> void:
 	print("\n========================================================")
-	print("  BLACKOUT — FACILITY MAP & WALL COLLISION TEST (MEMBER 3)")
+	print("  BLACKOUT — FACILITY MAP & MASTER SPATIAL TEST SUITE")
 	print("========================================================\n")
 	
 	create_timer(0.05).timeout.connect(_run_suite)
@@ -37,7 +51,11 @@ func _log_fail(msg: String) -> void:
 	test_log.append("[FAIL] %s" % msg)
 	test_passed = false
 
+func _log_info(msg: String) -> void:
+	print("  [INFO] %s" % msg)
+
 func _run_suite() -> void:
+	_log_info("--- PART 1: Member 3 Map & Collision Verification ---")
 	test_map_manager_instantiation()
 	test_facility_map_scene_structure()
 	test_collision_bodies()
@@ -47,6 +65,9 @@ func _run_suite() -> void:
 	test_spawn_point_distribution()
 	test_player_spawn_and_movement_in_hub()
 
+	_log_info("\n--- PART 2: Member 7 Master Facility Map & Spatial Logic ---")
+	test_member7_master_map()
+
 	print("\n========================================================")
 	if test_passed:
 		print("  FACILITY MAP TESTS: ALL PASSED (100%)")
@@ -55,6 +76,10 @@ func _run_suite() -> void:
 	print("========================================================\n")
 
 	quit(0 if test_passed else 1)
+
+# -------------------------------------------------------------
+# Part 1: Member 3 Tests
+# -------------------------------------------------------------
 
 func test_map_manager_instantiation() -> void:
 	var mm = MapManager.new()
@@ -181,3 +206,95 @@ func test_player_spawn_and_movement_in_hub() -> void:
 			_log_fail("8. Player spawn position incorrect: %s" % str(player_instance.global_position))
 		player_instance.free()
 	sm.free()
+
+# -------------------------------------------------------------
+# Part 2: Member 7 Tests
+# -------------------------------------------------------------
+
+func test_member7_master_map() -> void:
+	var map_scene = load("res://scenes/environment/facility_map.tscn") as PackedScene
+	if not map_scene:
+		_log_fail("Failed to load scenes/environment/facility_map.tscn scene.")
+		return
+		
+	var map_instance = map_scene.instantiate()
+	root.add_child(map_instance)
+	_log_pass("Member 7 FacilityMap scene instantiated successfully.")
+	
+	var room_ids = map_instance.get_all_room_ids()
+	var missing_rooms = []
+	for r in EXPECTED_ROOMS:
+		if not room_ids.has(r):
+			missing_rooms.append(r)
+			
+	if missing_rooms.is_empty():
+		_log_pass("All 9 required facility rooms registered in Member 7 ROOM_DEFINITIONS.")
+	else:
+		_log_fail("Missing rooms in definitions: %s" % str(missing_rooms))
+		
+	# Spatial queries
+	var sample_points = {
+		Vector2(0, 0): "cafeteria",
+		Vector2(-700, -600): "storage",
+		Vector2(0, -600): "server_room",
+		Vector2(700, -600): "medbay",
+		Vector2(-750, 0): "generator_room",
+		Vector2(650, 0): "executive_office",
+		Vector2(-650, 600): "security_room",
+		Vector2(0, 600): "laboratory",
+		Vector2(750, 650): "orion_core",
+		Vector2(5000, 5000): "corridor"
+	}
+	
+	var spatial_all_pass = true
+	for pt in sample_points.keys():
+		var expected_room = sample_points[pt]
+		var detected_room = map_instance.get_room_at_position(pt)
+		if detected_room == expected_room:
+			_log_pass("Point %s correctly detected as '%s'." % [str(pt), detected_room])
+		else:
+			_log_fail("Point %s detection mismatch: expected '%s', got '%s'" % [str(pt), expected_room, detected_room])
+			spatial_all_pass = false
+			
+	if spatial_all_pass:
+		_log_pass("Spatial query system 100% accurate across all 9 rooms and corridors.")
+		
+	# 8 Player Spawns
+	var spawns_valid = true
+	var cafeteria_bounds: Rect2 = FacilityMapClass.ROOM_DEFINITIONS["cafeteria"]["bounds"]
+	for slot in range(8):
+		var spawn_pos = map_instance.get_spawn_position(slot)
+		if cafeteria_bounds.has_point(spawn_pos):
+			_log_pass("Spawn point slot %d at %s is inside Cafeteria spawn hub." % [slot, str(spawn_pos)])
+		else:
+			_log_fail("Spawn point slot %d at %s is OUTSIDE Cafeteria bounds %s" % [slot, str(spawn_pos), str(cafeteria_bounds)])
+			spawns_valid = false
+			
+	if spawns_valid:
+		_log_pass("All 8 player spawn points properly established in Cafeteria.")
+		
+	# Station Props
+	var stations_valid = true
+	for st_id in EXPECTED_STATIONS:
+		var prop_node = map_instance.get_station_prop(st_id)
+		if prop_node:
+			_log_pass("Station prop '%s' found (Prop Name: '%s', Room: '%s')." % [st_id, prop_node.prop_name, prop_node.room_id])
+		else:
+			_log_fail("Station prop '%s' NOT found in map props hierarchy." % st_id)
+			stations_valid = false
+			
+	if stations_valid:
+		_log_pass("All 10 interactive stations discovered and mapped accurately.")
+		
+	# Lighting Controller
+	if map_instance.lighting_controller:
+		var normal_count = map_instance.lighting_controller.normal_lights_parent.get_child_count() if map_instance.lighting_controller.normal_lights_parent else 0
+		var siren_count = map_instance.lighting_controller.emergency_sirens_parent.get_child_count() if map_instance.lighting_controller.emergency_sirens_parent else 0
+		if normal_count >= 9 and siren_count >= 9:
+			_log_pass("Facility lighting active with %d normal fixtures and %d emergency sirens covering all 9 rooms." % [normal_count, siren_count])
+		else:
+			_log_fail("Insufficient lighting fixtures: normal=%d, sirens=%d" % [normal_count, siren_count])
+	else:
+		_log_fail("FacilityLightingController is missing from map instance.")
+		
+	map_instance.queue_free()

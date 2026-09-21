@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://dm2n4x8y7k9p1"]
+
+[ext_resource type="Script" path="res://scenes/environment/player_flashlight.gd" id="1_flashlight"]
+[ext_resource type="Texture2D" path="res://assets/sprites/lighting/flashlight_mask.png" id="2_mask"]
+[ext_resource type="Texture2D" path="res://assets/sprites/lighting/radial_light_cookie.png" id="3_cookie"]
+
+[node name="PlayerFlashlight2D" type="Node2D" node_paths=PackedStringArray("beam_light", "halo_light")]
+script = ExtResource("1_flashlight")
+beam_light = NodePath("BeamLight")
+halo_light = NodePath("HaloLight")
+
+[node name="BeamLight" type="PointLight2D" parent="."]
+position = Vector2(120, 0)
+color = Color(0.94, 0.96, 1, 1)
+energy = 1.2
+shadow_enabled = true
+texture = ExtResource("2_mask")
+texture_scale = 1.8
+
+[node name="HaloLight" type="PointLight2D" parent="."]
+color = Color(0.85, 0.9, 1, 0.6)
+energy = 0.4
+texture = ExtResource("3_cookie")
+texture_scale = 0.75

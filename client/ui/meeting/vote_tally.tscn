@@ -1,0 +1,161 @@
+[gd_scene load_steps=6 format=3 uid="uid://c3m7x9q2y1w8v"]
+
+[ext_resource type="Script" path="res://client/ui/meeting/vote_tally.gd" id="1_vote_tally"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_card"]
+content_margin_left = 28.0
+content_margin_top = 22.0
+content_margin_right = 28.0
+content_margin_bottom = 22.0
+bg_color = Color(0.08, 0.085, 0.10, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.32, 0.40, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.8)
+shadow_size = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pill_red"]
+bg_color = Color(1, 0.25, 0.28, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skip_box"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.09, 0.095, 0.12, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.33, 0.42, 0.5)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_footer_box"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 6.0
+bg_color = Color(0.05, 0.055, 0.07, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.2, 0.24, 0.45)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="VoteTally" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_vote_tally")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.035, 0.045, 0.95)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ModalCard" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(800, 490)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_card")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/ModalCard"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderRow" type="HBoxContainer" parent="CenterContainer/ModalCard/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Pill" type="Panel" parent="CenterContainer/ModalCard/VBoxContainer/HeaderRow"]
+custom_minimum_size = Vector2(4, 18)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill_red")
+
+[node name="TitleBox" type="VBoxContainer" parent="CenterContainer/ModalCard/VBoxContainer/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="MainTitleLabel" type="Label" parent="CenterContainer/ModalCard/VBoxContainer/HeaderRow/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "VOTE STATUS // OFFICIAL BALLOT RECORD"
+
+[node name="SubTitleLabel" type="Label" parent="CenterContainer/ModalCard/VBoxContainer/HeaderRow/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.64, 0.72, 0.85)
+theme_override_font_sizes/font_size = 11
+text = "Authoritative ballots registered across facility personnel network."
+
+[node name="CountStatusLabel" type="Label" parent="CenterContainer/ModalCard/VBoxContainer/HeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+text = "VOTING COMPLETE"
+horizontal_alignment = 2
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/ModalCard/VBoxContainer"]
+layout_mode = 2
+
+[node name="RowsGrid" type="GridContainer" parent="CenterContainer/ModalCard/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="HSeparator2" type="HSeparator" parent="CenterContainer/ModalCard/VBoxContainer"]
+layout_mode = 2
+
+[node name="SkipPanel" type="PanelContainer" parent="CenterContainer/ModalCard/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_skip_box")
+
+[node name="SkipRowContainer" type="VBoxContainer" parent="CenterContainer/ModalCard/VBoxContainer/SkipPanel"]
+layout_mode = 2
+
+[node name="FooterStatus" type="PanelContainer" parent="CenterContainer/ModalCard/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_footer_box")
+
+[node name="FooterLabel" type="Label" parent="CenterContainer/ModalCard/VBoxContainer/FooterStatus"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.68, 0.75, 0.85)
+theme_override_font_sizes/font_size = 11
+text = "ⓘ  Voting concluded. Authoritative plurality recorded."
+horizontal_alignment = 1

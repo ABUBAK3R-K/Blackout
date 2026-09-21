@@ -1,0 +1,181 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8f2c3d4e5a6b"]
+
+[ext_resource type="Script" path="res://client/interactions/interaction_framework/test_mini_game_base.gd" id="1_test"]
+[ext_resource type="Script" path="res://client/interactions/interaction_framework/mini_game_base.gd" id="2_base"]
+
+[node name="TestMiniGameBase" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_test")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.09, 0.12, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Member 4 — MiniGameBase Framework Test"
+horizontal_alignment = 1
+
+[node name="StateLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "State: IDLE"
+horizontal_alignment = 1
+
+[node name="ProgressLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Progress: 0%"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 26)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+
+[node name="ButtonGrid" type="GridContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 3
+
+[node name="StartButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 42)
+layout_mode = 2
+text = "Start"
+
+[node name="SetProgressButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 42)
+layout_mode = 2
+text = "Set Progress"
+
+[node name="CompleteButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 42)
+layout_mode = 2
+text = "Complete"
+
+[node name="CancelButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 42)
+layout_mode = 2
+text = "Cancel"
+
+[node name="InterruptButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 42)
+layout_mode = 2
+text = "Interrupt"
+
+[node name="FailButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 42)
+layout_mode = 2
+text = "Fail"
+
+[node name="LogLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Awaiting interaction..."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="TestMiniGame" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -140.0
+offset_right = 220.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_base")
+
+[node name="Panel" type="Panel" parent="TestMiniGame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ModalLabel" type="Label" parent="TestMiniGame/Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -180.0
+offset_top = 20.0
+offset_right = 180.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 18
+text = "Active Mini-Game Popup"
+horizontal_alignment = 1
+
+[node name="ModalInfo" type="Label" parent="TestMiniGame/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -20.0
+offset_right = 180.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Press Escape (ui_cancel) or click [X] to cancel."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="CloseButton" type="Button" parent="TestMiniGame/Panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 40.0
+grow_horizontal = 0
+text = "X"

@@ -19,11 +19,13 @@ const MeltdownManager = preload("res://server/meltdown_manager.gd")
 const RoleManager = preload("res://shared/role_manager.gd")
 const SabotageManager = preload("res://shared/sabotage_manager.gd")
 const RoundManager = preload("res://shared/round_manager.gd")
+const WinConditionManager = preload("res://server/win_condition_manager.gd")
 
 ## Authoritative Kill and Body Report Configuration Constants
 const KILL_RANGE: float = 90.0
 const KILL_COOLDOWN: float = 25.0
 const REPORT_RANGE: float = 90.0
+
 
 signal server_started(port: int)
 
@@ -77,6 +79,8 @@ var voting_manager: VotingManager = null
 var meltdown_manager: MeltdownManager = null
 var sabotage_manager: SabotageManager = null
 var round_manager: RoundManager = null
+var win_condition_manager: WinConditionManager = null
+
 
 var is_impostor_eliminated: bool = false
 
@@ -100,6 +104,8 @@ func _init() -> void:
 	meltdown_manager = MeltdownManager.new()
 	sabotage_manager = SabotageManager.new()
 	round_manager = RoundManager.new()
+	win_condition_manager = meltdown_manager.win_condition_manager
+
 
 	blackout_manager.countdown_started.connect(_on_blackout_countdown_started)
 	blackout_manager.countdown_cancelled.connect(_on_blackout_countdown_cancelled)

@@ -1,0 +1,636 @@
+[gd_scene load_steps=12 format=3 uid="uid://c6menu7main01"]
+
+[ext_resource type="Script" path="res://client/ui/menu/main_menu.gd" id="1_menu"]
+[ext_resource type="Texture2D" path="res://assets/ui/main_menu_bg.png" id="2_bg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.04, 0.07, 0.11, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.28, 0.38, 0.75)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.08, 0.13, 0.19, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.85, 1, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0.85, 1, 0.3)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.02, 0.05, 0.08, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.9, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+content_margin_left = 28.0
+content_margin_top = 22.0
+content_margin_right = 28.0
+content_margin_bottom = 22.0
+bg_color = Color(0.04, 0.06, 0.09, 0.97)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.85, 1, 0.85)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.85)
+shadow_size = 32
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_subbtn"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.07, 0.11, 0.16, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.32, 0.45, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_action_btn"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.06, 0.14, 0.22, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.85, 1, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0.85, 1, 0.25)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_code_input"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.02, 0.04, 0.07, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.8, 1, 0.75)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_code_display"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.02, 0.05, 0.08, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0.8, 1, 0.6)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="BackgroundTexture" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TopLeftBranding" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 36.0
+offset_right = 440.0
+offset_bottom = 130.0
+theme_override_constants/separation = 2
+
+[node name="GameTitle" type="Label" parent="TopLeftBranding"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.96, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.8, 1, 0.4)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 8
+theme_override_font_sizes/font_size = 34
+text = "B L A C K O U T"
+
+[node name="FacilityTitle" type="Label" parent="TopLeftBranding"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.68, 0.8, 0.95)
+theme_override_font_sizes/font_size = 13
+text = "ASTERION RESEARCH FACILITY"
+
+[node name="MottoTitle" type="Label" parent="TopLeftBranding"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.48, 0.58, 0.85)
+theme_override_font_sizes/font_size = 11
+text = "DISCOVERY DRIVES HUMANITY FORWARD"
+
+[node name="MenuContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 48.0
+offset_top = -110.0
+offset_right = 318.0
+offset_bottom = 190.0
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="PlayButton" type="Button" parent="MenuContainer"]
+custom_minimum_size = Vector2(260, 50)
+layout_mode = 2
+focus_neighbor_bottom = NodePath("../SettingsButton")
+theme_override_colors/font_color = Color(0.72, 0.8, 0.88, 0.95)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "PLAY"
+
+[node name="SettingsButton" type="Button" parent="MenuContainer"]
+custom_minimum_size = Vector2(260, 50)
+layout_mode = 2
+focus_neighbor_top = NodePath("../PlayButton")
+focus_neighbor_bottom = NodePath("../CreditsButton")
+theme_override_colors/font_color = Color(0.72, 0.8, 0.88, 0.95)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "SETTINGS"
+
+[node name="CreditsButton" type="Button" parent="MenuContainer"]
+custom_minimum_size = Vector2(260, 50)
+layout_mode = 2
+focus_neighbor_top = NodePath("../SettingsButton")
+focus_neighbor_bottom = NodePath("../ExitButton")
+theme_override_colors/font_color = Color(0.72, 0.8, 0.88, 0.95)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "CREDITS"
+
+[node name="ExitButton" type="Button" parent="MenuContainer"]
+custom_minimum_size = Vector2(260, 50)
+layout_mode = 2
+focus_neighbor_top = NodePath("../CreditsButton")
+theme_override_colors/font_color = Color(0.72, 0.8, 0.88, 0.95)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "EXIT"
+
+[node name="BottomLeftWatermark" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 48.0
+offset_top = -64.0
+offset_right = 260.0
+offset_bottom = -28.0
+grow_vertical = 0
+theme_override_constants/separation = 1
+
+[node name="ProtocolLabel1" type="Label" parent="BottomLeftWatermark"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.62, 0.74, 0.85)
+theme_override_font_sizes/font_size = 12
+text = "AST-01"
+
+[node name="ProtocolLabel2" type="Label" parent="BottomLeftWatermark"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.45, 0.55, 0.75)
+theme_override_font_sizes/font_size = 11
+text = "SECURITY PROTOCOL —"
+
+[node name="BottomRightVersion" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -48.0
+offset_right = -48.0
+offset_bottom = -28.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.35, 0.45, 0.55, 0.75)
+theme_override_font_sizes/font_size = 11
+text = "— v 1.0.0"
+horizontal_alignment = 2
+
+[node name="ModalOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.05, 0.78)
+
+[node name="ModalsCenter" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PlayModal" type="PanelContainer" parent="ModalsCenter"]
+visible = false
+custom_minimum_size = Vector2(440, 310)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="VBox" type="VBoxContainer" parent="ModalsCenter/PlayModal"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="ModalsCenter/PlayModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "SELECT DEPLOYMENT MODE"
+horizontal_alignment = 1
+
+[node name="Sep" type="HSeparator" parent="ModalsCenter/PlayModal/VBox"]
+layout_mode = 2
+
+[node name="HostBtn" type="Button" parent="ModalsCenter/PlayModal/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_modal_subbtn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "CREATE LOBBY"
+
+[node name="JoinBtn" type="Button" parent="ModalsCenter/PlayModal/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_modal_subbtn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "JOIN GAME"
+
+[node name="SandboxBtn" type="Button" parent="ModalsCenter/PlayModal/VBox"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.95, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_modal_subbtn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "LAUNCH IN-GAME HUD SANDBOX"
+
+[node name="Spacer" type="Control" parent="ModalsCenter/PlayModal/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ClosePlayModal" type="Button" parent="ModalsCenter/PlayModal/VBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 0.9)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+text = "BACK TO MENU"
+
+[node name="JoinGameModal" type="PanelContainer" parent="ModalsCenter"]
+visible = false
+custom_minimum_size = Vector2(400, 280)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="VBox" type="VBoxContainer" parent="ModalsCenter/JoinGameModal"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="ModalsCenter/JoinGameModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "JOIN GAME"
+horizontal_alignment = 1
+
+[node name="Sep" type="HSeparator" parent="ModalsCenter/JoinGameModal/VBox"]
+layout_mode = 2
+
+[node name="CodeHeader" type="Label" parent="ModalsCenter/JoinGameModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "LOBBY CODE"
+horizontal_alignment = 1
+
+[node name="JoinCodeInput" type="LineEdit" parent="ModalsCenter/JoinGameModal/VBox"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_code_input")
+text = "A7K2X"
+placeholder_text = "ENTER CODE"
+alignment = 1
+max_length = 6
+
+[node name="Spacer" type="Control" parent="ModalsCenter/JoinGameModal/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="JoinLobbyBtn" type="Button" parent="ModalsCenter/JoinGameModal/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_action_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "JOIN LOBBY"
+
+[node name="BackJoinBtn" type="Button" parent="ModalsCenter/JoinGameModal/VBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 0.9)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+text = "BACK"
+
+[node name="CreateLobbyModal" type="PanelContainer" parent="ModalsCenter"]
+visible = false
+custom_minimum_size = Vector2(400, 310)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="VBox" type="VBoxContainer" parent="ModalsCenter/CreateLobbyModal"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="ModalsCenter/CreateLobbyModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "CREATE LOBBY"
+horizontal_alignment = 1
+
+[node name="Sep" type="HSeparator" parent="ModalsCenter/CreateLobbyModal/VBox"]
+layout_mode = 2
+
+[node name="CodeHeader" type="Label" parent="ModalsCenter/CreateLobbyModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "LOBBY CODE"
+horizontal_alignment = 1
+
+[node name="CodePanel" type="PanelContainer" parent="ModalsCenter/CreateLobbyModal/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_code_display")
+
+[node name="HostCodeLabel" type="Label" parent="ModalsCenter/CreateLobbyModal/VBox/CodePanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.92, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "A7K2X"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayersHeader" type="Label" parent="ModalsCenter/CreateLobbyModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 0.9)
+theme_override_font_sizes/font_size = 12
+text = "PLAYERS"
+horizontal_alignment = 1
+
+[node name="PlayersCount" type="Label" parent="ModalsCenter/CreateLobbyModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "1 / 8"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="ModalsCenter/CreateLobbyModal/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EnterLobbyBtn" type="Button" parent="ModalsCenter/CreateLobbyModal/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_action_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "ENTER LOBBY"
+
+[node name="BackHostBtn" type="Button" parent="ModalsCenter/CreateLobbyModal/VBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 0.9)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+text = "BACK"
+
+[node name="SettingsModal" type="PanelContainer" parent="ModalsCenter"]
+visible = false
+custom_minimum_size = Vector2(460, 320)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="VBox" type="VBoxContainer" parent="ModalsCenter/SettingsModal"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="ModalsCenter/SettingsModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "FACILITY TERMINAL SETTINGS"
+horizontal_alignment = 1
+
+[node name="Sep" type="HSeparator" parent="ModalsCenter/SettingsModal/VBox"]
+layout_mode = 2
+
+[node name="MasterVol" type="HBoxContainer" parent="ModalsCenter/SettingsModal/VBox"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="ModalsCenter/SettingsModal/VBox/MasterVol"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Master Volume"
+
+[node name="Slider" type="HSlider" parent="ModalsCenter/SettingsModal/VBox/MasterVol"]
+layout_mode = 2
+size_flags_horizontal = 3
+value = 85.0
+
+[node name="SfxVol" type="HBoxContainer" parent="ModalsCenter/SettingsModal/VBox"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="ModalsCenter/SettingsModal/VBox/SfxVol"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "SFX & Alarms"
+
+[node name="Slider" type="HSlider" parent="ModalsCenter/SettingsModal/VBox/SfxVol"]
+layout_mode = 2
+size_flags_horizontal = 3
+value = 90.0
+
+[node name="FullscreenOpt" type="HBoxContainer" parent="ModalsCenter/SettingsModal/VBox"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="ModalsCenter/SettingsModal/VBox/FullscreenOpt"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Display Mode"
+
+[node name="Check" type="CheckBox" parent="ModalsCenter/SettingsModal/VBox/FullscreenOpt"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Fullscreen"
+
+[node name="Spacer" type="Control" parent="ModalsCenter/SettingsModal/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CloseSettingsModal" type="Button" parent="ModalsCenter/SettingsModal/VBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 0.9)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+text = "APPLY & CLOSE"
+
+[node name="CreditsModal" type="PanelContainer" parent="ModalsCenter"]
+visible = false
+custom_minimum_size = Vector2(480, 340)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="VBox" type="VBoxContainer" parent="ModalsCenter/CreditsModal"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="ModalsCenter/CreditsModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "ASTERION RESEARCH FACILITY"
+horizontal_alignment = 1
+
+[node name="Sep" type="HSeparator" parent="ModalsCenter/CreditsModal/VBox"]
+layout_mode = 2
+
+[node name="Lore" type="Label" parent="ModalsCenter/CreditsModal/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.88, 0.95, 0.95)
+theme_override_font_sizes/font_size = 12
+text = "BLACKOUT is an atmospheric multiplayer social deduction game set within a deep-earth nuclear research complex.
+
+Lead Developer & UI/UX Design: Shahzan (Member 5)
+Core Architecture: Google Antigravity Pair-Programming
+Engine: Godot Engine 4.3 Stable (GL Compatibility)"
+autowrap_mode = 2
+
+[node name="Spacer" type="Control" parent="ModalsCenter/CreditsModal/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CloseCreditsModal" type="Button" parent="ModalsCenter/CreditsModal/VBox"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 0.9)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+text = "CLOSE"
+
+[connection signal="pressed" from="ModalsCenter/PlayModal/VBox/HostBtn" to="." method="_on_open_create_lobby_pressed"]
+[connection signal="pressed" from="ModalsCenter/PlayModal/VBox/JoinBtn" to="." method="_on_open_join_game_pressed"]
+[connection signal="pressed" from="ModalsCenter/PlayModal/VBox/SandboxBtn" to="." method="_on_launch_hud_test_pressed"]
+[connection signal="pressed" from="ModalsCenter/PlayModal/VBox/ClosePlayModal" to="." method="_on_close_modal_pressed"]
+[connection signal="pressed" from="ModalsCenter/JoinGameModal/VBox/JoinLobbyBtn" to="." method="_on_join_lobby_pressed"]
+[connection signal="pressed" from="ModalsCenter/JoinGameModal/VBox/BackJoinBtn" to="." method="_on_open_play_modal_pressed"]
+[connection signal="pressed" from="ModalsCenter/CreateLobbyModal/VBox/EnterLobbyBtn" to="." method="_on_enter_lobby_pressed"]
+[connection signal="pressed" from="ModalsCenter/CreateLobbyModal/VBox/BackHostBtn" to="." method="_on_open_play_modal_pressed"]
+[connection signal="pressed" from="ModalsCenter/SettingsModal/VBox/CloseSettingsModal" to="." method="_on_close_modal_pressed"]
+[connection signal="pressed" from="ModalsCenter/CreditsModal/VBox/CloseCreditsModal" to="." method="_on_close_modal_pressed"]
