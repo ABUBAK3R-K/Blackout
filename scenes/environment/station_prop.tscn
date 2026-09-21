@@ -1,0 +1,40 @@
+[gd_scene load_steps=4 format=3 uid="uid://b6m7s9t1x4v3q"]
+
+[ext_resource type="Script" path="res://scenes/environment/station_prop.gd" id="1_station"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_obs"]
+size = Vector2(32, 32)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_int"]
+radius = 48.0
+
+[node name="StationProp" type="StaticBody2D" node_paths=PackedStringArray("status_light", "status_indicator", "sprite", "collision_shape", "interaction_area", "interaction_shape")]
+y_sort_enabled = true
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("1_station")
+status_light = NodePath("StatusLight")
+status_indicator = NodePath("StatusIndicator")
+sprite = NodePath("Sprite2D")
+collision_shape = NodePath("CollisionShape2D")
+interaction_area = NodePath("InteractionArea")
+interaction_shape = NodePath("InteractionArea/CollisionShape2D")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_obs")
+
+[node name="InteractionArea" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
+shape = SubResource("CircleShape2D_int")
+
+[node name="StatusLight" type="PointLight2D" parent="."]
+energy = 0.3
+blend_mode = 0
+
+[node name="StatusIndicator" type="Sprite2D" parent="."]
+position = Vector2(0, -20)

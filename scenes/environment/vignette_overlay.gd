@@ -31,15 +31,15 @@ func set_intensity(target_alpha: float, immediate: bool = false) -> void:
 	if immediate and texture_rect:
 		texture_rect.modulate.a = _target_alpha
 
-func on_lighting_state_changed(state: FacilityLightingController.LightingState) -> void:
+func on_lighting_state_changed(state: int) -> void:
 	match state:
-		FacilityLightingController.LightingState.NORMAL:
+		0: # NORMAL
 			set_intensity(ALPHA_NORMAL)
-		FacilityLightingController.LightingState.BLACKOUT_WARNING:
+		1: # BLACKOUT_WARNING
 			set_intensity(ALPHA_WARNING)
-		FacilityLightingController.LightingState.BLACKOUT_ACTIVE:
+		2: # BLACKOUT_ACTIVE
 			set_intensity(ALPHA_BLACKOUT)
-		FacilityLightingController.LightingState.MELTDOWN:
+		3: # MELTDOWN
 			set_intensity(ALPHA_MELTDOWN)
 
 func get_current_alpha() -> float:

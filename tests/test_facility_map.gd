@@ -74,7 +74,7 @@ func _run_suite() -> void:
 		quit(1)
 		return
 		
-	var map_instance = map_scene.instantiate() as FacilityMap
+	var map_instance = map_scene.instantiate()
 	root_node.add_child(map_instance)
 	_log_pass("FacilityMap scene instantiated successfully.")
 	

@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3k5v8m2y1p9x"]
+
+[ext_resource type="Script" path="res://scenes/characters/player_visual.gd" id="1_visual"]
+
+[node name="PlayerVisual" type="Node2D" node_paths=PackedStringArray("sprite", "flashlight_anchor")]
+y_sort_enabled = true
+script = ExtResource("1_visual")
+sprite = NodePath("Sprite2D")
+flashlight_anchor = NodePath("FlashlightAnchor")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+hframes = 8
+vframes = 6
+
+[node name="FlashlightAnchor" type="Marker2D" parent="."]
+position = Vector2(0, 4)
