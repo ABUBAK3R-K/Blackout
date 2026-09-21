@@ -1,10 +1,19 @@
-[gd_scene load_steps=26 format=3 uid="uid://d3m8f9q2k1v5x"]
+[gd_scene load_steps=35 format=3 uid="uid://d3m8f9q2k1v5x"]
 
 [ext_resource type="Script" path="res://client/environment/map_manager.gd" id="1_map"]
 [ext_resource type="PackedScene" uid="uid://c5t6y7u8v9w0x" path="res://scenes/objects/test_terminal.tscn" id="2_terminal"]
 [ext_resource type="PackedScene" uid="uid://d4e5f6a7b8c9d" path="res://scenes/objects/door.tscn" id="3_door"]
 [ext_resource type="PackedScene" uid="uid://e4f5a6b7c8d9e" path="res://scenes/objects/electrical_junction.tscn" id="4_junction"]
 [ext_resource type="PackedScene" uid="uid://c7x8y9z0a1b2c" path="res://scenes/objects/emergency_console.tscn" id="5_console"]
+[ext_resource type="PackedScene" uid="uid://s3c4a5l6i7b8r" path="res://scenes/objects/server_calibration_station.tscn" id="6_server_cal"]
+[ext_resource type="PackedScene" uid="uid://o4r5i6o7n8s9t" path="res://scenes/objects/stabilize_orion_station.tscn" id="7_orion_stab"]
+[ext_resource type="PackedScene" uid="uid://s4e5c6u7r8p9a" path="res://scenes/objects/security_repair_station.tscn" id="8_sec_repair"]
+[ext_resource type="PackedScene" uid="uid://m5e6d7b8a9y0s" path="res://scenes/objects/medical_supply_station.tscn" id="9_med_supply"]
+[ext_resource type="PackedScene" uid="uid://d6t7a8n9s0f1e" path="res://scenes/objects/data_transfer_station.tscn" id="10_data_trans"]
+[ext_resource type="PackedScene" uid="uid://d7o8o9r0r1e2p" path="res://scenes/objects/door_repair_station.tscn" id="11_door_repair"]
+[ext_resource type="PackedScene" uid="uid://c8o9l0a1n2t3s" path="res://scenes/objects/coolant_system_station.tscn" id="12_coolant"]
+[ext_resource type="PackedScene" uid="uid://l9a0b1o2r3g4s" path="res://scenes/objects/laboratory_org_station.tscn" id="13_lab_org"]
+[ext_resource type="PackedScene" uid="uid://b0p1o2w3e4r5s" path="res://scenes/objects/backup_power_station.tscn" id="14_backup_pwr"]
 
 [sub_resource type="RectangleShape2D" id="Rect_Bound_Top"]
 size = Vector2(1400, 24)
@@ -402,7 +411,34 @@ door_name = "Central Hub West Airlock"
 [node name="Objectives" type="Node2D" parent="."]
 
 [node name="ElectricalJunction01" parent="Objectives" instance=ExtResource("4_junction")]
-position = Vector2(800, 160)
+position = Vector2(760, 160)
+
+[node name="BackupPowerStation01" parent="Objectives" instance=ExtResource("14_backup_pwr")]
+position = Vector2(680, 150)
+
+[node name="StabilizeOrionStation01" parent="Objectives" instance=ExtResource("7_orion_stab")]
+position = Vector2(700, 965)
+
+[node name="SecurityRepairStation01" parent="Objectives" instance=ExtResource("8_sec_repair")]
+position = Vector2(365, 260)
+
+[node name="MedicalSupplyStation01" parent="Objectives" instance=ExtResource("9_med_supply")]
+position = Vector2(1225, 920)
+
+[node name="ServerCalibrationStation01" parent="Objectives" instance=ExtResource("6_server_cal")]
+position = Vector2(1180, 260)
+
+[node name="DataTransferStation01" parent="Objectives" instance=ExtResource("10_data_trans")]
+position = Vector2(1320, 260)
+
+[node name="DoorRepairStation01" parent="Objectives" instance=ExtResource("11_door_repair")]
+position = Vector2(520, 520)
+
+[node name="CoolantSystemStation01" parent="Objectives" instance=ExtResource("12_coolant")]
+position = Vector2(250, 520)
+
+[node name="LaboratoryOrgStation01" parent="Objectives" instance=ExtResource("13_lab_org")]
+position = Vector2(380, 680)
 
 [node name="EmergencyConsoles" type="Node2D" parent="."]
 

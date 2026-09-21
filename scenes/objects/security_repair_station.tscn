@@ -1,81 +1,72 @@
-[gd_scene load_steps=11 format=3 uid="uid://e4f5a6b7c8d9e"]
+[gd_scene load_steps=10 format=3 uid="uid://s4e5c6u7r8p9a"]
 
 [ext_resource type="Script" path="res://client/objectives/objective_interactable.gd" id="1_obj"]
 [ext_resource type="Script" path="res://client/objectives/task_step.gd" id="2_step"]
 [ext_resource type="Script" path="res://client/environment/interactable_trigger.gd" id="3_trigger"]
 [ext_resource type="Script" path="res://client/environment/interaction_audio.gd" id="4_audio"]
 
-[sub_resource type="Resource" script_class="TaskStep" id="Step_Open_Panel"]
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Inspect_Hub"]
 script = ExtResource("2_step")
-step_id = "step_open_panel"
-step_name = "Open Junction Panel"
-step_description = "Open the junction maintenance panel."
+step_id = "step_inspect_hub"
+step_name = "Inspect Security Hub"
+step_description = "Inspect the security monitoring hub and camera diagnostics."
 step_index = 0
 is_completed = false
-action_prompt = "Press E to Open Junction Panel"
+action_prompt = "Press E to Inspect Security Hub"
 
-[sub_resource type="Resource" script_class="TaskStep" id="Step_Inspect_Circuit"]
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Reroute_Feed"]
 script = ExtResource("2_step")
-step_id = "step_inspect_circuit"
-step_name = "Inspect Electrical Circuit"
-step_description = "Inspect the electrical wiring and fuses."
+step_id = "step_reroute_feed"
+step_name = "Reroute Camera Feed"
+step_description = "Reroute damaged camera data lines to auxiliary feeds."
 step_index = 1
 is_completed = false
-action_prompt = "Press E to Inspect Circuit"
+action_prompt = "Press E to Reroute Camera Feed"
 
-[sub_resource type="Resource" script_class="TaskStep" id="Step_Restore_Power"]
+[sub_resource type="Resource" script_class="TaskStep" id="Step_Rearm_Subsystem"]
 script = ExtResource("2_step")
-step_id = "step_restore_power"
-step_name = "Restore Power"
-step_description = "Switch breakers and restore auxiliary power."
+step_id = "step_rearm_subsystem"
+step_name = "Re-arm Security Subsystem"
+step_description = "Re-arm security alarms and confirm monitor integrity."
 step_index = 2
 is_completed = false
-action_prompt = "Press E to Restore Power"
+action_prompt = "Press E to Re-arm Subsystem"
 
-[sub_resource type="Resource" script_class="TaskStep" id="Step_Close_Panel"]
-script = ExtResource("2_step")
-step_id = "step_close_panel"
-step_name = "Close Junction Panel"
-step_description = "Close and secure the junction panel."
-step_index = 3
-is_completed = false
-action_prompt = "Press E to Close Junction Panel"
-
-[sub_resource type="RectangleShape2D" id="Rect_Junction_Obstacle"]
+[sub_resource type="RectangleShape2D" id="Rect_Sec_Obstacle"]
 size = Vector2(32, 28)
 
-[sub_resource type="CircleShape2D" id="Circle_Interact_Junction"]
+[sub_resource type="CircleShape2D" id="Circle_Interact_Sec"]
 radius = 54.0
 
-[node name="ElectricalJunction" type="Node2D"]
+[node name="SecurityRepairStation" type="Node2D"]
 script = ExtResource("1_obj")
-objective_id = "electrical_junction_01"
-task_type_id = "repair_power"
-objective_name = "Electrical Junction"
-objective_description = "Restore power to the facility junction."
-category = "electrical"
-room_location = "Generator Room"
-task_steps = [SubResource("Step_Open_Panel"), SubResource("Step_Inspect_Circuit"), SubResource("Step_Restore_Power"), SubResource("Step_Close_Panel")]
+objective_id = "security_repair_01"
+task_type_id = "security_repair"
+objective_name = "Security Repair"
+objective_description = "Repair security consoles, reroute video feeds, and re-arm systems."
+category = "security"
+room_location = "Security"
+task_steps = [SubResource("Step_Inspect_Hub"), SubResource("Step_Reroute_Feed"), SubResource("Step_Rearm_Subsystem")]
 
 [node name="ObstacleCollider" type="StaticBody2D" parent="."]
 collision_layer = 1
 collision_mask = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleCollider"]
-shape = SubResource("Rect_Junction_Obstacle")
+shape = SubResource("Rect_Sec_Obstacle")
 
 [node name="Visual" type="Node2D" parent="."]
 
 [node name="Base" type="Polygon2D" parent="Visual"]
-color = Color(0.13, 0.16, 0.2, 1)
+color = Color(0.16, 0.14, 0.2, 1)
 polygon = PackedVector2Array(-16, -14, 16, -14, 16, 14, -16, 14)
 
 [node name="InnerPanel" type="Polygon2D" parent="Visual"]
-color = Color(0.22, 0.25, 0.32, 1)
+color = Color(0.25, 0.22, 0.32, 1)
 polygon = PackedVector2Array(-13, -11, 13, -11, 13, 11, -13, 11)
 
-[node name="HazardStripes" type="Polygon2D" parent="Visual"]
-color = Color(0.85, 0.65, 0.15, 1)
+[node name="SecAccent" type="Polygon2D" parent="Visual"]
+color = Color(0.85, 0.45, 0.2, 1)
 polygon = PackedVector2Array(-11, -9, 11, -9, 11, -6, -11, -6)
 
 [node name="IndicatorLight" type="Polygon2D" parent="Visual"]
@@ -86,12 +77,12 @@ polygon = PackedVector2Array(-5, 0, 5, 0, 5, 7, -5, 7)
 collision_layer = 0
 collision_mask = 1
 script = ExtResource("3_trigger")
-interactable_id = "electrical_junction_01"
-prompt_text = "Step 1/4: Open Junction Panel [Press E]"
+interactable_id = "security_repair_01"
+prompt_text = "Step 1/3: Inspect Security Hub [Press E]"
 interaction_radius = 54.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InteractableTrigger"]
-shape = SubResource("Circle_Interact_Junction")
+shape = SubResource("Circle_Interact_Sec")
 
 [node name="StatusLabel" type="Label" parent="."]
 anchors_preset = 7
@@ -107,8 +98,8 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.95, 0.75, 0.2, 1)
 theme_override_font_sizes/font_size = 11
-text = "OBJECTIVE: Electrical Junction
-STATUS: AVAILABLE (Step 1/4)"
+text = "OBJECTIVE: Security Repair
+STATUS: AVAILABLE (Step 1/3)"
 horizontal_alignment = 1
 vertical_alignment = 1
 

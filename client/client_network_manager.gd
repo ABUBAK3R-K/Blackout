@@ -217,6 +217,10 @@ func request_complete_task(task_id: String) -> void:
 		push_warning("[CLIENT] Cannot complete task: match is not in INITIAL_TASK_PHASE.")
 		return
 
+	if is_eliminated:
+		push_warning("[CLIENT] Cannot complete task: player is eliminated.")
+		return
+
 	print("[CLIENT] Requesting task completion for: %s" % task_id)
 	var net_mgr = get_parent()
 	if net_mgr != null and net_mgr.has_method("request_complete_task"):
@@ -250,7 +254,6 @@ func request_sabotage(sabotage_type: int = 1) -> void:
 	var net_mgr = get_parent()
 	if net_mgr != null and net_mgr.has_method("send_sabotage_request"):
 		net_mgr.send_sabotage_request(sabotage_type)
-
 
 func request_recover_system(system_id: String) -> void:
 	if not is_connected_to_server():

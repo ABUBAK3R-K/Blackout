@@ -33,6 +33,10 @@ signal task_step_changed(current_step: int, total_steps: int, step_data: Diction
 ## Unique identifier for this objective instance (e.g. 'electrical_junction_01').
 @export var objective_id: String = "electrical_junction_01"
 
+## Task catalog type identifier (e.g. 'repair_power', 'server_calibration', 'stabilize_orion').
+## Defaults to objective_id if left empty.
+@export var task_type_id: String = ""
+
 ## Human-readable title displayed in prompts and UI feedback.
 @export var objective_name: String = "Electrical Junction"
 
@@ -119,8 +123,16 @@ func add_step(p_id: String, p_name: String, p_desc: String = "", p_prompt: Strin
 	_update_visuals_and_prompts()
 	return step
 
+## Returns the effective task type identifier (defaults to objective_id if task_type_id is empty).
+func get_effective_task_type_id() -> String:
+	return task_type_id if not task_type_id.is_empty() else objective_id
+
 ## Handles interaction event emitted by the child InteractableTrigger.
 func _on_interacted(player: Node2D) -> void:
+	if player != null and player.get("is_eliminated") == true:
+		print("[ObjectiveInteractable] '%s' interaction rejected: player is eliminated." % objective_id)
+		return
+
 	match current_state:
 		ObjectiveState.AVAILABLE:
 			start_objective(player)
@@ -218,6 +230,26 @@ func complete_objective(player: Node2D = null) -> bool:
 		objective_id, objective_name, player.name if player != null else "System"
 	])
 
+	# Check if NetworkManager is present and player is local in a multiplayer session
+	var is_local: bool = true
+	if player != null and "is_local_player" in player:
+		is_local = bool(player.is_local_player)
+
+	if is_local and is_inside_tree():
+		var net_mgr = get_node_or_null("/root/NetworkManager")
+		if net_mgr != null and net_mgr.has_method("is_client") and net_mgr.is_client():
+			var client_obj = net_mgr.get("client")
+			if client_obj != null and "assigned_tasks" in client_obj:
+				var eff_type = get_effective_task_type_id()
+				for t in client_obj.assigned_tasks:
+					if not bool(t.get("is_completed", false)):
+						var t_type = str(t.get("task_type_id", ""))
+						var t_id = str(t.get("task_id", ""))
+						if t_type == eff_type or t_type == objective_id or t_id == objective_id:
+							print("[ObjectiveInteractable] Dispatching server completion request for task: %s (%s)" % [t_id, t_type])
+							net_mgr.complete_task(t_id)
+							break
+
 	if interaction_audio != null:
 		interaction_audio.play_objective_complete()
 
@@ -264,6 +296,7 @@ func set_objective_state(new_state: ObjectiveState) -> void:
 func get_objective_data() -> Dictionary:
 	return {
 		"objective_id": objective_id,
+		"task_type_id": get_effective_task_type_id(),
 		"objective_name": objective_name,
 		"objective_description": objective_description,
 		"category": category,
