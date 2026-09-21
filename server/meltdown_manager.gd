@@ -9,6 +9,7 @@ extends RefCounted
 const NetworkConfig = preload("res://shared/network_config.gd")
 const MeltdownConfig = preload("res://shared/meltdown_config.gd")
 const PlayerConnectionData = preload("res://shared/player_connection_data.gd")
+const WinConditionManager = preload("res://server/win_condition_manager.gd")
 
 signal meltdown_started(duration: float, impostor_alive: bool)
 signal meltdown_tick(remaining_time: float)
@@ -29,6 +30,11 @@ var winner_role: NetworkConfig.PlayerRole = NetworkConfig.PlayerRole.NONE
 var victory_reason: MeltdownConfig.GameOverReason = MeltdownConfig.GameOverReason.NONE
 var last_game_over_result: Dictionary = {}
 
+var win_condition_manager: WinConditionManager = null
+
+func _init() -> void:
+	win_condition_manager = WinConditionManager.new()
+
 func clear() -> void:
 	is_meltdown_active = false
 	duration = MeltdownConfig.DEFAULT_MELTDOWN_DURATION_SEC
@@ -40,6 +46,8 @@ func clear() -> void:
 	winner_role = NetworkConfig.PlayerRole.NONE
 	victory_reason = MeltdownConfig.GameOverReason.NONE
 	last_game_over_result.clear()
+	if win_condition_manager != null:
+		win_condition_manager.clear()
 
 func setup(p_duration: float = MeltdownConfig.DEFAULT_MELTDOWN_DURATION_SEC) -> void:
 	clear()
@@ -183,21 +191,24 @@ func _trigger_game_over(p_winner: NetworkConfig.PlayerRole, p_reason: MeltdownCo
 	winner_role = p_winner
 	victory_reason = p_reason
 
-	last_game_over_result = {
-		"winner_role": p_winner,
-		"winner_role_name": NetworkConfig.get_role_name(p_winner),
-		"reason": p_reason,
-		"reason_name": MeltdownConfig.get_game_over_reason_name(p_reason),
-		"completed_systems": get_completed_systems(),
-		"remaining_time": max(0.0, remaining_time),
-		"impostor_was_alive": impostor_alive_at_meltdown
-	}
-
-	print("[MeltdownManager] *** GAME OVER *** Winner: %s | Reason: %s | Remaining Time: %.1fs" % [
-		NetworkConfig.get_role_name(p_winner),
-		MeltdownConfig.get_game_over_reason_name(p_reason),
-		remaining_time
-	])
+	if win_condition_manager != null:
+		last_game_over_result = win_condition_manager.assemble_match_summary(
+			p_winner,
+			p_reason,
+			get_completed_systems(),
+			remaining_time,
+			impostor_alive_at_meltdown
+		)
+	else:
+		last_game_over_result = {
+			"winner_role": p_winner,
+			"winner_role_name": NetworkConfig.get_role_name(p_winner),
+			"reason": p_reason,
+			"reason_name": MeltdownConfig.get_game_over_reason_name(p_reason),
+			"completed_systems": get_completed_systems(),
+			"remaining_time": max(0.0, remaining_time),
+			"impostor_was_alive": impostor_alive_at_meltdown
+		}
 
 	game_over_triggered.emit(p_winner, p_reason, last_game_over_result)
 

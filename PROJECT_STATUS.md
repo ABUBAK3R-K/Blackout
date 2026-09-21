@@ -5,8 +5,8 @@
 > **Engine / Framework:** Godot 4.x (GDScript)  
 > **Target Version:** 1.0 (MVP)  
 > **Last Updated:** 2026-09-17  
-> **Active Branch:** `member-7/environment-art`  
-> **Status:** Active Development (Step 10 Complete — Core Authoritative Backend Merged; Member 7 Environment Art Initialized)
+> **Active Branch:** `member-2/gameplay-backend`  
+> **Status:** Active Development (Step 10 Complete — Core Authoritative Backend & Network Infrastructure Merged to `main` and synced to `member-2/gameplay-backend`)
 
 ---
 
@@ -17,7 +17,7 @@
 | **Current Phase** | **Backend Infrastructure & Gameplay Mechanics (Steps 1–10 Complete)** | Core authoritative network managers, task systems, blackout, recovery, evidence, meeting/voting, and meltdown logic implemented and verified via unit test suites |
 | **Overall Health** | 🟢 **Green** | Core authoritative loop passes 10 headless test suites |
 | **Engine Confirmed** | **Godot 4.x (GDScript)** | `project.godot` configured, headless GDScript test runner validated |
-| **Next Major Milestone** | **Client Gameplay Integration (Steps 11+)** | Client player movement (M3), mini-game UI/interaction framework (M4), HUD/UI screens (M5), environment tilemaps & lighting (M7) |
+| **Next Major Milestone** | **Client Gameplay Integration (Steps 11+)** | Client player movement (M3), mini-game UI/interaction framework (M4), HUD/UI screens (M5), environment tilemaps (M7) |
 | **Target MVP Completion** | End of Sprint 5 | Full 8-player end-to-end playable match loop |
 
 ---
@@ -120,7 +120,7 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 
 ---
 
-## 6. Open Questions Resolution Log (`prd.md` §9)
+## 5. Open Questions Resolution Log (`prd.md` §9)
 
 | # | Question | Owner | Status | Decision / Current Implementation |
 |---|---|---|---|---|
@@ -136,7 +136,7 @@ Member 7 is the primary owner of all environmental art, tilemaps, lighting asset
 
 ---
 
-## 7. Change Log Protocol (Instructions for All Team Members)
+## 6. Change Log Protocol (Instructions for All Team Members)
 
 Whenever ANY change is made to the codebase or documentation, the modifying team member MUST append an entry to this file:
 
@@ -162,27 +162,7 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 
 ---
 
-## 8. Change Log
-
-### [2026-09-17] — Initialized Member 7 (Fatima) Environment Art Architecture & Asset Pipeline
-- **Author:** Fatima (Member 7 — 2D Environment & Technical Artist)
-- **Branch / PR:** `member-7/environment-art`
-- **Modules Affected:**
-  - `docs/` (`environment_art_spec.md`)
-  - `assets/sprites/` (`environment/`, `stations/`, `lighting/`, `characters/`)
-  - `assets/vfx/`
-  - `scenes/environment/` (`facility_lighting_controller.gd`)
-  - `PROJECT_STATUS.md`
-- **Type of Change:** `Feature / Process Setup / Art Pipeline`
-- **Description:**
-  - Initialized asset directory structure across environment, stations, lighting, characters, and VFX.
-  - Published comprehensive 2D Environment & Technical Art Specification (`docs/environment_art_spec.md`) detailing grid standards, 9-room layout geometry, collision masks, dual-state lighting, station visual states, evidence markers, character color palettes, and shaders.
-  - Created foundational lighting textures: `radial_light_cookie.png`, `flashlight_mask.png`, and `vignette_mask.png`.
-  - Implemented `FacilityLightingController` GDScript node to manage seamless state transitions between Normal, Blackout Warning, Blackout Active, and Meltdown with animated emergency sirens and network signal hooks.
-- **Breaking Changes / Contract Impacts:** None. Seamlessly hooks into `ClientNetworkManager` signals and aligns with `TaskConfig`, `EvidenceConfig`, `BlackoutRecoveryConfig`, and `MeltdownConfig`.
-- **Verification / Testing:** Asset dimensions and texture import profiles verified; lighting state machine tested against network event contracts.
-
----
+## 7. Change Log
 
 ### [2026-09-17] — Synced `main` into `member-2/gameplay-backend` (Backend Ready Merge)
 - **Author:** Abdul Qadir (Member 2 — Gameplay Backend Engineer)
@@ -338,3 +318,4 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 - **Verification / Testing:** 15 automated checks passed via `scratch/verify_phase7.py` and `tests/test_vfx_shaders.gd`.
 
 ---
+

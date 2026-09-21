@@ -1,0 +1,91 @@
+[gd_scene load_steps=2 format=3 uid="uid://bbqbnufmo6gvt"]
+
+[ext_resource type="Script" path="res://scenes/audio_test_lab.gd" id="1_audiolab"]
+
+[node name="AudioTestLab" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_audiolab")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.06, 0.09, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 20.0
+offset_right = -24.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "BLACKOUT — AUDIO & MUSIC TEST LAB"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Status: Ready — Click any sound or scenario button below to test"
+horizontal_alignment = 1
+
+[node name="ScenarioContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="BtnNormal" type="Button" parent="VBoxContainer/ScenarioContainer"]
+custom_minimum_size = Vector2(140, 38)
+layout_mode = 2
+text = "🟢 Normal Flow"
+
+[node name="BtnBlackout" type="Button" parent="VBoxContainer/ScenarioContainer"]
+custom_minimum_size = Vector2(160, 38)
+layout_mode = 2
+text = "⚡ Blackout Sequence"
+
+[node name="BtnMeltdown" type="Button" parent="VBoxContainer/ScenarioContainer"]
+custom_minimum_size = Vector2(160, 38)
+layout_mode = 2
+text = "🚨 Meltdown Crisis"
+
+[node name="BtnMeeting" type="Button" parent="VBoxContainer/ScenarioContainer"]
+custom_minimum_size = Vector2(150, 38)
+layout_mode = 2
+text = "📢 Meeting Called"
+
+[node name="BtnStopAll" type="Button" parent="VBoxContainer/ScenarioContainer"]
+custom_minimum_size = Vector2(120, 38)
+layout_mode = 2
+text = "⏹ Stop All"
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 10
+columns = 3

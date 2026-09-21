@@ -11,11 +11,16 @@ const SYSTEM_RESTORE_POWER: String = "restore_power"
 const SYSTEM_RESTORE_COOLING: String = "restore_cooling"
 const SYSTEM_STABILIZE_ORION: String = "stabilize_orion"
 
+const MANDATORY_EMERGENCY_SYSTEMS_COUNT: int = 3
+
 const ALL_EMERGENCY_SYSTEMS: Array[String] = [
 	SYSTEM_RESTORE_POWER,
 	SYSTEM_RESTORE_COOLING,
 	SYSTEM_STABILIZE_ORION
 ]
+
+## Total mandatory emergency systems required for Crew victory
+const MANDATORY_EMERGENCY_SYSTEMS_COUNT: int = 3
 
 enum GameOverReason {
 	NONE,
