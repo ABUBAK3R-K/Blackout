@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLACKOUT — Audio & Music Interactive Test Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #06090e;
+      --bg-panel: rgba(14, 20, 29, 0.85);
+      --bg-card: rgba(20, 29, 43, 0.7);
+      --border-subtle: rgba(70, 95, 133, 0.25);
+      --border-active: #00e5ff;
+      --cyan: #00e5ff;
+      --cyan-glow: rgba(0, 229, 255, 0.35);
+      --crimson: #ff2a5f;
+      --crimson-glow: rgba(255, 42, 95, 0.4);
+      --amber: #ffaa00;
+      --amber-glow: rgba(255, 170, 0, 0.35);
+      --emerald: #00f0a0;
+      --purple: #a855f7;
+      --text-main: #e2e8f0;
+      --text-muted: #8494ab;
+      --font-display: 'Orbitron', sans-serif;
+      --font-body: 'Rajdhani', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-void);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 15% 10%, rgba(0, 229, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 90%, rgba(255, 42, 95, 0.06) 0%, transparent 45%),
+        linear-gradient(to bottom, #06090e, #090e17);
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    header {
+      padding: 1.5rem 2.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(6, 9, 14, 0.9);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .logo-badge {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #00e5ff 0%, #ff2a5f 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px var(--cyan-glow);
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1.25rem;
+      color: #06090e;
+    }
+
+    .brand-titles h1 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ffffff, #00e5ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+    }
+
+    .brand-titles p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .header-quick-stats {
+      display: flex;
+      gap: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+
+    .stat-pill .value {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem 2.5rem 4rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* TOP MONITOR & MIXER */
+    .dashboard-top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-top {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.75rem;
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 1.5px;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* VISUALIZER CANVAS */
+    .visualizer-box {
+      width: 100%;
+      height: 180px;
+      background: rgba(4, 7, 12, 0.9);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #visualizerCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .visualizer-overlay {
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 2px 8px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    .now-playing-banner {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 229, 255, 0.05);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+    }
+
+    .now-playing-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .now-playing-title {
+      font-family: var(--font-display);
+      color: #ffffff;
+      font-size: 1.05rem;
+    }
+
+    .now-playing-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* BUS MIXER */
+    .mixer-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      height: 180px;
+      align-items: center;
+    }
+
+    .bus-channel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.75rem 0.5rem;
+      height: 100%;
+    }
+
+    .bus-channel.master {
+      border-color: rgba(0, 229, 255, 0.4);
+      background: rgba(0, 229, 255, 0.04);
+    }
+
+    .bus-slider-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .bus-slider {
+      -webkit-appearance: slider-vertical;
+      writing-mode: bt-lr;
+      width: 8px;
+      height: 90px;
+      accent-color: var(--cyan);
+      cursor: pointer;
+    }
+
+    .bus-title {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .bus-val {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-main);
+    }
+
+    /* SCENARIO SIMULATOR */
+    .scenario-banner {
+      background: linear-gradient(135deg, rgba(255, 42, 95, 0.1) 0%, rgba(0, 229, 255, 0.1) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .scenario-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .btn-scenario {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-scenario:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-scenario.normal {
+      border-color: var(--emerald);
+    }
+    .btn-scenario.normal:hover {
+      background: var(--emerald);
+      color: #06090e;
+      box-shadow: 0 0 20px rgba(0, 240, 160, 0.4);
+    }
+
+    .btn-scenario.blackout {
+      border-color: var(--amber);
+    }
+    .btn-scenario.blackout:hover {
+      background: var(--amber);
+      color: #06090e;
+      box-shadow: 0 0 20px var(--amber-glow);
+    }
+
+    .btn-scenario.meltdown {
+      border-color: var(--crimson);
+    }
+    .btn-scenario.meltdown:hover {
+      background: var(--crimson);
+      color: #fff;
+      box-shadow: 0 0 20px var(--crimson-glow);
+    }
+
+    .btn-scenario.meeting {
+      border-color: var(--cyan);
+    }
+    .btn-scenario.meeting:hover {
+      background: var(--cyan);
+      color: #06090e;
+      box-shadow: 0 0 20px var(--cyan-glow);
+    }
+
+    .btn-scenario.victory {
+      border-color: var(--purple);
+    }
+    .btn-scenario.victory:hover {
+      background: var(--purple);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-scenario.stop-all {
+      border-color: #64748b;
+      margin-left: auto;
+    }
+    .btn-scenario.stop-all:hover {
+      background: #475569;
+    }
+
+    /* TABS / FILTER */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 1rem;
+    }
+
+    .tab-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      padding: 0.5rem 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      border-color: rgba(0, 229, 255, 0.4);
+    }
+
+    .tab-btn.active {
+      background: var(--cyan);
+      color: #06090e;
+      border-color: var(--cyan);
+      font-weight: 700;
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .search-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      outline: none;
+      width: 260px;
+    }
+
+    .search-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    /* SOUND CARDS GRID */
+    .sound-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .sound-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sound-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--border-subtle);
+      transition: background 0.25s;
+    }
+
+    .sound-card.category-music::before { background: #00e5ff; }
+    .sound-card.category-ambience::before { background: #a855f7; }
+    .sound-card.category-sfx::before { background: #ffaa00; }
+    .sound-card.category-stinger::before { background: #ff2a5f; }
+
+    .sound-card.playing {
+      border-color: var(--cyan);
+      box-shadow: 0 4px 20px rgba(0, 229, 255, 0.15);
+      background: rgba(16, 28, 48, 0.9);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .card-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+    }
+
+    .card-file {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      word-break: break-all;
+    }
+
+    .card-badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.3rem;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-bus {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .badge-cat-music { background: rgba(0, 229, 255, 0.15); color: #00e5ff; }
+    .badge-cat-ambience { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+    .badge-cat-sfx { background: rgba(255, 170, 0, 0.15); color: #fbbf24; }
+    .badge-cat-stinger { background: rgba(255, 42, 95, 0.15); color: #f43f5e; }
+
+    /* CARD CONTROLS */
+    .card-progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .card-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00e5ff, #00f0a0);
+      border-radius: 3px;
+      transition: width 0.1s linear;
+    }
+
+    .card-timing {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 0.2rem;
+    }
+
+    .btn-play {
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid var(--cyan);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .btn-play:hover {
+      background: var(--cyan);
+      color: #06090e;
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    .btn-stop {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-stop:hover {
+      background: rgba(255, 42, 95, 0.2);
+      border-color: var(--crimson);
+      color: #fff;
+    }
+
+    .btn-loop {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      padding: 0.45rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-loop.active {
+      background: rgba(0, 240, 160, 0.2);
+      border-color: var(--emerald);
+      color: var(--emerald);
+    }
+
+    .card-vol-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .card-vol-slider {
+      width: 70px;
+      height: 4px;
+      accent-color: var(--cyan);
+      cursor: pointer;
+    }
+
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--border-subtle);
+      padding: 1.5rem 2.5rem;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      background: rgba(6, 9, 14, 0.95);
+    }
+
+    /* PULSE ANIMATION FOR ACTIVE AUDIO */
+    @keyframes pulse-cyan {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .playing-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--cyan);
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse-cyan 1s infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-group">
+      <div class="logo-badge">BK</div>
+      <div class="brand-titles">
+        <h1>Blackout // Audio & Music Test Lab</h1>
+        <p>Real-Time Waveform Monitor & Soundscape Simulation Suite</p>
+      </div>
+    </div>
+
+    <div class="header-quick-stats">
+      <div class="stat-pill">
+        <span class="dot"></span>
+        <span>Registered Assets:</span>
+        <span class="value" id="assetCount">29</span>
+      </div>
+      <div class="stat-pill">
+        <span>Sample Rate:</span>
+        <span class="value">44,100 Hz</span>
+      </div>
+      <div class="stat-pill">
+        <span>Format:</span>
+        <span class="value">16-bit PCM WAV</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    <!-- DASHBOARD TOP: VISUALIZER & BUS MIXER -->
+    <div class="dashboard-top">
+      
+      <!-- Visualizer Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>📡 Real-Time Spectrum & Oscilloscope</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);" id="channelCount">
+            Stereo Master Out
+          </div>
+        </div>
+
+        <div class="visualizer-box">
+          <canvas id="visualizerCanvas"></canvas>
+          <div class="visualizer-overlay" id="visOverlay">AUDIO ENGINE READY — CLICK ANY SOUND TO TEST</div>
+        </div>
+
+        <div class="now-playing-banner">
+          <div>
+            <div class="now-playing-label">Currently Auditioning</div>
+            <div class="now-playing-title" id="nowPlayingText">No active audio playback</div>
+          </div>
+          <div class="now-playing-actions">
+            <button class="btn-scenario stop-all" id="btnGlobalStop" style="padding: 0.45rem 0.9rem; font-size: 0.75rem;">
+              ⏹ Stop All
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bus Mixer Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>🎚️ Audio Bus Matrix</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+            Godot Bus Hierarchy
+          </div>
+        </div>
+
+        <div class="mixer-grid">
+          <!-- Master Bus -->
+          <div class="bus-channel master">
+            <div class="bus-title" style="color: var(--cyan);">Master</div>
+            <div class="bus-slider-wrap">
+              <input type="range" class="bus-slider" id="busMaster" min="0" max="1" step="0.01" value="0.9">
+            </div>
+            <div class="bus-val" id="valMaster">90%</div>
+          </div>
+
+          <!-- Music Bus -->
+          <div class="bus-channel">
+            <div class="bus-title">Music</div>
+            <div class="bus-slider-wrap">
+              <input type="range" class="bus-slider" id="busMusic" min="0" max="1" step="0.01" value="0.8">
+            </div>
+            <div class="bus-val" id="valMusic">80%</div>
+          </div>
+
+          <!-- Ambience Bus -->
+          <div class="bus-channel">
+            <div class="bus-title">Ambience</div>
+            <div class="bus-slider-wrap">
+              <input type="range" class="bus-slider" id="busAmbience" min="0" max="1" step="0.01" value="0.85">
+            </div>
+            <div class="bus-val" id="valAmbience">85%</div>
+          </div>
+
+          <!-- SFX Bus -->
+          <div class="bus-channel">
+            <div class="bus-title">SFX</div>
+            <div class="bus-slider-wrap">
+              <input type="range" class="bus-slider" id="busSfx" min="0" max="1" step="0.01" value="0.9">
+            </div>
+            <div class="bus-val" id="valSfx">90%</div>
+          </div>
+
+          <!-- UI Bus -->
+          <div class="bus-channel">
+            <div class="bus-title">UI</div>
+            <div class="bus-slider-wrap">
+              <input type="range" class="bus-slider" id="busUi" min="0" max="1" step="0.01" value="0.8">
+            </div>
+            <div class="bus-val" id="valUi">80%</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GAMEPLAY SCENARIO SIMULATOR -->
+    <div class="scenario-banner">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-family: var(--font-display); font-size: 1.05rem; letter-spacing: 1px; color: #fff;">
+          🎮 Test Game Audio Scenarios
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+          Simulates state machine transitions implemented in AudioManager & GameplayAudioBridge
+        </div>
+      </div>
+
+      <div class="scenario-controls">
+        <button class="btn-scenario normal" id="btnSimNormal">
+          <span>🟢 Normal Facility Flow</span>
+        </button>
+        <button class="btn-scenario blackout" id="btnSimBlackout">
+          <span>⚡ Trigger Blackout Sequence</span>
+        </button>
+        <button class="btn-scenario meltdown" id="btnSimMeltdown">
+          <span>🚨 Trigger Meltdown Crisis</span>
+        </button>
+        <button class="btn-scenario meeting" id="btnSimMeeting">
+          <span>📢 Emergency Meeting & Voting</span>
+        </button>
+        <button class="btn-scenario victory" id="btnSimCrewWin">
+          <span>🏆 Crew Victory</span>
+        </button>
+        <button class="btn-scenario victory" id="btnSimImpWin" style="border-color: var(--crimson);">
+          <span>💀 Impostor Victory</span>
+        </button>
+        <button class="btn-scenario stop-all" id="btnSimStop">
+          <span>⏹ Silence All</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SOUND CATALOG TABS & FILTER -->
+    <div class="filter-bar">
+      <div class="tab-group">
+        <button class="tab-btn active" data-filter="all">ALL SOUNDS (29)</button>
+        <button class="tab-btn" data-filter="music">🎵 MUSIC (3)</button>
+        <button class="tab-btn" data-filter="ambience">🌌 AMBIENCE (3)</button>
+        <button class="tab-btn" data-filter="blackout">⚡ BLACKOUT & POWER (4)</button>
+        <button class="tab-btn" data-filter="tasks">🛠️ TASKS & SABOTAGE (7)</button>
+        <button class="tab-btn" data-filter="social">🗳️ SOCIAL & VOTING (6)</button>
+        <button class="tab-btn" data-filter="stingers">🔔 STINGERS & OUTROS (6)</button>
+      </div>
+
+      <input type="text" class="search-input" id="soundSearch" placeholder="🔍 Search audio event or keyword...">
+    </div>
+
+    <!-- SOUND CARDS GRID -->
+    <div class="sound-grid" id="soundGrid">
+      <!-- Injected dynamically via JS -->
+    </div>
+
+  </div>
+
+  <footer>
+    BLACKOUT AUDIO SYSTEM • MEMBER 8 (AUDIO & QA LEAD) • GODOT 4 ENGINE INTEGRATION
+  </footer>
+
+  <script>
+    // --- AUDIO REGISTRY DEFINITIONS ---
+    const AUDIO_DATA = [
+      // 1. MUSIC
+      {
+        id: "MUSIC_NORMAL",
+        name: "Normal Gameplay Music",
+        cat: "music",
+        bus: "Music",
+        context: "NORMAL",
+        path: "assets/audio/music/normal/normal_gameplay_music.wav",
+        defaultVolume: -10.0,
+        loop: true,
+        duration: "8.00s",
+        desc: "Warm C3 pad pulse for steady exploration phase."
+      },
+      {
+        id: "MUSIC_BLACKOUT",
+        name: "Blackout Tension Music",
+        cat: "music",
+        bus: "Music",
+        context: "BLACKOUT",
+        path: "assets/audio/music/blackout/blackout_tension_music.wav",
+        defaultVolume: -8.0,
+        loop: true,
+        duration: "6.00s",
+        desc: "F2 dark sawtooth ostinato with relentless rising heartbeat."
+      },
+      {
+        id: "MUSIC_MELTDOWN",
+        name: "Meltdown Alarm Music",
+        cat: "music",
+        bus: "Music",
+        context: "MELTDOWN",
+        path: "assets/audio/music/meltdown/meltdown_alarm.wav",
+        defaultVolume: -6.0,
+        loop: true,
+        duration: "4.00s",
+        desc: "High-octane A4 siren pulses. Accelerates dynamically with timer."
+      },
+
+      // 2. AMBIENCE
+      {
+        id: "AMBIENCE_FACILITY_HUM",
+        name: "Facility Background Hum",
+        cat: "ambience",
+        bus: "Ambience",
+        context: "NORMAL",
+        path: "assets/audio/ambience/facility/facility_hum.wav",
+        defaultVolume: -12.0,
+        loop: true,
+        duration: "6.00s",
+        desc: "Subtle 65Hz C2 reactor rumble providing facility presence."
+      },
+      {
+        id: "AMBIENCE_BLACKOUT_DRONE",
+        name: "Blackout Sub-Bass Drone",
+        cat: "ambience",
+        bus: "Ambience",
+        context: "BLACKOUT",
+        path: "assets/audio/ambience/blackout/blackout_drone.wav",
+        defaultVolume: -8.0,
+        loop: true,
+        duration: "6.00s",
+        desc: "Deep 43Hz F1 decaying drone symbolizing total power drainage."
+      },
+      {
+        id: "AMBIENCE_MELTDOWN_ALARM",
+        name: "Meltdown Atmospheric Drone",
+        cat: "ambience",
+        bus: "Ambience",
+        context: "MELTDOWN",
+        path: "assets/audio/ambience/meltdown/meltdown_drone.wav",
+        defaultVolume: -7.0,
+        loop: true,
+        duration: "5.00s",
+        desc: "E4 tense resonance highlighting critical system instability."
+      },
+
+      // 3. BLACKOUT & POWER SFX
+      {
+        id: "SFX_BLACKOUT_TRIGGER",
+        name: "Blackout Activation Trigger",
+        cat: "blackout",
+        bus: "SFX",
+        context: "BLACKOUT",
+        path: "assets/audio/sfx/blackout/blackout_trigger.wav",
+        defaultVolume: -4.0,
+        loop: false,
+        duration: "0.55s",
+        desc: "Mechanical switch release and electrical surge surge sound."
+      },
+      {
+        id: "SFX_BLACKOUT_COUNTDOWN",
+        name: "Blackout Countdown Warning Tick",
+        cat: "blackout",
+        bus: "SFX",
+        context: "BLACKOUT",
+        path: "assets/audio/sfx/blackout/blackout_countdown.wav",
+        defaultVolume: -2.0,
+        loop: false,
+        duration: "0.22s",
+        desc: "880Hz square beep warning players before darkness strikes."
+      },
+      {
+        id: "SFX_POWER_CUT",
+        name: "Main Breaker Power Cut",
+        cat: "blackout",
+        bus: "SFX",
+        context: "BLACKOUT",
+        path: "assets/audio/sfx/blackout/power_cut.wav",
+        defaultVolume: 0.0,
+        loop: false,
+        duration: "1.20s",
+        desc: "Massive generator drop and darkness shudder."
+      },
+      {
+        id: "SFX_POWER_RESTORE",
+        name: "Power Grid Restored",
+        cat: "blackout",
+        bus: "SFX",
+        context: "BLACKOUT",
+        path: "assets/audio/sfx/blackout/power_restore.wav",
+        defaultVolume: -3.0,
+        loop: false,
+        duration: "1.40s",
+        desc: "Warm upward sine sweep as emergency lighting re-engages."
+      },
+
+      // 4. TASKS & SABOTAGE SFX
+      {
+        id: "SFX_TASK_CLICK",
+        name: "Task Terminal Click",
+        cat: "tasks",
+        bus: "SFX",
+        context: "TASK",
+        path: "assets/audio/sfx/tasks/task_click.wav",
+        defaultVolume: -10.0,
+        loop: false,
+        duration: "0.05s",
+        desc: "Crisp haptic click feedback for mini-game interaction."
+      },
+      {
+        id: "SFX_TASK_PROGRESS",
+        name: "Task Meter Progress",
+        cat: "tasks",
+        bus: "SFX",
+        context: "TASK",
+        path: "assets/audio/sfx/tasks/task_progress.wav",
+        defaultVolume: -8.0,
+        loop: false,
+        duration: "0.12s",
+        desc: "Incremental audio feedback during task progress increment."
+      },
+      {
+        id: "SFX_TASK_SUCCESS",
+        name: "Task Completed Chime",
+        cat: "tasks",
+        bus: "SFX",
+        context: "TASK",
+        path: "assets/audio/sfx/tasks/task_success.wav",
+        defaultVolume: -4.0,
+        loop: false,
+        duration: "0.65s",
+        desc: "784Hz G5 pure sine harmonic reward cue."
+      },
+      {
+        id: "SFX_TASK_ERROR",
+        name: "Task Error Buzz",
+        cat: "tasks",
+        bus: "SFX",
+        context: "TASK",
+        path: "assets/audio/sfx/tasks/task_error.wav",
+        defaultVolume: -6.0,
+        loop: false,
+        duration: "0.35s",
+        desc: "150Hz low error buzz for invalid mini-game actions."
+      },
+      {
+        id: "SFX_DOOR_JAM",
+        name: "Sabotage: Door Jam Clank",
+        cat: "tasks",
+        bus: "SFX",
+        context: "SABOTAGE",
+        path: "assets/audio/sfx/sabotage/door_jam.wav",
+        defaultVolume: -4.0,
+        loop: false,
+        duration: "0.75s",
+        desc: "Pneumatic seal lock and mechanical resistance crash."
+      },
+      {
+        id: "SFX_SABOTAGE_EXECUTE",
+        name: "Sabotage System Execute",
+        cat: "tasks",
+        bus: "SFX",
+        context: "SABOTAGE",
+        path: "assets/audio/sfx/sabotage/sabotage_execute.wav",
+        defaultVolume: -5.0,
+        loop: false,
+        duration: "0.85s",
+        desc: "Deep sabotage detonation cue indicating hazard trigger."
+      },
+      {
+        id: "SFX_EVIDENCE_FOUND",
+        name: "Forensic Evidence Discovered",
+        cat: "tasks",
+        bus: "SFX",
+        context: "MEETING",
+        path: "assets/audio/sfx/meeting/evidence_found.wav",
+        defaultVolume: -6.0,
+        loop: false,
+        duration: "0.65s",
+        desc: "E5 investigative cue played upon finding blood/footprints."
+      },
+
+      // 5. SOCIAL DEDUCTION & UI SFX
+      {
+        id: "UI_CLICK",
+        name: "Button Click Feedback",
+        cat: "social",
+        bus: "UI",
+        context: "UI",
+        path: "assets/audio/sfx/ui/ui_click.wav",
+        defaultVolume: -12.0,
+        loop: false,
+        duration: "0.04s",
+        desc: "Instantaneous tactile UI click."
+      },
+      {
+        id: "UI_HOVER",
+        name: "Button Hover Tick",
+        cat: "social",
+        bus: "UI",
+        context: "UI",
+        path: "assets/audio/sfx/ui/ui_hover.wav",
+        defaultVolume: -16.0,
+        loop: false,
+        duration: "0.03s",
+        desc: "Gentle high-frequency hover highlight sound."
+      },
+      {
+        id: "UI_MEETING_CALLED",
+        name: "Emergency Meeting Alarm",
+        cat: "social",
+        bus: "UI",
+        context: "MEETING",
+        path: "assets/audio/ui/meeting_called.wav",
+        defaultVolume: 0.0,
+        loop: false,
+        duration: "1.80s",
+        desc: "D5 urgent alarm siren summoning players to cafeteria."
+      },
+      {
+        id: "UI_VOTING_TICK",
+        name: "Voting Timer Tick",
+        cat: "social",
+        bus: "UI",
+        context: "VOTING",
+        path: "assets/audio/sfx/voting/voting_tick.wav",
+        defaultVolume: -8.0,
+        loop: false,
+        duration: "0.08s",
+        desc: "Metronomic urgency click during final voting countdown."
+      },
+      {
+        id: "UI_VOTE_CAST",
+        name: "Ballot Vote Cast Confirmation",
+        cat: "social",
+        bus: "UI",
+        context: "VOTING",
+        path: "assets/audio/sfx/voting/vote_cast.wav",
+        defaultVolume: -5.0,
+        loop: false,
+        duration: "0.22s",
+        desc: "Firm ballot submission confirmation click."
+      },
+      {
+        id: "UI_EJECTION_REVEAL",
+        name: "Ejection Airlock Reveal",
+        cat: "social",
+        bus: "UI",
+        context: "EJECTION",
+        path: "assets/audio/sfx/ejection/ejection_reveal.wav",
+        defaultVolume: -2.0,
+        loop: false,
+        duration: "2.40s",
+        desc: "Atmospheric airlock depressurization & verdict tone."
+      },
+
+      // 6. STINGERS & OUTROS
+      {
+        id: "STINGER_BLACKOUT_START",
+        name: "Stinger: Blackout Shock Cue",
+        cat: "stingers",
+        bus: "SFX",
+        context: "BLACKOUT",
+        path: "assets/audio/stingers/blackout_start/stinger_blackout_start.wav",
+        defaultVolume: -1.0,
+        loop: false,
+        duration: "1.60s",
+        desc: "F#3 downward dread stinger announcing pitch-black state."
+      },
+      {
+        id: "STINGER_MEETING",
+        name: "Stinger: Meeting Assembled",
+        cat: "stingers",
+        bus: "UI",
+        context: "MEETING",
+        path: "assets/audio/stingers/meeting/stinger_meeting.wav",
+        defaultVolume: 0.0,
+        loop: false,
+        duration: "1.80s",
+        desc: "High-alert stinger transitioning camera to voting roundtable."
+      },
+      {
+        id: "UI_CREW_VICTORY",
+        name: "Crew Triumph Victory Fanfare",
+        cat: "stingers",
+        bus: "UI",
+        context: "VICTORY",
+        path: "assets/audio/ui/crew_victory.wav",
+        defaultVolume: 0.0,
+        loop: false,
+        duration: "2.80s",
+        desc: "Major key triumphant fanfare as ship systems recover."
+      },
+      {
+        id: "STINGER_VICTORY",
+        name: "Stinger: Victory Stinger Chord",
+        cat: "stingers",
+        bus: "UI",
+        context: "VICTORY",
+        path: "assets/audio/stingers/victory/stinger_victory.wav",
+        defaultVolume: 0.0,
+        loop: false,
+        duration: "2.80s",
+        desc: "E5 resonant triumph stinger chord."
+      },
+      {
+        id: "UI_IMPOSTOR_VICTORY",
+        name: "Impostor Domination Dark Fanfare",
+        cat: "stingers",
+        bus: "UI",
+        context: "DEFEAT",
+        path: "assets/audio/ui/impostor_victory.wav",
+        defaultVolume: 0.0,
+        loop: false,
+        duration: "3.00s",
+        desc: "C3 ominous minor chord confirming sabotage completion."
+      },
+      {
+        id: "STINGER_DEFEAT",
+        name: "Stinger: Crew Defeat / Game Over",
+        cat: "stingers",
+        bus: "UI",
+        context: "DEFEAT",
+        path: "assets/audio/stingers/defeat/stinger_defeat.wav",
+        defaultVolume: 0.0,
+        loop: false,
+        duration: "3.00s",
+        desc: "A2 descending doom chord as darkness claims the station."
+      }
+    ];
+
+    // --- WEB AUDIO API & BUS ARCHITECTURE ---
+    let audioCtx = null;
+    let masterGain = null;
+    let busGains = {
+      Music: null,
+      Ambience: null,
+      SFX: null,
+      UI: null
+    };
+    let analyser = null;
+    let dataArray = null;
+    let waveArray = null;
+
+    // Track state: map of audioId -> { audioEl, sourceNode, gainNode, isPlaying, loop }
+    const audioState = new Map();
+
+    function initAudioContext() {
+      if (audioCtx) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 128;
+      const bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+      waveArray = new Uint8Array(analyser.fftSize);
+
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = parseFloat(document.getElementById('busMaster').value);
+
+      // Connect Master -> Analyser -> Destination
+      masterGain.connect(analyser);
+      analyser.connect(audioCtx.destination);
+
+      // Create Bus Gain Nodes
+      ['Music', 'Ambience', 'SFX', 'UI'].forEach(bus => {
+        const gainNode = audioCtx.createGain();
+        const sliderId = 'bus' + bus;
+        gainNode.gain.value = parseFloat(document.getElementById(sliderId).value);
+        gainNode.connect(masterGain);
+        busGains[bus] = gainNode;
+      });
+
+      startVisualizerLoop();
+    }
+
+    // --- VISUALIZER DRAW LOOP ---
+    const canvas = document.getElementById('visualizerCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function startVisualizerLoop() {
+      function render() {
+        requestAnimationFrame(render);
+        if (!analyser) return;
+
+        analyser.getByteFrequencyData(dataArray);
+        analyser.getByteTimeDomainData(waveArray);
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        // 1. Draw Spectrum Bars (Bottom half)
+        const barCount = dataArray.length;
+        const barWidth = (width / barCount);
+        for (let i = 0; i < barCount; i++) {
+          const val = dataArray[i] / 255;
+          const barHeight = val * (height * 0.7);
+          const x = i * barWidth;
+          const y = height - barHeight;
+
+          // Gradient color: Cyan -> Crimson
+          const hue = 185 + val * 160; 
+          ctx.fillStyle = `hsla(${hue}, 100%, 55%, 0.75)`;
+          ctx.fillRect(x, y, barWidth - 1, barHeight);
+        }
+
+        // 2. Draw Oscilloscope Line (Overlay)
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#00e5ff';
+        ctx.beginPath();
+        const sliceWidth = width / waveArray.length;
+        let x = 0;
+        for (let i = 0; i < waveArray.length; i++) {
+          const v = waveArray[i] / 128.0;
+          const y = (v * height) / 2;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+          x += sliceWidth;
+        }
+        ctx.stroke();
+      }
+      render();
+    }
+
+    // --- BUILD SOUND CARDS ---
+    const soundGrid = document.getElementById('soundGrid');
+
+    function renderCards(filter = 'all', searchQuery = '') {
+      soundGrid.innerHTML = '';
+      const query = searchQuery.toLowerCase().trim();
+
+      const filtered = AUDIO_DATA.filter(item => {
+        const matchesFilter = (filter === 'all') || (item.cat === filter);
+        const matchesSearch = !query || 
+          item.id.toLowerCase().includes(query) || 
+          item.name.toLowerCase().includes(query) || 
+          item.context.toLowerCase().includes(query) ||
+          item.desc.toLowerCase().includes(query);
+        return matchesFilter && matchesSearch;
+      });
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `sound-card category-${item.cat}`;
+        card.id = `card_${item.id}`;
+
+        const catBadgeClass = `badge-cat-${item.cat}`;
+
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-title-group">
+              <div class="card-title">${item.name}</div>
+              <div class="card-file">${item.id} &bull; ${item.duration}</div>
+            </div>
+            <div class="card-badges">
+              <span class="badge ${catBadgeClass}">${item.cat}</span>
+              <span class="badge badge-bus">${item.bus}</span>
+            </div>
+          </div>
+
+          <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.3;">
+            ${item.desc}
+          </div>
+
+          <div class="card-progress-bar" id="prog_${item.id}">
+            <div class="card-progress-fill" id="fill_${item.id}"></div>
+          </div>
+
+          <div class="card-timing">
+            <span id="cur_${item.id}">0:00</span>
+            <span>${item.duration}</span>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn-play" id="play_${item.id}">
+              <span>▶ Play</span>
+            </button>
+            <button class="btn-stop" id="stop_${item.id}">
+              <span>⏹</span>
+            </button>
+            <button class="btn-loop ${item.loop ? 'active' : ''}" id="loop_${item.id}">
+              <span>🔁 Loop</span>
+            </button>
+            <div class="card-vol-wrap">
+              <span>Vol</span>
+              <input type="range" class="card-vol-slider" id="vol_${item.id}" min="0" max="1.5" step="0.05" value="1.0">
+            </div>
+          </div>
+        `;
+
+        soundGrid.appendChild(card);
+
+        // Bind Card Controls
+        const playBtn = card.querySelector(`#play_${item.id}`);
+        const stopBtn = card.querySelector(`#stop_${item.id}`);
+        const loopBtn = card.querySelector(`#loop_${item.id}`);
+        const volSlider = card.querySelector(`#vol_${item.id}`);
+        const progBar = card.querySelector(`#prog_${item.id}`);
+
+        playBtn.addEventListener('click', () => togglePlay(item.id));
+        stopBtn.addEventListener('click', () => stopSound(item.id));
+        loopBtn.addEventListener('click', () => toggleLoop(item.id));
+        volSlider.addEventListener('input', (e) => setItemVolume(item.id, e.target.value));
+
+        progBar.addEventListener('click', (e) => {
+          const rect = progBar.getBoundingClientRect();
+          const pos = (e.clientX - rect.left) / rect.width;
+          seekSound(item.id, pos);
+        });
+      });
+    }
+
+    // --- AUDIO PLAYBACK ENGINE ---
+    function getOrCreateAudio(item) {
+      if (audioState.has(item.id)) {
+        return audioState.get(item.id);
+      }
+
+      initAudioContext();
+
+      const audio = new Audio(item.path);
+      audio.crossOrigin = "anonymous";
+      audio.loop = item.loop;
+
+      const source = audioCtx.createMediaElementSource(audio);
+      const gainNode = audioCtx.createGain();
+
+      // Convert item.defaultVolume (dB) to linear
+      const defaultLinear = Math.pow(10, item.defaultVolume / 20);
+      gainNode.gain.value = defaultLinear;
+
+      // Connect: Audio -> Card Gain -> Category Bus Gain
+      const targetBus = busGains[item.bus] || masterGain;
+      source.connect(gainNode);
+      gainNode.connect(targetBus);
+
+      const state = {
+        item: item,
+        audio: audio,
+        source: source,
+        gainNode: gainNode,
+        defaultLinear: defaultLinear,
+        isPlaying: false,
+        loop: item.loop
+      };
+
+      audio.addEventListener('timeupdate', () => {
+        const fill = document.getElementById(`fill_${item.id}`);
+        const curText = document.getElementById(`cur_${item.id}`);
+        if (fill && audio.duration) {
+          const percent = (audio.currentTime / audio.duration) * 100;
+          fill.style.width = percent + '%';
+          const secs = Math.floor(audio.currentTime);
+          const mins = Math.floor(secs / 60);
+          const remSecs = secs % 60;
+          curText.textContent = `${mins}:${remSecs < 10 ? '0' : ''}${remSecs}`;
+        }
+      });
+
+      audio.addEventListener('ended', () => {
+        if (!state.loop) {
+          setCardPlayingUI(item.id, false);
+          state.isPlaying = false;
+          checkNowPlayingBanner();
+        }
+      });
+
+      audioState.set(item.id, state);
+      return state;
+    }
+
+    function togglePlay(id) {
+      initAudioContext();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const item = AUDIO_DATA.find(x => x.id === id);
+      if (!item) return;
+      const state = getOrCreateAudio(item);
+
+      if (state.isPlaying) {
+        state.audio.pause();
+        state.isPlaying = false;
+        setCardPlayingUI(id, false);
+      } else {
+        state.audio.play().then(() => {
+          state.isPlaying = true;
+          setCardPlayingUI(id, true);
+          updateNowPlaying(item.name, item.id);
+        }).catch(err => {
+          console.error("Playback error:", err);
+        });
+      }
+    }
+
+    function stopSound(id) {
+      if (!audioState.has(id)) return;
+      const state = audioState.get(id);
+      state.audio.pause();
+      state.audio.currentTime = 0;
+      state.isPlaying = false;
+      setCardPlayingUI(id, false);
+
+      const fill = document.getElementById(`fill_${id}`);
+      const curText = document.getElementById(`cur_${id}`);
+      if (fill) fill.style.width = '0%';
+      if (curText) curText.textContent = '0:00';
+
+      checkNowPlayingBanner();
+    }
+
+    function toggleLoop(id) {
+      const item = AUDIO_DATA.find(x => x.id === id);
+      if (!item) return;
+      const state = getOrCreateAudio(item);
+      state.loop = !state.loop;
+      state.audio.loop = state.loop;
+
+      const loopBtn = document.getElementById(`loop_${id}`);
+      if (loopBtn) {
+        loopBtn.classList.toggle('active', state.loop);
+      }
+    }
+
+    function setItemVolume(id, multiplier) {
+      const item = AUDIO_DATA.find(x => x.id === id);
+      if (!item) return;
+      const state = getOrCreateAudio(item);
+      state.gainNode.gain.value = state.defaultLinear * parseFloat(multiplier);
+    }
+
+    function seekSound(id, posRatio) {
+      const item = AUDIO_DATA.find(x => x.id === id);
+      if (!item) return;
+      const state = getOrCreateAudio(item);
+      if (state.audio.duration) {
+        state.audio.currentTime = state.audio.duration * posRatio;
+      }
+    }
+
+    function setCardPlayingUI(id, isPlaying) {
+      const card = document.getElementById(`card_${id}`);
+      const playBtn = document.getElementById(`play_${id}`);
+      if (!card || !playBtn) return;
+
+      if (isPlaying) {
+        card.classList.add('playing');
+        playBtn.innerHTML = '<span>⏸ Pause</span>';
+        playBtn.style.background = 'var(--cyan)';
+        playBtn.style.color = '#06090e';
+      } else {
+        card.classList.remove('playing');
+        playBtn.innerHTML = '<span>▶ Play</span>';
+        playBtn.style.background = '';
+        playBtn.style.color = '';
+      }
+    }
+
+    function updateNowPlaying(name, id) {
+      const text = document.getElementById('nowPlayingText');
+      text.innerHTML = `<span class="playing-indicator"></span> ${name} <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--cyan);">(${id})</span>`;
+      document.getElementById('visOverlay').textContent = `ACTIVE: ${name}`;
+    }
+
+    function checkNowPlayingBanner() {
+      let playingCount = 0;
+      let lastActive = "";
+      audioState.forEach(st => {
+        if (st.isPlaying) {
+          playingCount++;
+          lastActive = st.item.name;
+        }
+      });
+
+      const text = document.getElementById('nowPlayingText');
+      if (playingCount === 0) {
+        text.textContent = "No active audio playback";
+        document.getElementById('visOverlay').textContent = "IDLE // READY";
+      } else if (playingCount === 1) {
+        text.innerHTML = `<span class="playing-indicator"></span> ${lastActive}`;
+        document.getElementById('visOverlay').textContent = `ACTIVE: ${lastActive}`;
+      } else {
+        text.innerHTML = `<span class="playing-indicator"></span> ${playingCount} sounds actively playing simultaneously`;
+        document.getElementById('visOverlay').textContent = `${playingCount} SIMULTANEOUS STREAMS ACTIVE`;
+      }
+    }
+
+    function stopAllSounds() {
+      audioState.forEach((state, id) => {
+        if (state.isPlaying) {
+          stopSound(id);
+        }
+      });
+      checkNowPlayingBanner();
+    }
+
+    // --- GAMEPLAY SCENARIO CONTROLLER ---
+    // Simulates dynamic game transitions identical to client/audio/audio_manager.gd
+
+    document.getElementById('btnSimNormal').addEventListener('click', () => {
+      stopAllSounds();
+      // Start Facility Ambience + Normal Gameplay Music
+      setTimeout(() => {
+        playSoundDirect('AMBIENCE_FACILITY_HUM');
+        playSoundDirect('MUSIC_NORMAL');
+      }, 100);
+    });
+
+    document.getElementById('btnSimBlackout').addEventListener('click', () => {
+      stopAllSounds();
+      // 1. Play Power Cut SFX + Stinger
+      playSoundDirect('SFX_POWER_CUT');
+      playSoundDirect('STINGER_BLACKOUT_START');
+      // 2. Start Blackout Drone & Tension Music
+      setTimeout(() => {
+        playSoundDirect('AMBIENCE_BLACKOUT_DRONE');
+        playSoundDirect('MUSIC_BLACKOUT');
+      }, 400);
+    });
+
+    document.getElementById('btnSimMeltdown').addEventListener('click', () => {
+      stopAllSounds();
+      // Meltdown Alarm Drone + Meltdown Siren Music
+      playSoundDirect('AMBIENCE_MELTDOWN_ALARM');
+      playSoundDirect('MUSIC_MELTDOWN');
+    });
+
+    document.getElementById('btnSimMeeting').addEventListener('click', () => {
+      stopAllSounds();
+      // Meeting Called Stinger
+      playSoundDirect('UI_MEETING_CALLED');
+      setTimeout(() => {
+        playSoundDirect('STINGER_MEETING');
+        // Tick loop
+        playSoundDirect('UI_VOTING_TICK');
+      }, 1200);
+    });
+
+    document.getElementById('btnSimCrewWin').addEventListener('click', () => {
+      stopAllSounds();
+      playSoundDirect('UI_CREW_VICTORY');
+      playSoundDirect('STINGER_VICTORY');
+    });
+
+    document.getElementById('btnSimImpWin').addEventListener('click', () => {
+      stopAllSounds();
+      playSoundDirect('UI_IMPOSTOR_VICTORY');
+      playSoundDirect('STINGER_DEFEAT');
+    });
+
+    document.getElementById('btnSimStop').addEventListener('click', stopAllSounds);
+    document.getElementById('btnGlobalStop').addEventListener('click', stopAllSounds);
+
+    function playSoundDirect(id) {
+      const item = AUDIO_DATA.find(x => x.id === id);
+      if (!item) return;
+      const state = getOrCreateAudio(item);
+      state.audio.currentTime = 0;
+      state.audio.play().then(() => {
+        state.isPlaying = true;
+        setCardPlayingUI(id, true);
+        checkNowPlayingBanner();
+      }).catch(e => console.error(e));
+    }
+
+    // --- BUS MIXER LISTENERS ---
+    document.getElementById('busMaster').addEventListener('input', (e) => {
+      initAudioContext();
+      const val = parseFloat(e.target.value);
+      masterGain.gain.value = val;
+      document.getElementById('valMaster').textContent = Math.round(val * 100) + '%';
+    });
+
+    ['Music', 'Ambience', 'SFX', 'UI'].forEach(bus => {
+      const slider = document.getElementById('bus' + bus);
+      const valText = document.getElementById('val' + bus);
+      slider.addEventListener('input', (e) => {
+        initAudioContext();
+        const val = parseFloat(e.target.value);
+        if (busGains[bus]) busGains[bus].gain.value = val;
+        valText.textContent = Math.round(val * 100) + '%';
+      });
+    });
+
+    // --- FILTER & SEARCH ---
+    let currentFilter = 'all';
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.getAttribute('data-filter');
+        renderCards(currentFilter, document.getElementById('soundSearch').value);
+      });
+    });
+
+    document.getElementById('soundSearch').addEventListener('input', (e) => {
+      renderCards(currentFilter, e.target.value);
+    });
+
+    // Initial render
+    renderCards();
+  </script>
+</body>
+</html>
