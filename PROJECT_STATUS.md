@@ -28,7 +28,7 @@
 |---|---|---|---|---|
 | **Member 1** | **Mayiz** | `member-1/backend-network` | `server_network_manager.gd`, `client_network_manager.gd`, `network_manager.gd`, room lifecycle, RPC dispatch, role assignment | 🟢 Merged to `main` (Steps 1–10) |
 | **Member 2** | **Abdul Qadir** | `member-2/gameplay-backend` | `task_manager.gd`, `blackout_manager.gd`, `blackout_recovery_manager.gd`, `impostor_objective_manager.gd`, `evidence_manager.gd`, `meeting_manager.gd`, `voting_manager.gd`, `meltdown_manager.gd` | 🟢 Core Backend Merged; 🟡 Gameplay Tuning & Edge-Case Hardening Active |
-| **Member 3** | **Aaliya** | `member-3/client-engine` | `client/player/` (controller, movement, prediction, state reconciliation), `map_manager`, dynamic vision-cone/lighting shader | 🟡 In Progress |
+| **Member 3** | **Aaliya** | `member-3/client-engine` | `client/player/` (controller, movement, prediction, state reconciliation), `map_manager`, dynamic vision-cone/lighting shader, elimination & corpse reporting, rematch loop | 🟢 Complete (Stages 1–25 Complete & 100% Tested) |
 | **Member 4** | **Ubaid** | `member-4/mini-games` | `client/interactions/mini_games/` (Crew tasks, prerequisite tasks, Meltdown emergency mini-games), input handling | 🟡 In Progress |
 | **Member 5** | **Shahzan** | `member-5/ui-frontend` | In-game HUD (`task_ui`, `blackout_ui`, `timer_ui`, `sabotage_ui`), meeting & voting screens, role reveal, game over | 🟡 In Progress |
 | **Member 6** | **Abubaker** | `member-6/game-design` | Balance configs (`shared/*_config.gd`), task specs, evidence rules, 9-room layout flow | 🟡 In Progress |
@@ -314,8 +314,23 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
   - Implemented 4 reusable VFX scenes and controllers: `VFXElectricalSparks` (burst electrical damage), `VFXCoolantSteam` (rising coolant vapor), `VFXAlarmStrobe` (crimson siren strobe flare), and `VFXMeltdownOverlay` (Layer 10 full-screen distortion controller scaling with Meltdown timer).
   - Completed 100% of Member 7 (Fatima) 2D Environment & Technical Art roadmap (Phases 1 through 7).
   - Authored automated test suite (`tests/test_vfx_shaders.gd`) and verification runner verifying all 15 shader, particle, and controller assertions with 100% pass rate.
-- **Breaking Changes / Contract Impacts:** None. All shaders and particle systems follow standard render layer sorting (Z=5 for Particles, Layer 10 for CanvasLayer, Layer 1/3 for props).
-- **Verification / Testing:** 15 automated checks passed via `scratch/verify_phase7.py` and `tests/test_vfx_shaders.gd`.
-
----
+### [2026-09-21] — Completed Member 3 (Aaliya) Stage 25: Master Integration, End-to-End 8-Player Match Loop & Final MVP Polish
+- **Author:** Aaliya (Member 3 — Lead Client & Gameplay Programmer)
+- **Branch / PR:** `member-3/client-engine` (PR #11)
+- **Modules Affected:**
+  - `client/player/` (`player_controller.gd`, `player_identity_visuals.gd`, `state_sync.gd`)
+  - `client/environment/` (`door_controller.gd`, `game_camera.gd`, `interactable_trigger.gd`, `map_manager.gd`, `spawn_manager.gd`, `player_corpse.gd`)
+  - `client/objectives/` (`objective_interactable.gd`, `multi_step_objective.gd`)
+  - `client/rendering/` (`directional_vision.gd`, blackout lighting)
+  - `client/ui/` (`meeting_voting_ui.gd`, `meltdown_hud.gd`, `game_over_ui.gd`, `evidence_dossier_ui.gd`, `objective_tracker.gd`)
+  - `scenes/` (`main.tscn`, `main.gd`, `player_corpse.tscn`, all 10 task stations)
+  - `tests/` (`test_master_e2e_match_loop.gd`, `test_kill_and_body_reporting.gd`, `test_task_stations.gd`, `test_return_to_lobby_rematch.gd`, `test_facility_map.gd`)
+  - `PROJECT_STATUS.md`
+- **Type of Change:** `Feature / Integration / Master Match Loop / Milestone Complete`
+- **Description:**
+  - Completed all 25 Stages of the Member 3 (Lead Client & Gameplay Programmer) Roadmap with 100% test pass rate.
+  - Implemented the master 8-player end-to-end integration test suite (`tests/test_master_e2e_match_loop.gd`) covering all 12 core match phases: Lobby ➔ Role Assignment ➔ Initial Tasks ➔ Blackout Sabotage ➔ Recovery Thresholds ➔ Evidence Dossier ➔ Proximity Kill ➔ Corpse Reporting ➔ Meeting/Voting ➔ Meltdown Protocol ➔ Crew Victory ➔ Return to Lobby / Rematch Loop.
+  - Verified server-authoritative integrity, zero client role/identity leakage, and clean memory/state reset across rematches.
+- **Breaking Changes / Contract Impacts:** None. Seamlessly connects to all backend RPC contracts and team members' UI/art/audio subsystems.
+- **Verification / Testing:** 25 automated master checks passed via `tests/test_master_e2e_match_loop.gd` and 241 tests passed across the master QA runner (`tests/run_all_tests.gd`).
 
