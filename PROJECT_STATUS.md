@@ -334,3 +334,18 @@ Whenever ANY change is made to the codebase or documentation, the modifying team
 - **Breaking Changes / Contract Impacts:** None. Seamlessly connects to all backend RPC contracts and team members' UI/art/audio subsystems.
 - **Verification / Testing:** 25 automated master checks passed via `tests/test_master_e2e_match_loop.gd` and 241 tests passed across the master QA runner (`tests/run_all_tests.gd`).
 
+---
+
+### [2026-09-25] — Repository Audit & Recovery Plan (docs/fix-plan/)
+- **Author:** Abubaker (Member 6 — Game Systems & Content Designer), prepared with Claude Code
+- **Branch / PR:** uncommitted on `main` working tree (to be moved to `member-6/game-design`)
+- **Modules Affected:** `docs/fix-plan/` (new: `README.md`, `00-audit.md`, `01-integration-contracts.md`, `member-1-backend-network.md` … `member-8-audio-qa.md`), `PROJECT_STATUS.md`
+- **Type of Change:** `Documentation / Process`
+- **Description:**
+  - Full audit of `main @ 379ed70` against `design.md` / `PRD.md`, including a headless Godot 4.3 import and a run of all 55 test suites: 45 pass with real assertions; `test_audio_manager` and `test_anti_cheat_roles` fail; 5 anti-cheat suites do not compile; 3 UI suites pass with zero assertions; `tests/run_all_tests.gd` executes no suites.
+  - Findings catalogued with IDs (C1–C9 critical, H1–H10, I1–I11, F1–F11, Q1–Q8, R1–R7) and owners in `docs/fix-plan/00-audit.md`. Headline issues: the Impostor is always the first player to connect (C1); blackout can be triggered at spawn through the sabotage path (C2); Meltdown can be reset (C3); the Member 5 HUD does not compile (C8); the game has no playable menu → world path (C7).
+  - Proposed decision record D1–D12 and a single integration contract (`01-integration-contracts.md`) for all cross-member RPCs, signals, IDs, config keys and node paths.
+  - One step-by-step guide per member with copy-paste agent prompts, sequenced in Waves 0–4.
+- **Breaking Changes / Contract Impacts:** Proposes contract v1 (new RPCs, removal of `RoundManager`/`SabotageManager` from the server flow, new `StationRegistry` and `BalanceConfig`). Nothing is changed in code yet; decisions D1–D12 must be ratified at kickoff.
+- **Verification / Testing:** Test results above were produced by running each suite with `Godot_v4.3-stable_win64_console.exe --headless --path . -s <suite>` on 2026-09-25. Earlier claims in this log of "241 tests passed" and "100% tested" could not be reproduced (see audit §0 and R4).
+
